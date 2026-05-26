@@ -110,11 +110,13 @@ clothing-fit-fe/
 
 ## 담당 (MVP)
 
-| 기능                              | 담당    |
-| --------------------------------- | ------- |
-| webview, fitting, closet, profile | 이지환  |
-| feed                              | 양희진  |
-| auth                              | 팀 협의 |
+| feature          | 담당   |
+| ---------------- | ------ |
+| WebView, Fitting | 이지환 |
+| Feed, Closet     | 양희진 |
+| Login, Homepage  | 김인수 |
+
+상세 스프린트·서포트 규칙: [docs/SPRINT_PLAN.md](./docs/SPRINT_PLAN.md)
 
 ---
 
