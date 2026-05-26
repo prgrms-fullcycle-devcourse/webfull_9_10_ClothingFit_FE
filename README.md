@@ -7,13 +7,13 @@
 
 ## 기술 스택
 
-| 구분 | 사용 |
-|------|------|
-| 프레임워크 | React Native, **Expo SDK 54**, **TypeScript** |
-| 라우팅 | Expo Router (`app/`) |
-| 스타일 | NativeWind (Tailwind CSS) |
-| API | Axios, TanStack Query, Orval |
-| 주요 기능 | WebView(쇼핑몰 COPY), SSE(피팅 진행), SecureStore(JWT) |
+| 구분       | 사용                                                   |
+| ---------- | ------------------------------------------------------ |
+| 프레임워크 | React Native, **Expo SDK 54**, **TypeScript**          |
+| 라우팅     | Expo Router (`app/`)                                   |
+| 스타일     | NativeWind (Tailwind CSS)                              |
+| API        | Axios, TanStack Query, Orval                           |
+| 주요 기능  | WebView(쇼핑몰 COPY), SSE(피팅 진행), SecureStore(JWT) |
 
 > 웹용 CRA/Vite가 아니라 **Expo + Metro**로 빌드하는 **앱 프로젝트**입니다.
 
@@ -31,12 +31,15 @@ npm start               # 개발 서버 → Expo Go (SDK 54) QR 스캔
 
 **Mock UI 뼈대** — 와이어 기준 화면·탭 연결, `src/mocks/` 데이터. [MOCK_SKELETON.md](./docs/MOCK_SKELETON.md)
 
-| 명령 | 설명 |
-|------|------|
-| `npm run android` | Android 에뮬레이터 |
-| `npm run ios` | iOS 시뮬레이터 |
-| `npm run lint` | ESLint |
+| 명령                   | 설명                    |
+| ---------------------- | ----------------------- |
+| `npm run android`      | Android 에뮬레이터      |
+| `npm run ios`          | iOS 시뮬레이터          |
+| `npm run lint`         | ESLint                  |
+| `npm run format`       | Prettier 전체 포맷      |
 | `npm run generate:api` | Orval (BE Swagger 필요) |
+
+**Git hooks (Husky)** — `git commit` 시 스테이징된 파일에 ESLint + Prettier 자동 실행. 최초 clone 후 `npm install` 필수.
 
 ---
 
@@ -80,22 +83,22 @@ clothing-fit-fe/
 
 ### 폴더 역할 요약
 
-| 폴더 | 설명 |
-|------|------|
-| **`app/`** | URL·탭·스택만 정의. 화면 본문은 `src/features/.../screens`에서 import |
-| **`src/features/`** | 기능별 코드. `api`, `hooks`, `components`, `screens`로 구분 |
-| **`src/components/`** | 여러 feature가 공유하는 UI |
-| **`src/lib/`** | HTTP, JWT 저장, 환경 변수 등 인프라 |
+| 폴더                  | 설명                                                                  |
+| --------------------- | --------------------------------------------------------------------- |
+| **`app/`**            | URL·탭·스택만 정의. 화면 본문은 `src/features/.../screens`에서 import |
+| **`src/features/`**   | 기능별 코드. `api`, `hooks`, `components`, `screens`로 구분           |
+| **`src/components/`** | 여러 feature가 공유하는 UI                                            |
+| **`src/lib/`**        | HTTP, JWT 저장, 환경 변수 등 인프라                                   |
 
 ### `app/` ↔ 기능 매핑
 
-| 탭·경로 | feature | 설명 |
-|---------|---------|------|
-| `(tabs)/explore` | `webview` | 이커머스 WebView, COPY, 영역 선택 |
-| `(tabs)/fitting` | `fitting`, `closet` | AI 피팅, 옷장 |
-| `(tabs)/feed` | `feed` | OOTD 그리드 · 좋아요 · 댓글 |
-| `(tabs)/profile` | `profile` | 마이페이지, 체형 정보 |
-| `(auth)/` | `auth` | 로그인 · 회원가입 |
+| 탭·경로          | feature             | 설명                              |
+| ---------------- | ------------------- | --------------------------------- |
+| `(tabs)/explore` | `webview`           | 이커머스 WebView, COPY, 영역 선택 |
+| `(tabs)/fitting` | `fitting`, `closet` | AI 피팅, 옷장                     |
+| `(tabs)/feed`    | `feed`              | OOTD 그리드 · 좋아요 · 댓글       |
+| `(tabs)/profile` | `profile`           | 마이페이지, 체형 정보             |
+| `(auth)/`        | `auth`              | 로그인 · 회원가입                 |
 
 ### 코딩 규칙 (팀)
 
@@ -107,11 +110,11 @@ clothing-fit-fe/
 
 ## 담당 (MVP)
 
-| 기능 | 담당 |
-|------|------|
-| webview, fitting, closet, profile | 이지환 |
-| feed | 양희진 |
-| auth | 팀 협의 |
+| 기능                              | 담당    |
+| --------------------------------- | ------- |
+| webview, fitting, closet, profile | 이지환  |
+| feed                              | 양희진  |
+| auth                              | 팀 협의 |
 
 ---
 
