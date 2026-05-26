@@ -2,11 +2,16 @@ import { Stack } from 'expo-router';
 
 export default function ProfileLayout() {
   return (
-    <Stack>
-      <Stack.Screen name="index" options={{ title: '마이' }} />
-      <Stack.Screen name="body" options={{ title: '체형 정보' }} />
-      <Stack.Screen name="fitting-history" options={{ title: '피팅 기록' }} />
-      <Stack.Screen name="settings" options={{ title: '설정' }} />
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="index" />
+      <Stack.Screen name="body" />
+      <Stack.Screen name="settings" />
+      <Stack.Screen name="notifications" />
+      <Stack.Screen name="followers" />
+      <Stack.Screen name="bookmarks" />
+      <Stack.Screen name="nickname" />
+      <Stack.Screen name="fitting-history" />
+      <Stack.Screen name="user/[userId]" />
     </Stack>
   );
 }

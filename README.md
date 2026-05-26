@@ -9,7 +9,7 @@
 
 | 구분 | 사용 |
 |------|------|
-| 프레임워크 | React Native, **Expo**, **TypeScript** |
+| 프레임워크 | React Native, **Expo SDK 54**, **TypeScript** |
 | 라우팅 | Expo Router (`app/`) |
 | 스타일 | NativeWind (Tailwind CSS) |
 | API | Axios, TanStack Query, Orval |
@@ -24,8 +24,12 @@
 ```bash
 npm install
 cp .env.example .env    # EXPO_PUBLIC_API_URL 입력
-npm start               # 개발 서버
+npm start               # 개발 서버 → Expo Go (SDK 54) QR 스캔
 ```
+
+> **Expo SDK 54** — App Store **Expo Go**와 호환됩니다. 시뮬레이터: `npm run ios` / `npm run android`.
+
+**Mock UI 뼈대** — 와이어 기준 화면·탭 연결, `src/mocks/` 데이터. [MOCK_SKELETON.md](./docs/MOCK_SKELETON.md)
 
 | 명령 | 설명 |
 |------|------|

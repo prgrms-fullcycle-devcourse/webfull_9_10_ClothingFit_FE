@@ -1,5 +1,5 @@
-import { PlaceholderScreen } from '@/components/blocks/placeholder-screen';
+import { FittingViewer3dScreen } from '@/features/fitting/screens/fitting-viewer-3d-screen';
 
 export default function FittingViewer3dRoute() {
-  return <PlaceholderScreen title="3D 뷰어" description="Expo GL + .glb 아바타" />;
+  return <FittingViewer3dScreen />;
 }

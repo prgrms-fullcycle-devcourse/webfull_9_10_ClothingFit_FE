@@ -1,8 +1,5 @@
-import { PlaceholderScreen } from '@/components/blocks/placeholder-screen';
-import { useLocalSearchParams } from 'expo-router';
+import { FeedPostDetailScreen } from '@/features/feed/screens/feed-post-detail-screen';
 
-export default function FeedPostRoute() {
-  const { postId } = useLocalSearchParams<{ postId: string }>();
-
-  return <PlaceholderScreen title="게시물 상세" description={`담당: 양희진 (post: ${postId ?? '-'})`} />;
+export default function FeedPostDetailRoute() {
+  return <FeedPostDetailScreen />;
 }

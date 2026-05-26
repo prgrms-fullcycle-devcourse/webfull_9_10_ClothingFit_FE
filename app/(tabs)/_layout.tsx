@@ -1,46 +1,57 @@
-import { SymbolView } from 'expo-symbols';
+import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
+import { View } from 'react-native';
 
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
-import { useClientOnlyValue } from '@/components/useClientOnlyValue';
+import { fonts } from '@/constants/theme';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const tint = Colors[colorScheme].tint;
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme].tint,
-        headerShown: useClientOnlyValue(false, true),
+        tabBarActiveTintColor: tint,
+        tabBarInactiveTintColor: '#9ca3af',
+        tabBarLabelStyle: { fontFamily: fonts.medium, fontSize: 11 },
+        headerShown: false,
       }}>
       <Tabs.Screen
-        name="fitting"
+        name="home"
         options={{
-          title: '피팅',
-          headerShown: false,
-          tabBarIcon: ({ color }) => (
-            <SymbolView name={{ ios: 'tshirt', android: 'checkroom', web: 'checkroom' }} tintColor={color} size={26} />
-          ),
+          title: '홈',
+          tabBarIcon: ({ color, size }) => <Ionicons name="home-outline" size={size} color={color} />,
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="closet"
         options={{
-          title: '쇼핑',
-          headerShown: false,
-          tabBarIcon: ({ color }) => (
-            <SymbolView name={{ ios: 'bag', android: 'shopping_bag', web: 'shopping_bag' }} tintColor={color} size={26} />
+          title: '옷장',
+          tabBarIcon: ({ color, size }) => <Ionicons name="shirt-outline" size={size} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="fitting"
+        options={{
+          title: 'AI 피팅',
+          tabBarIcon: ({ focused }) => (
+            <View
+              className={`items-center justify-center rounded-full ${focused ? 'bg-primary' : 'bg-gray-800'}`}
+              style={{ width: 52, height: 52, marginBottom: 8 }}>
+              <Ionicons name="body-outline" size={26} color="#fff" />
+            </View>
           ),
+          tabBarLabel: () => null,
         }}
       />
       <Tabs.Screen
         name="feed"
         options={{
-          title: '피드',
-          headerShown: false,
-          tabBarIcon: ({ color }) => (
-            <SymbolView name={{ ios: 'square.grid.2x2', android: 'grid_view', web: 'grid_view' }} tintColor={color} size={26} />
+          title: '커뮤니티',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="grid-outline" size={size} color={color} />
           ),
         }}
       />
@@ -48,10 +59,13 @@ export default function TabLayout() {
         name="profile"
         options={{
           title: '마이',
-          headerShown: false,
-          tabBarIcon: ({ color }) => (
-            <SymbolView name={{ ios: 'person', android: 'person', web: 'person' }} tintColor={color} size={26} />
-          ),
+          tabBarIcon: ({ color, size }) => <Ionicons name="person-outline" size={size} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="explore"
+        options={{
+          href: null,
         }}
       />
     </Tabs>

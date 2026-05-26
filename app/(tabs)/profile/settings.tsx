@@ -1,5 +1,5 @@
-import { PlaceholderScreen } from '@/components/blocks/placeholder-screen';
+import { ProfileSettingsScreen } from '@/features/profile/screens/profile-settings-screen';
 
 export default function ProfileSettingsRoute() {
-  return <PlaceholderScreen title="설정" description="알림·테마·로그아웃" />;
+  return <ProfileSettingsScreen />;
 }

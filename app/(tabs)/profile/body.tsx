@@ -1,5 +1,5 @@
-import { PlaceholderScreen } from '@/components/blocks/placeholder-screen';
+import { ProfileBodyScreen } from '@/features/profile/screens/profile-body-screen';
 
 export default function ProfileBodyRoute() {
-  return <PlaceholderScreen title="체형 정보" description="키·몸무게·치수 → 3D 아바타 기반" />;
+  return <ProfileBodyScreen />;
 }

@@ -1,36 +1,34 @@
 import { router } from 'expo-router';
-import { Pressable, StyleSheet } from 'react-native';
+import { Pressable, View } from 'react-native';
 
-import { PlaceholderScreen } from '@/components/blocks/placeholder-screen';
-import { Text, View } from '@/components/Themed';
+import { ScreenShell } from '@/components/blocks/screen-shell';
+import { Text } from '@/components/ui/text';
+import { useCopySession } from '@/features/webview/hooks/use-copy-session';
 
-/** 영역 선택 + ✓ — 스크래핑·BE 전송 로직은 use-scrape-on-copy 등에 구현 예정 */
 export function ClothingCropScreen() {
+  const { markCategoryDone, session } = useCopySession();
+
   return (
-    <View style={styles.container}>
-      <PlaceholderScreen title="의류 영역 선택" description="드래그 박스 + 카테고리별 DOM 스크래핑" />
-      <Pressable style={styles.confirmButton} onPress={() => router.back()}>
-        <Text style={styles.confirmText}>✓ (임시 — 메인으로 복귀)</Text>
-      </Pressable>
-    </View>
+    <ScreenShell
+      title="의류 영역 선택"
+      right={
+        <Pressable
+          onPress={() => {
+            if (session.activeCategory) {
+              markCategoryDone(session.activeCategory);
+            }
+            router.back();
+          }}>
+          <Text className="text-accent font-sans-bold">완료</Text>
+        </Pressable>
+      }>
+      <View className="flex-1 bg-black/80 items-center justify-center">
+        <View className="w-[85%] aspect-[3/4] border-2 border-white rounded-lg items-center justify-center">
+          <View className="absolute inset-0 border border-white/30" style={{ opacity: 0.5 }} />
+          <Text className="text-white font-sans">crop 영역 (mock)</Text>
+        </View>
+        <Text className="text-white mt-6 font-sans">모서리를 드래그하여 크기 조절 (TODO)</Text>
+      </View>
+    </ScreenShell>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  confirmButton: {
-    position: 'absolute',
-    top: 56,
-    right: 16,
-    backgroundColor: '#22c55e',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 8,
-  },
-  confirmText: {
-    color: '#fff',
-    fontWeight: '600',
-  },
-});
