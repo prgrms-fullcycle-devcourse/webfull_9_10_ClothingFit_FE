@@ -1,8 +1,8 @@
-import axios from 'axios';
+import { AxiosRequestConfig, create } from 'axios';
 
 import { env } from './env';
 
-export const apiClient = axios.create({
+export const axiosInstance = create({
   baseURL: env.apiUrl || undefined,
   timeout: 30_000,
   headers: {
@@ -10,11 +10,17 @@ export const apiClient = axios.create({
   },
 });
 
+export const apiClient = async (config: AxiosRequestConfig) => {
+  const response = await axiosInstance(config);
+
+  return response.data;
+};
+
 /** JWT 연동 시 apiClient.interceptors.request에 Bearer 추가 */
 export function setAuthToken(token: string | null) {
   if (token) {
-    apiClient.defaults.headers.common.Authorization = `Bearer ${token}`;
+    axiosInstance.defaults.headers.common.Authorization = `Bearer ${token}`;
   } else {
-    delete apiClient.defaults.headers.common.Authorization;
+    delete axiosInstance.defaults.headers.common.Authorization;
   }
 }

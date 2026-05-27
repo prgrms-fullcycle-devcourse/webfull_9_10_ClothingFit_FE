@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { defineConfig } from 'orval';
 
 /** BE Swagger URL 확정 후 input 경로 수정 */
