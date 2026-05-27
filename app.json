@@ -9,10 +9,10 @@
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "app.clothingfit"
+      "bundleIdentifier": "com.decode.clothingfit"
     },
     "android": {
-      "package": "app.clothingfit",
+      "package": "com.decode.clothingfit",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -43,7 +43,11 @@
       "typedRoutes": true
     },
     "extra": {
-      "router": {}
-    }
+      "router": {},
+      "eas": {
+        "projectId": "0b4dc7e4-4e8b-496a-9f19-0f809d53605c"
+      }
+    },
+    "owner": "decode-cf"
   }
 }
