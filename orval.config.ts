@@ -5,7 +5,7 @@ import { defineConfig } from 'orval';
 export default defineConfig({
   clothingFit: {
     input: {
-      target: process.env.OPENAPI_URL ?? 'http://localhost:3000/api-docs/json',
+      target: process.env.OPENAPI_URL ?? 'http://localhost:3000/openapi.json',
     },
     output: {
       mode: 'tags-split',
