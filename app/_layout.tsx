@@ -5,6 +5,11 @@ import {
   NotoSans_500Medium,
   NotoSans_700Bold,
 } from '@expo-google-fonts/noto-sans';
+import {
+  NotoSansKR_400Regular,
+  NotoSansKR_500Medium,
+  NotoSansKR_700Bold,
+} from '@expo-google-fonts/noto-sans-kr';
 import { useFonts } from 'expo-font';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { Stack } from 'expo-router';
@@ -28,6 +33,9 @@ export default function RootLayout() {
     NotoSans_400Regular,
     NotoSans_500Medium,
     NotoSans_700Bold,
+    NotoSansKR_400Regular,
+    NotoSansKR_500Medium,
+    NotoSansKR_700Bold,
   });
 
   useEffect(() => {
