@@ -2,34 +2,34 @@ import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 import { View } from 'react-native';
 
-import Colors from '@/constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { fonts } from '@/constants/theme';
+import { colors, fonts } from '@/constants/theme';
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-  const tint = Colors[colorScheme].tint;
-
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: tint,
+        tabBarActiveTintColor: colors.accent,
         tabBarInactiveTintColor: '#9ca3af',
         tabBarLabelStyle: { fontFamily: fonts.medium, fontSize: 11 },
         headerShown: false,
-      }}>
+      }}
+    >
       <Tabs.Screen
         name="home"
         options={{
           title: '홈',
-          tabBarIcon: ({ color, size }) => <Ionicons name="home-outline" size={size} color={color} />,
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="home-outline" size={size} color={color} />
+          ),
         }}
       />
       <Tabs.Screen
         name="closet"
         options={{
           title: '옷장',
-          tabBarIcon: ({ color, size }) => <Ionicons name="shirt-outline" size={size} color={color} />,
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="shirt-outline" size={size} color={color} />
+          ),
         }}
       />
       <Tabs.Screen
@@ -39,7 +39,8 @@ export default function TabLayout() {
           tabBarIcon: ({ focused }) => (
             <View
               className={`items-center justify-center rounded-full ${focused ? 'bg-primary' : 'bg-gray-800'}`}
-              style={{ width: 52, height: 52, marginBottom: 8 }}>
+              style={{ width: 52, height: 52, marginBottom: 8 }}
+            >
               <Ionicons name="body-outline" size={26} color="#fff" />
             </View>
           ),
@@ -59,7 +60,9 @@ export default function TabLayout() {
         name="profile"
         options={{
           title: '마이',
-          tabBarIcon: ({ color, size }) => <Ionicons name="person-outline" size={size} color={color} />,
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="person-outline" size={size} color={color} />
+          ),
         }}
       />
       <Tabs.Screen

@@ -1,6 +1,8 @@
 import '../global.css';
+import '@expo/browser-polyfill';
 
 import {
+  NotoSans_100Thin,
   NotoSans_400Regular,
   NotoSans_500Medium,
   NotoSans_700Bold,
@@ -12,7 +14,8 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
 
-import { useColorScheme } from '@/components/useColorScheme';
+import { useColorScheme } from 'react-native';
+
 import { AppProviders } from '@/providers/app-providers';
 
 export { ErrorBoundary } from 'expo-router';
@@ -25,6 +28,7 @@ SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
+    NotoSans_100Thin,
     NotoSans_400Regular,
     NotoSans_500Medium,
     NotoSans_700Bold,

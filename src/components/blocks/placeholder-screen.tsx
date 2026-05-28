@@ -1,36 +1,23 @@
-import { StyleSheet } from 'react-native';
+import { View } from 'react-native';
 
-import { Text, View } from '@/components/Themed';
+import { Text } from '@/components/ui/text';
 
-type PlaceholderScreenProps = {
+type Props = {
   title: string;
   description?: string;
 };
 
-export function PlaceholderScreen({ title, description }: PlaceholderScreenProps) {
+export function PlaceholderScreen({ title, description }: Props) {
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>{title}</Text>
-      {description ? <Text style={styles.description}>{description}</Text> : null}
+    <View className="flex-1 items-center justify-center p-6">
+      <Text variant="subtitle" className="mb-2 text-center">
+        {title}
+      </Text>
+      {description ? (
+        <Text variant="caption" className="text-center">
+          {description}
+        </Text>
+      ) : null}
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 24,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 8,
-  },
-  description: {
-    fontSize: 14,
-    textAlign: 'center',
-    opacity: 0.7,
-  },
-});
