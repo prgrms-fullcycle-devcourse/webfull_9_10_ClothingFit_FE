@@ -1,5 +1,5 @@
 import '../global.css';
-import '@expo/browser-polyfill';
+// import '@expo/browser-polyfill';
 
 import {
   NotoSans_100Thin,

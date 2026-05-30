@@ -4,7 +4,7 @@ import { ScreenHeader } from '@/components/ui/screen-header';
 import { cn } from '@/utils/cn';
 
 type ScreenShellProps = {
-  title: string;
+  title?: string;
   showBack?: boolean;
   right?: React.ReactNode;
   children: React.ReactNode;
@@ -13,7 +13,7 @@ type ScreenShellProps = {
 };
 
 export function ScreenShell({
-  title,
+  title = '',
   showBack = true,
   right,
   children,
