@@ -1,5 +1,4 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 
 import { Image } from '@/components/ui/image';
@@ -7,17 +6,16 @@ import { Text } from '@/components/ui/text';
 import { AVATARS, GENDERS, type Gender } from '@/features/auth/constants/avatars';
 import { cn } from '@/utils/cn';
 
-export function AvatarStep() {
-  const [gender, setGender] = useState<Gender>('male');
-  const [selectedId, setSelectedId] = useState(AVATARS.male[0].id);
+type AvatarStepProps = {
+  gender: Gender;
+  selectedId: string;
+  onChangeGender: (next: Gender) => void;
+  onSelectId: (id: string) => void;
+};
 
+export function AvatarStep({ gender, selectedId, onChangeGender, onSelectId }: AvatarStepProps) {
   const avatars = AVATARS[gender];
   const selected = avatars.find((a) => a.id === selectedId) ?? avatars[0];
-
-  const changeGender = (next: Gender) => {
-    setGender(next);
-    setSelectedId(AVATARS[next][0].id); // 성별 바뀌면 첫 체형으로
-  };
 
   return (
     <View className="flex-1 gap-4">
@@ -28,7 +26,7 @@ export function AvatarStep() {
           return (
             <Pressable
               key={g.value}
-              onPress={() => changeGender(g.value)}
+              onPress={() => onChangeGender(g.value)}
               className={cn('rounded-full px-8 py-2', active && 'bg-primary')}
             >
               <Text className={cn('font-sans-medium', active ? 'text-white' : 'text-muted')}>
@@ -55,7 +53,7 @@ export function AvatarStep() {
             return (
               <Pressable
                 key={a.id}
-                onPress={() => setSelectedId(a.id)}
+                onPress={() => onSelectId(a.id)}
                 className={cn(
                   'h-28 w-20 overflow-hidden rounded-xl border bg-surface',
                   active ? 'border-primary' : 'border-border',
