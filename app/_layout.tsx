@@ -1,5 +1,5 @@
 import '../global.css';
-import '@expo/browser-polyfill';
+// import '@expo/browser-polyfill';
 
 import {
   NotoSans_100Thin,
@@ -11,11 +11,12 @@ import { useFonts } from 'expo-font';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import 'react-native-reanimated';
 
 import { useColorScheme } from 'react-native';
 
+import { Splash } from '@/components/blocks/splash';
 import { AppProviders } from '@/providers/app-providers';
 
 export { ErrorBoundary } from 'expo-router';
@@ -33,6 +34,8 @@ export default function RootLayout() {
     NotoSans_500Medium,
     NotoSans_700Bold,
   });
+  // 폰트 로드 후 커스텀 스플래시('CLOTHING - FIT')를 잠깐 보여준다.
+  const [splashDone, setSplashDone] = useState(false);
 
   useEffect(() => {
     if (error) throw error;
@@ -41,11 +44,17 @@ export default function RootLayout() {
   useEffect(() => {
     if (loaded) {
       SplashScreen.hideAsync();
+      const timer = setTimeout(() => setSplashDone(true), 1500);
+      return () => clearTimeout(timer);
     }
   }, [loaded]);
 
   if (!loaded) {
     return null;
+  }
+
+  if (!splashDone) {
+    return <Splash />;
   }
 
   return (
