@@ -25,6 +25,11 @@ export const MOCK_POPULAR_USERS = [
   { id: 'pu3', nickname: 'ootd_daily', followers: 920 },
 ];
 
+export const MOCK_WORN_PRODUCTS = [
+  { id: 'wp1', brand: '버니즈', name: '버니포켓버니즈팬츠', size: 'L' },
+  { id: 'wp2', brand: '무신사 스탠다드', name: '오버핏 셔츠', size: 'M' },
+];
+
 export const MOCK_CLOSET_ARCHIVES = [
   {
     id: 'closet-1',
