@@ -15,9 +15,11 @@ import 'react-native-reanimated';
 
 import { Platform, useColorScheme } from 'react-native';
 import { initializeKakaoSDK } from '@react-native-kakao/core'; // 카카오 SDK 초기화
+import { GoogleSignin } from '@react-native-google-signin/google-signin'; // 구글 SDK 설정
 import Constants, { ExecutionEnvironment } from 'expo-constants';
 
 import { Splash } from '@/components/blocks/splash';
+import { GOOGLE_WEB_CLIENT_ID } from '@/features/auth/constants/google';
 import { AppProviders } from '@/providers/app-providers';
 
 export { ErrorBoundary } from 'expo-router';
@@ -34,6 +36,11 @@ const isExpoGo = Constants.executionEnvironment === ExecutionEnvironment.StoreCl
 if (Platform.OS !== 'web' && !isExpoGo) {
   // .catch로 네이티브 모듈 부재 시 비동기 거부(UnhandledPromiseRejection)도 방어
   initializeKakaoSDK('cd5580996c386e91f2565dbad3bc2854').catch(() => {}); // TODO: 키를 env/상수로
+  try {
+    GoogleSignin.configure({ webClientId: GOOGLE_WEB_CLIENT_ID });
+  } catch {
+    // 네이티브 모듈(RNGoogleSignin) 미포함 빌드에서 앱 전체 크래시 방지 — 새 빌드 필요
+  }
 }
 
 export default function RootLayout() {
