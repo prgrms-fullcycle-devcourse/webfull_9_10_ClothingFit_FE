@@ -39,7 +39,21 @@
       ],
       "expo-secure-store",
       "expo-font",
-      "expo-asset"
+      "expo-asset",
+      [
+        "@react-native-kakao/core",
+        {
+          "nativeAppKey": "cd5580996c386e91f2565dbad3bc2854"
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "extraMavenRepos": ["https://devrepo.kakao.com/nexus/content/groups/public/"]
+          }
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

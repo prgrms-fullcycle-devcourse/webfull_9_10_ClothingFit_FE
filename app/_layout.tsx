@@ -1,6 +1,5 @@
 import '../global.css';
 // import '@expo/browser-polyfill';
-
 import {
   NotoSans_100Thin,
   NotoSans_400Regular,
@@ -14,7 +13,9 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
 import 'react-native-reanimated';
 
-import { useColorScheme } from 'react-native';
+import { Platform, useColorScheme } from 'react-native';
+import { initializeKakaoSDK } from '@react-native-kakao/core'; // 카카오 SDK 초기화
+import Constants, { ExecutionEnvironment } from 'expo-constants';
 
 import { Splash } from '@/components/blocks/splash';
 import { AppProviders } from '@/providers/app-providers';
@@ -26,6 +27,14 @@ export const unstable_settings = {
 };
 
 SplashScreen.preventAutoHideAsync();
+
+// 카카오 네이티브 모듈은 웹/Expo Go에 없어 크래시하므로, 네이티브 dev/standalone 빌드에서만 초기화한다.
+// (해당 환경에서는 카카오 로그인이 동작하지 않지만 나머지 화면은 정상 동작)
+const isExpoGo = Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
+if (Platform.OS !== 'web' && !isExpoGo) {
+  // .catch로 네이티브 모듈 부재 시 비동기 거부(UnhandledPromiseRejection)도 방어
+  initializeKakaoSDK('cd5580996c386e91f2565dbad3bc2854').catch(() => {}); // TODO: 키를 env/상수로
+}
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
