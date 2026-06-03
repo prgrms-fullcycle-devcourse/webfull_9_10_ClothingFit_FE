@@ -6,6 +6,7 @@
     "@expo-google-fonts/noto-sans": "^0.4.2",
     "@expo/browser-polyfill": "^1.0.1",
     "@expo/vector-icons": "^15.0.3",
+    "@react-native-google-signin/google-signin": "^16.1.2",
     "@react-native-kakao/core": "^2.4.5",
     "@react-native-kakao/user": "^2.4.5",
     "@react-three/drei": "^10.7.7",

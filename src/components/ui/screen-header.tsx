@@ -15,7 +15,10 @@ export function ScreenHeader({ title, showBack = true, right }: ScreenHeaderProp
     <View className="flex-row items-center justify-between px-4 py-3 border-b border-border bg-white">
       <View className="flex-row items-center gap-2 flex-1">
         {showBack ? (
-          <Pressable onPress={() => router.back()} hitSlop={8}>
+          <Pressable
+            onPress={() => (router.canGoBack() ? router.back() : router.replace('/(tabs)/home'))}
+            hitSlop={8}
+          >
             <Ionicons name="chevron-back" size={24} color="#111827" />
           </Pressable>
         ) : (

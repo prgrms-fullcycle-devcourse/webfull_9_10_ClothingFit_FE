@@ -5,26 +5,28 @@ import { ScreenShell } from '@/components/blocks/screen-shell';
 import { Image } from '@/components/ui/image';
 import { SocialButton } from '@/components/ui/social-button';
 import { Text } from '@/components/ui/text';
+import { useGoogleLogin } from '@/features/auth/hooks/use-google-login';
 import { useKakaoLogin } from '@/features/auth/hooks/use-kakao-login';
 
-export function LoginScreen() {
-  const { signIn, isLoading } = useKakaoLogin();
+type LoginResult = { isNewUser: boolean };
 
-  const handleKakaoLogin = async () => {
+export function LoginScreen() {
+  const { signIn: kakaoSignIn, isLoading: kakaoLoading } = useKakaoLogin();
+  const { signIn: googleSignIn, isLoading: googleLoading } = useGoogleLogin();
+  const busy = kakaoLoading || googleLoading;
+
+  // 카카오·구글 공통 처리: 로그인 → 신규/기존 분기, 취소는 조용히 무시
+  const handleLogin = async (signIn: () => Promise<LoginResult | null>) => {
     try {
       const data = await signIn();
-      // 신규 유저면 체형/아바타 등록, 기존 유저면 홈으로
+      if (!data) return; // 사용자가 취소
       router.replace(data.isNewUser ? '/(auth)/register' : '/(tabs)/home');
     } catch (e) {
-      // 사용자가 카카오 로그인 창을 닫은 경우는 조용히 무시
       const message = e instanceof Error ? e.message : '';
       if (/cancel/i.test(message)) return;
       Alert.alert('로그인 실패', message || '잠시 후 다시 시도해 주세요.');
     }
   };
-
-  // TODO: 구글 로그인 연동 (현재는 mock — 바로 체형 입력으로 이동)
-  const handleGoogleLogin = () => router.push('/(auth)/register');
 
   return (
     <ScreenShell noHeader>
@@ -51,8 +53,16 @@ export function LoginScreen() {
             마지막 사용 로그인
           </Text>
           <View className="gap-4">
-            <SocialButton provider="kakao" onPress={handleKakaoLogin} disabled={isLoading} />
-            <SocialButton provider="google" onPress={handleGoogleLogin} disabled={isLoading} />
+            <SocialButton
+              provider="kakao"
+              onPress={() => handleLogin(kakaoSignIn)}
+              disabled={busy}
+            />
+            <SocialButton
+              provider="google"
+              onPress={() => handleLogin(googleSignIn)}
+              disabled={busy}
+            />
           </View>
         </View>
       </View>
