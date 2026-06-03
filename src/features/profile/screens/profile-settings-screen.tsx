@@ -1,8 +1,9 @@
 import { router } from 'expo-router';
-import { Pressable, View } from 'react-native';
+import { Alert, Pressable, View } from 'react-native';
 
 import { ScreenShell } from '@/components/blocks/screen-shell';
 import { Text } from '@/components/ui/text';
+import { useLogout } from '@/features/auth/hooks/use-logout';
 
 const sections = [
   {
@@ -24,6 +25,15 @@ const sections = [
 ];
 
 export function ProfileSettingsScreen() {
+  const { logout, isLoading: loggingOut } = useLogout();
+
+  const handleLogout = () => {
+    Alert.alert('로그아웃', '로그아웃 하시겠어요?', [
+      { text: '취소', style: 'cancel' },
+      { text: '로그아웃', style: 'destructive', onPress: () => logout() },
+    ]);
+  };
+
   return (
     <ScreenShell title="설정">
       <View className="flex-1 px-4">
@@ -41,14 +51,15 @@ export function ProfileSettingsScreen() {
                   if (item === '체형 정보 수정') router.push('/(tabs)/profile/body');
                   if (item === '관심글 목록') router.push('/(tabs)/profile/bookmarks');
                   if (item === '팔로잉 & 팔로워') router.push('/(tabs)/profile/followers');
-                }}>
+                }}
+              >
                 <Text>{item}</Text>
               </Pressable>
             ))}
           </View>
         ))}
-        <Pressable className="py-4" onPress={() => router.replace('/(auth)/login')}>
-          <Text className="font-sans-medium">로그아웃</Text>
+        <Pressable className="py-4" onPress={handleLogout} disabled={loggingOut}>
+          <Text className="font-sans-medium">{loggingOut ? '로그아웃 중...' : '로그아웃'}</Text>
         </Pressable>
         <Pressable className="py-2">
           <Text className="text-red-500 font-sans">회원탈퇴</Text>

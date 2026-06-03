@@ -1,14 +1,32 @@
 import { router } from 'expo-router';
-import { View } from 'react-native';
+import { Alert, View } from 'react-native';
 
 import { ScreenShell } from '@/components/blocks/screen-shell';
 import { Image } from '@/components/ui/image';
 import { SocialButton } from '@/components/ui/social-button';
 import { Text } from '@/components/ui/text';
+import { useGoogleLogin } from '@/features/auth/hooks/use-google-login';
+import { useKakaoLogin } from '@/features/auth/hooks/use-kakao-login';
+
+type LoginResult = { isNewUser: boolean };
 
 export function LoginScreen() {
-  // TODO: 실제 로그인 로직 연동 (현재는 mock — 바로 체형 입력으로 이동)
-  const handleLogin = () => router.push('/(auth)/register');
+  const { signIn: kakaoSignIn, isLoading: kakaoLoading } = useKakaoLogin();
+  const { signIn: googleSignIn, isLoading: googleLoading } = useGoogleLogin();
+  const busy = kakaoLoading || googleLoading;
+
+  // 카카오·구글 공통 처리: 로그인 → 신규/기존 분기, 취소는 조용히 무시
+  const handleLogin = async (signIn: () => Promise<LoginResult | null>) => {
+    try {
+      const data = await signIn();
+      if (!data) return; // 사용자가 취소
+      router.replace(data.isNewUser ? '/(auth)/register' : '/(tabs)/home');
+    } catch (e) {
+      const message = e instanceof Error ? e.message : '';
+      if (/cancel/i.test(message)) return;
+      Alert.alert('로그인 실패', message || '잠시 후 다시 시도해 주세요.');
+    }
+  };
 
   return (
     <ScreenShell noHeader>
@@ -35,8 +53,16 @@ export function LoginScreen() {
             마지막 사용 로그인
           </Text>
           <View className="gap-4">
-            <SocialButton provider="kakao" onPress={handleLogin} />
-            <SocialButton provider="google" onPress={handleLogin} />
+            <SocialButton
+              provider="kakao"
+              onPress={() => handleLogin(kakaoSignIn)}
+              disabled={busy}
+            />
+            <SocialButton
+              provider="google"
+              onPress={() => handleLogin(googleSignIn)}
+              disabled={busy}
+            />
           </View>
         </View>
       </View>
