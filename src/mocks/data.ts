@@ -293,5 +293,36 @@ export const MOCK_MEASUREMENTS = {
 
 export const MOCK_FITTING_ITEMS = [
   { id: 'fi1', brand: '버니즈', name: '버니포켓버니즈팬츠', category: 'bottom', size: 'L' },
-  { id: 'fi2', brand: '무신사', name: '오버핏 셔츠', category: 'top', size: 'M' },
+  { id: 'fi2', brand: '무신사 스탠다드', name: '오버핏 셔츠', category: 'top', size: 'M' },
+];
+
+export const MOCK_OTHER_POSTS = [
+  {
+    id: 'op1',
+    imageUrl:
+      'https://img.magnific.com/free-photo/shot-lion-yawning_181624-24002.jpg?semt=ais_hybrid&w=740&q=80',
+    likeCount: 0,
+    isLiked: true,
+  },
+  {
+    id: 'op2',
+    imageUrl:
+      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTuD53e3eGmayjeMNwQWBeD54Na9cFIZkwGAw&s',
+    likeCount: 2,
+    isLiked: false,
+  },
+  {
+    id: 'op3',
+    imageUrl:
+      'https://img.magnific.com/free-photo/shot-lion-yawning_181624-24002.jpg?semt=ais_hybrid&w=740&q=80',
+    likeCount: 0,
+    isLiked: true,
+  },
+  {
+    id: 'op4',
+    imageUrl:
+      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTuD53e3eGmayjeMNwQWBeD54Na9cFIZkwGAw&s',
+    likeCount: 2,
+    isLiked: false,
+  },
 ];
