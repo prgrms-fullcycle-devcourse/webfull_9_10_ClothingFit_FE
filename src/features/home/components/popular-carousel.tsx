@@ -1,7 +1,5 @@
-import { router } from 'expo-router';
 import { useState } from 'react';
 import {
-  Pressable,
   ScrollView,
   useWindowDimensions,
   View,
@@ -9,20 +7,12 @@ import {
   type NativeSyntheticEvent,
 } from 'react-native';
 
-import { MOCK_WORN_PRODUCTS } from '@/mocks/data';
+import type { PopularPost } from '@/features/home/api/home';
 import { cn } from '@/utils/cn';
 
 import { PopularPostCard } from './popular-post-card';
 
-type Post = {
-  id: string;
-  nickname: string;
-  createdAt: string;
-  likes: number;
-  imageColor: string;
-};
-
-export function PopularCarousel({ posts }: { posts: Post[] }) {
+export function PopularCarousel({ posts }: { posts: PopularPost[] }) {
   const { width } = useWindowDimensions();
   const [index, setIndex] = useState(0);
 
@@ -39,22 +29,17 @@ export function PopularCarousel({ posts }: { posts: Post[] }) {
         onMomentumScrollEnd={onScrollEnd}
       >
         {posts.map((post, i) => (
-          <Pressable
-            key={post.id}
-            style={{ width }}
-            className="px-4"
-            onPress={() => router.push(`/(tabs)/feed/${post.id}`)}
-          >
-            <PopularPostCard post={post} products={MOCK_WORN_PRODUCTS} index={i} />
-          </Pressable>
+          <View key={i} style={{ width }} className="px-4">
+            <PopularPostCard post={post} />
+          </View>
         ))}
       </ScrollView>
 
       {/* 페이지 점 */}
       <View className="flex-row justify-center gap-2" style={{ marginTop: 22 }}>
-        {posts.map((post, i) => (
+        {posts.map((_, i) => (
           <View
-            key={post.id}
+            key={i}
             className={cn('h-2 w-2 rounded-full', i === index ? 'bg-primary' : 'bg-border')}
           />
         ))}
