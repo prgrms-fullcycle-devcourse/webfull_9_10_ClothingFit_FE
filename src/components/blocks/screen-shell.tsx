@@ -1,10 +1,11 @@
+import { View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ScreenHeader } from '@/components/ui/screen-header';
 import { cn } from '@/utils/cn';
 
 type ScreenShellProps = {
-  title: string;
+  title?: string;
   showBack?: boolean;
   right?: React.ReactNode;
   children: React.ReactNode;
@@ -15,7 +16,7 @@ type ScreenShellProps = {
 };
 
 export function ScreenShell({
-  title,
+  title = '',
   showBack = true,
   right,
   children,
@@ -28,9 +29,7 @@ export function ScreenShell({
       {!noHeader && (
         <ScreenHeader title={title} showBack={showBack} right={right} onBack={onBack} />
       )}
-      <SafeAreaView className={cn('flex-1', className)} edges={['bottom']}>
-        {children}
-      </SafeAreaView>
+      <View className={cn('flex-1', className)}>{children}</View>
     </SafeAreaView>
   );
 }

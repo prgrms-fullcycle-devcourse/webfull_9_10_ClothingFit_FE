@@ -10,28 +10,12 @@ export const axiosInstance = axios.create({
   },
 });
 
-/** Orval mutator — (url, RequestInit) → { data, status, headers } */
-export const apiClient = async <T>(url: string, options?: RequestInit): Promise<T> => {
-  const method = (options?.method ?? 'GET').toUpperCase();
-  const config: AxiosRequestConfig = {
-    url,
-    method,
-    signal: options?.signal ?? undefined,
-    headers: options?.headers as AxiosRequestConfig['headers'],
-  };
-
-  if (options?.body && method !== 'GET' && method !== 'HEAD') {
-    config.data = typeof options.body === 'string' ? JSON.parse(options.body) : options.body;
-  }
-
-  const response = await axiosInstance.request(config);
-
-  return {
-    data: response.data,
-    status: response.status,
-    headers: response.headers,
-  } as T;
-};
+/**
+ * Orval 생성 코드 및 수작업 API가 공통으로 쓰는 mutator.
+ * config 한 개를 받아 응답 본문(response.data)만 Promise<T>로 반환한다.
+ */
+export const apiClient = <T = unknown>(config: AxiosRequestConfig): Promise<T> =>
+  axiosInstance(config).then((response) => response.data as T);
 
 /** JWT 연동 시 axiosInstance interceptor에 Bearer 추가 */
 export function setAuthToken(token: string | null) {

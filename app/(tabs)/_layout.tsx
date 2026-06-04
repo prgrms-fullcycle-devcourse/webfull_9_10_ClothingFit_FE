@@ -3,19 +3,15 @@ import { router, Tabs } from 'expo-router';
 import { View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import Colors from '@/constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { fonts } from '@/constants/theme';
+import { colors, fonts } from '@/constants/theme';
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-  const tint = Colors[colorScheme].tint;
   const insets = useSafeAreaInsets();
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: tint,
+        tabBarActiveTintColor: colors.accent,
         tabBarInactiveTintColor: '#9ca3af',
         tabBarLabelStyle: { fontFamily: fonts.medium, fontSize: 10, marginBottom: 2 },
         // 아이콘+라벨이 안 잘리게 탭바 높이를 충분히 확보 (하단 safe-area 반영)

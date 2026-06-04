@@ -1,0 +1,21 @@
+import { Pressable } from 'react-native';
+
+import { Text } from '@/components/ui/text';
+
+type Props = {
+  isFollowing: boolean;
+  onPress: () => void;
+};
+
+export function FollowButton({ isFollowing, onPress }: Props) {
+  return (
+    <Pressable
+      onPress={onPress}
+      className={`px-4 py-1.5 rounded-full ${isFollowing ? 'bg-accent' : 'bg-primary'}`}
+    >
+      <Text className="text-white text-sm font-sans-medium">
+        {isFollowing ? '팔로잉' : '팔로우'}
+      </Text>
+    </Pressable>
+  );
+}
