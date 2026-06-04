@@ -6,10 +6,12 @@ import { ActivityIndicator, Pressable, ScrollView, View } from 'react-native';
 
 import { ScreenShell } from '@/components/blocks/screen-shell';
 import { Text } from '@/components/ui/text';
+import {
+  useGetHomePopularPosts,
+  useGetHomeRecommendedInfluencers,
+} from '@/api/generated/endpoints/home/home';
 import { HotUserCard } from '@/features/home/components/hot-user-card';
 import { PopularCarousel } from '@/features/home/components/popular-carousel';
-import { usePopularPosts } from '@/features/home/hooks/use-popular-posts';
-import { useRecommendedInfluencers } from '@/features/home/hooks/use-recommended-influencers';
 
 // HOT 카드 배경 placeholder 색 (이미지 로딩 전/없을 때 자리)
 const HOT_BG = ['#fca5a5', '#bfdbfe', '#99f6e4'];
@@ -23,7 +25,7 @@ function QuerySection<T>({
   query,
   children,
 }: {
-  query: UseQueryResult<T[]>;
+  query: UseQueryResult<T[], unknown>;
   children: (data: T[]) => ReactNode;
 }) {
   if (query.isLoading) {
@@ -51,8 +53,8 @@ function QuerySection<T>({
 }
 
 export function HomeScreen() {
-  const posts = usePopularPosts();
-  const influencers = useRecommendedInfluencers();
+  const posts = useGetHomePopularPosts();
+  const influencers = useGetHomeRecommendedInfluencers();
 
   return (
     <ScreenShell noHeader>

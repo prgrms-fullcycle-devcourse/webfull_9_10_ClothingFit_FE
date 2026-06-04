@@ -4,8 +4,8 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 
 import { setAuthToken } from '@/lib/api-client';
+import { deleteAuthLogout } from '@/api/generated/endpoints/auth/auth';
 import { clearTokens, getRefreshToken } from '@/lib/auth-storage';
-import { postLogout } from '../api/logout';
 import { isNativeSocialAvailable } from '../lib/native-social';
 
 /**
@@ -23,7 +23,7 @@ export function useLogout() {
       // 서버에 refresh token 무효화 요청 (로컬 삭제 전에 읽어야 함, best-effort)
       const refreshToken = await getRefreshToken();
       if (refreshToken) {
-        await postLogout(refreshToken).catch(() => {}); // 네트워크 실패해도 로컬 로그아웃 진행
+        await deleteAuthLogout({ refreshToken }).catch(() => {}); // 네트워크 실패해도 로컬 로그아웃 진행
       }
 
       // 앱 세션 정리
