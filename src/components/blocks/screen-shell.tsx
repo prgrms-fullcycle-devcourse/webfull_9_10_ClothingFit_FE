@@ -1,3 +1,4 @@
+import { View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ScreenHeader } from '@/components/ui/screen-header';
@@ -23,9 +24,7 @@ export function ScreenShell({
   return (
     <SafeAreaView className="flex-1 bg-white" edges={['top']}>
       {!noHeader && <ScreenHeader title={title} showBack={showBack} right={right} />}
-      <SafeAreaView className={cn('flex-1', className)} edges={['bottom']}>
-        {children}
-      </SafeAreaView>
+      <View className={cn('flex-1', className)}>{children}</View>
     </SafeAreaView>
   );
 }
