@@ -1,16 +1,18 @@
-import { useMemo, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { Image, PanResponder, View, type LayoutChangeEvent } from 'react-native';
 
 type Rect = { x: number; y: number; w: number; h: number };
+type Corner = 'tl' | 'tr' | 'bl' | 'br';
 
 type Props = {
   imageUri: string;
-  /** 외부에서 현재 크롭 영역을 읽고 싶으면 ref.current?.getRect() */
-  initialFraction?: Rect; // 0~1 범위, 기본은 중앙 60%
+  /** 0~1 범위 초기 크롭 영역, 기본은 중앙 60% */
+  initialFraction?: Rect;
   onChange?: (rect: Rect, container: { width: number; height: number }) => void;
 };
 
-const HANDLE = 24; // 모서리 핸들 hit-size (시각적 크기 + hit slop)
+const HANDLE = 28; // 모서리 핸들 시각 크기
+const HIT_SLOP = { top: 12, bottom: 12, left: 12, right: 12 }; // 터치 여유 (잡기 쉽게)
 const MIN_SIZE = 40;
 
 export function ClothingCropCanvas({
@@ -20,61 +22,72 @@ export function ClothingCropCanvas({
 }: Props) {
   const [container, setContainer] = useState({ w: 0, h: 0 });
   const [rect, setRect] = useState<Rect>({ x: 0, y: 0, w: 0, h: 0 });
+
+  // 제스처 핸들러에서 읽을 최신 값들 (리렌더와 무관하게 항상 최신)
+  const containerRef = useRef({ w: 0, h: 0 });
+  const rectRef = useRef<Rect>({ x: 0, y: 0, w: 0, h: 0 });
+  const startRef = useRef<Rect>({ x: 0, y: 0, w: 0, h: 0 });
   const initRef = useRef(false);
+  const onChangeRef = useRef(onChange);
+  onChangeRef.current = onChange;
+
+  const clamp = (r: Rect): Rect => {
+    const c = containerRef.current;
+    let { x, y, w, h } = r;
+    w = Math.max(MIN_SIZE, Math.min(w, c.w));
+    h = Math.max(MIN_SIZE, Math.min(h, c.h));
+    x = Math.max(0, Math.min(x, c.w - w));
+    y = Math.max(0, Math.min(y, c.h - h));
+    return { x, y, w, h };
+  };
+
+  const applyRect = (r: Rect) => {
+    const next = clamp(r);
+    rectRef.current = next;
+    setRect(next);
+    onChangeRef.current?.(next, { width: containerRef.current.w, height: containerRef.current.h });
+  };
 
   const handleLayout = (e: LayoutChangeEvent) => {
     const { width, height } = e.nativeEvent.layout;
+    containerRef.current = { w: width, h: height };
     setContainer({ w: width, h: height });
     if (!initRef.current && width > 0 && height > 0) {
-      const r = {
+      initRef.current = true;
+      applyRect({
         x: initialFraction.x * width,
         y: initialFraction.y * height,
         w: initialFraction.w * width,
         h: initialFraction.h * height,
-      };
-      setRect(r);
-      onChange?.(r, { width, height });
-      initRef.current = true;
+      });
     }
   };
 
-  const clamp = (r: Rect): Rect => {
-    let { x, y, w, h } = r;
-    w = Math.max(MIN_SIZE, Math.min(w, container.w));
-    h = Math.max(MIN_SIZE, Math.min(h, container.h));
-    x = Math.max(0, Math.min(x, container.w - w));
-    y = Math.max(0, Math.min(y, container.h - h));
-    return { x, y, w, h };
-  };
-
-  const startRef = useRef<Rect>({ x: 0, y: 0, w: 0, h: 0 });
-
-  const moveResponder = useMemo(
-    () =>
-      PanResponder.create({
-        onStartShouldSetPanResponder: () => true,
-        onPanResponderGrant: () => {
-          startRef.current = rect;
-        },
-        onPanResponderMove: (_, g) => {
-          const next = clamp({
-            ...startRef.current,
-            x: startRef.current.x + g.dx,
-            y: startRef.current.y + g.dy,
-          });
-          setRect(next);
-          onChange?.(next, { width: container.w, height: container.h });
-        },
-      }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [rect, container.w, container.h],
-  );
-
-  const resizeResponder = (corner: 'tl' | 'tr' | 'bl' | 'br') =>
+  // ⚠️ PanResponder는 컴포넌트 수명 동안 "한 번만" 생성한다.
+  // 매 렌더마다 다시 만들면 (New Architecture에서) 진행 중인 터치를 놓쳐 드래그가 멈춘다.
+  const moveResponder = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: () => true,
       onPanResponderGrant: () => {
-        startRef.current = rect;
+        startRef.current = rectRef.current;
+      },
+      onPanResponderMove: (_, g) => {
+        applyRect({
+          ...startRef.current,
+          x: startRef.current.x + g.dx,
+          y: startRef.current.y + g.dy,
+        });
+      },
+    }),
+  ).current;
+
+  const makeResizeResponder = (corner: Corner) =>
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: () => true,
+      onPanResponderGrant: () => {
+        startRef.current = rectRef.current;
       },
       onPanResponderMove: (_, g) => {
         let { x, y, w, h } = startRef.current;
@@ -91,17 +104,22 @@ export function ClothingCropCanvas({
           x += g.dx;
           w -= g.dx;
           h += g.dy;
-        } else if (corner === 'br') {
+        } else {
           w += g.dx;
           h += g.dy;
         }
-        const next = clamp({ x, y, w, h });
-        setRect(next);
-        onChange?.(next, { width: container.w, height: container.h });
+        applyRect({ x, y, w, h });
       },
     });
 
-  const corners: { key: 'tl' | 'tr' | 'bl' | 'br'; style: object }[] = [
+  const resizeResponders = useRef<Record<Corner, ReturnType<typeof PanResponder.create>>>({
+    tl: makeResizeResponder('tl'),
+    tr: makeResizeResponder('tr'),
+    bl: makeResizeResponder('bl'),
+    br: makeResizeResponder('br'),
+  }).current;
+
+  const corners: { key: Corner; style: object }[] = [
     { key: 'tl', style: { left: rect.x - HANDLE / 2, top: rect.y - HANDLE / 2 } },
     { key: 'tr', style: { left: rect.x + rect.w - HANDLE / 2, top: rect.y - HANDLE / 2 } },
     { key: 'bl', style: { left: rect.x - HANDLE / 2, top: rect.y + rect.h - HANDLE / 2 } },
@@ -112,7 +130,7 @@ export function ClothingCropCanvas({
     <View className="flex-1 bg-black" onLayout={handleLayout}>
       <Image source={{ uri: imageUri }} style={{ flex: 1 }} resizeMode="contain" />
 
-      {/* 4개의 darken 마스크로 외곽을 어둡게 (간단 구현) */}
+      {/* 4개의 darken 마스크로 외곽을 어둡게 */}
       {container.w > 0 && (
         <>
           <View
@@ -160,7 +178,7 @@ export function ClothingCropCanvas({
             pointerEvents="none"
           />
 
-          {/* 크롭 사각형 (드래그 가능) */}
+          {/* 크롭 사각형 (안쪽 드래그 → 이동) */}
           <View
             {...moveResponder.panHandlers}
             style={{
@@ -174,16 +192,19 @@ export function ClothingCropCanvas({
             }}
           />
 
-          {/* 모서리 핸들 */}
+          {/* 모서리 핸들 (드래그 → 크기 조절) */}
           {corners.map(({ key, style }) => (
             <View
               key={key}
-              {...resizeResponder(key).panHandlers}
+              {...resizeResponders[key].panHandlers}
+              hitSlop={HIT_SLOP}
               style={{
                 position: 'absolute',
                 width: HANDLE,
                 height: HANDLE,
                 backgroundColor: '#2563eb',
+                borderWidth: 2,
+                borderColor: '#fff',
                 borderRadius: HANDLE / 2,
                 ...style,
               }}

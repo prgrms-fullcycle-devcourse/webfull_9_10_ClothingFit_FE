@@ -8,13 +8,14 @@ import { Text } from '@/components/ui/text';
 import { cn } from '@/utils/cn';
 
 import { CategorySidebar } from '../components/category-sidebar';
-import { MallSelectorBar } from '../components/mall-selector-bar';
+import { MallDropdown } from '../components/mall-dropdown';
+import { ScanOverlay } from '../components/scan-overlay';
 import { ShopWebView, type ShopWebViewHandle } from '../components/shop-webview';
 import { Toast } from '../components/toast';
 import type { CategoryId } from '../constants/categories';
-import { getMall, type MallId } from '../constants/malls';
+import { getMall, isScrapeSupported, type MallId } from '../constants/malls';
 import { useCopySession } from '../hooks/use-copy-session';
-import { useScrape } from '../hooks/use-scrape';
+import { handleScrapeWebViewMessage, startScrape } from '../hooks/use-scrape';
 import { useWebViewCapture } from '../hooks/use-webview-capture';
 import { setPendingScrape } from '../store/pending-scrape-store';
 
@@ -28,12 +29,11 @@ export function ExploreBrowserScreen() {
     setSidebarVisible,
     toggleDeleteMode,
     changeMall,
-  } = useCopySession('29cm');
+  } = useCopySession('musinsa');
 
   const webRef = useRef<ShopWebViewHandle>(null);
   const captureContainerRef = useRef<View>(null);
   const { capture } = useWebViewCapture();
-  const { startScrape, handleWebViewMessage } = useScrape();
 
   const mall = getMall(session.mallId);
   const [currentUrl, setCurrentUrl] = useState(mall.mobileHomeUrl ?? mall.homeUrl);
@@ -51,16 +51,23 @@ export function ExploreBrowserScreen() {
   const handleCategoryPress = (categoryId: CategoryId) => {
     const slot = session.slots[categoryId];
     if (session.deleteMode) {
+      // 삭제 모드에선 연속 삭제를 위해 사이드바를 열어둔다
       if (slot.status === 'done') clearCategory(categoryId);
       return;
     }
     selectCategory(categoryId);
+    // 카테고리 선택 시 사이드바 자동 닫기 (선택 후 바로 캡처하기 편하게)
+    setSidebarVisible(false);
   };
 
   const handleCopyPress = useCallback(async () => {
     if (busy) return;
     if (!session.activeCategory) {
       Alert.alert('카테고리 선택 필요', '우측 사이드바에서 캡처할 카테고리를 먼저 선택해 주세요.');
+      return;
+    }
+    if (!isScrapeSupported(session.mallId)) {
+      setToast('이 쇼핑몰은 COPY·스크래핑 준비 중이에요.');
       return;
     }
 
@@ -80,13 +87,23 @@ export function ExploreBrowserScreen() {
       return;
     }
 
-    // 2) 백그라운드 스크래핑 시작 (Promise만 만들고 await는 crop에서)
+    // 2) 스크래핑 시작.
+    //    ⚠️ crop 화면으로 router.push 하면 이 WebView가 백그라운드로 가면서
+    //    JS 타이머(setInterval)가 throttle 되어 inject 폴링이 수십 초로 늘어진다.
+    //    그래서 WebView가 아직 포그라운드인 "지금" 스크래핑이 끝나길 기다린 뒤
+    //    crop으로 이동한다. (resolve/ reject 모두 그대로 crop에 전달)
     const scrapePromise = startScrape({
       mallId: session.mallId,
       inject: (script) => webRef.current?.injectJavaScript(script),
+      timeoutMs: 15000,
     });
+    // reject로 인한 unhandled rejection 경고 방지 (실제 처리는 crop에서)
+    scrapePromise.catch(() => {});
 
-    // 3) pending store에 컨텍스트 저장 + crop으로 이동
+    // 3) WebView가 살아있는 동안 스크래핑 완료를 기다린다 (throttle 회피)
+    await scrapePromise.catch(() => undefined);
+
+    // 4) pending store에 컨텍스트 저장 + crop으로 이동
     setPendingScrape({
       category: session.activeCategory,
       capturedUri,
@@ -102,18 +119,19 @@ export function ExploreBrowserScreen() {
     session.mallId,
     session.sidebarVisible,
     capture,
-    startScrape,
     setSidebarVisible,
   ]);
 
   const handleGenerate = () => {
+    if (!canGenerate) {
+      setToast('모자·아우터·상의·하의·신발 중 최소 1개를 채워주세요.');
+      return;
+    }
     router.push('/(tabs)/fitting/confirm');
   };
 
   return (
     <SafeAreaView className="flex-1 bg-white" edges={['top']}>
-      <MallSelectorBar activeMallId={session.mallId} onSelect={handleMallSelect} />
-
       <View className="flex-row items-center gap-2 px-3 py-2 border-b border-border bg-white">
         <Pressable
           onPress={() => router.replace('/(tabs)/home')}
@@ -122,6 +140,7 @@ export function ExploreBrowserScreen() {
         >
           <Ionicons name="close" size={22} color="#111827" />
         </Pressable>
+        <MallDropdown activeMallId={session.mallId} onSelect={handleMallSelect} />
         <Pressable
           onPress={() => canGoBack && webRef.current?.goBack()}
           hitSlop={6}
@@ -148,13 +167,14 @@ export function ExploreBrowserScreen() {
       <View className="flex-1">
         <View ref={captureContainerRef} collapsable={false} className="flex-1">
           <ShopWebView
+            key={session.mallId}
             ref={webRef}
             uri={mall.mobileHomeUrl ?? mall.homeUrl}
             onUrlChange={(url, back) => {
               setCurrentUrl(url);
               setCanGoBack(back);
             }}
-            onScrapeMessage={handleWebViewMessage}
+            onScrapeMessage={handleScrapeWebViewMessage}
           />
         </View>
 
@@ -169,14 +189,19 @@ export function ExploreBrowserScreen() {
 
       <Toast message={toast ?? ''} visible={!!toast} onHide={() => setToast(null)} />
 
+      {/* COPY 직후 WebView 자동 스크롤을 가리는 로딩 오버레이 (게이지+단계 문구 자동) */}
+      <ScanOverlay visible={busy} />
+
       <SafeAreaView edges={['bottom']} className="bg-white border-t border-border">
-        <View className="flex-row gap-2 p-3">
+        <View className="flex-row gap-2 px-3 py-2">
           <Pressable
             onPress={handleCopyPress}
-            disabled={!session.activeCategory || busy}
+            disabled={!session.activeCategory || busy || !isScrapeSupported(session.mallId)}
             className={cn(
               'flex-1 h-12 rounded-xl items-center justify-center',
-              session.activeCategory && !busy ? 'bg-primary' : 'bg-gray-300',
+              session.activeCategory && !busy && isScrapeSupported(session.mallId)
+                ? 'bg-primary'
+                : 'bg-gray-300',
             )}
           >
             <Text className="text-white font-sans-bold tracking-widest">

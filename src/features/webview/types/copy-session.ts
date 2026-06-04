@@ -3,12 +3,36 @@ import type { MallId } from '../constants/malls';
 
 export type CategorySlotStatus = 'empty' | 'done';
 
+/** 구매 가능한 사이즈 옵션 1개 (라벨 + 품절 여부) */
+export type SizeOption = {
+  label: string;
+  soldOut: boolean;
+};
+
+/** measurements / sizeTable 출처 */
+export type MeasurementSource = 'actual' | 'image' | 'reference';
+
+/** sizeTable 전체의 데이터 출처 (COPY 시점) */
+export type SizeTableSource = 'actual' | 'html' | 'image' | 'reference';
+
 export type CategorySlot = {
   status: CategorySlotStatus;
   /** WebView에서 캡처한 의류 영역 이미지 (file:// or data:) */
   imageUri?: string;
-  /** inject 스크래핑 결과 (사이즈표) — 없을 수도 있음 */
+  /** 상품명 (스크래핑 제목) */
+  title?: string;
+  /** 선택한 사이즈의 측정값 (cm) */
   measurements?: Record<string, number>;
+  /** measurements가 actual-size/HTML 실측인지, 기준표 seed 추정인지 */
+  measurementSource?: MeasurementSource;
+  /** 사용자가 고른 사이즈 라벨 (M, L 등) */
+  selectedSize?: string;
+  /** 구매 가능한 사이즈 옵션 (무신사 options API). confirm에서 선택용 */
+  sizeOptions?: SizeOption[];
+  /** 사이즈별 cm. actual-size · HTML · 기준표 seed */
+  sizeTable?: Record<string, Record<string, number>>;
+  /** sizeTable이 어디서 채워졌는지 */
+  sizeTableSource?: SizeTableSource;
   /** COPY 시점의 상품 페이지 URL */
   sourceUrl?: string;
 };
@@ -26,7 +50,13 @@ export type CopySession = {
 
 export type SaveSlotPayload = {
   imageUri: string;
+  title?: string;
   measurements?: Record<string, number>;
+  measurementSource?: MeasurementSource;
+  selectedSize?: string;
+  sizeOptions?: SizeOption[];
+  sizeTable?: Record<string, Record<string, number>>;
+  sizeTableSource?: SizeTableSource;
   sourceUrl?: string;
 };
 
@@ -39,7 +69,7 @@ export function createEmptyCopySession(mallId: MallId): CopySession {
   return {
     mallId,
     activeCategory: null,
-    sidebarVisible: true,
+    sidebarVisible: false,
     deleteMode: false,
     slots,
   };

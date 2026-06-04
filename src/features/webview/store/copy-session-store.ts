@@ -1,7 +1,7 @@
 import type { MallId } from '../constants/malls';
 import { createEmptyCopySession, type CopySession } from '../types/copy-session';
 
-let sharedSession = createEmptyCopySession('29cm');
+let sharedSession = createEmptyCopySession('musinsa');
 const listeners = new Set<() => void>();
 
 export function getCopySession() {

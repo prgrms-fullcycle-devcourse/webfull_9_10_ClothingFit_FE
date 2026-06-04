@@ -1,4 +1,4 @@
-export type MallId = 'musinsa' | '29cm' | 'zigzag';
+export type MallId = 'musinsa';
 
 export type Mall = {
   id: MallId;
@@ -10,28 +10,23 @@ export type Mall = {
   mobileHomeUrl?: string;
 };
 
+// 현재 타깃은 무신사 단일 몰. (29CM/지그재그는 추후 재도입 가능)
 export const MALLS: Mall[] = [
   {
     id: 'musinsa',
     label: '무신사',
     shortLabel: 'MU',
     homeUrl: 'https://www.musinsa.com',
-    mobileHomeUrl: 'https://m.musinsa.com',
-  },
-  {
-    id: '29cm',
-    label: '29CM',
-    shortLabel: '29',
-    homeUrl: 'https://www.29cm.co.kr',
-  },
-  {
-    id: 'zigzag',
-    label: '지그재그',
-    shortLabel: 'Z',
-    homeUrl: 'https://zigzag.kr',
+    /** m.musinsa.com — WebView에서 403 등 차단 빈번 → www 우선 */
+    mobileHomeUrl: 'https://www.musinsa.com',
   },
 ];
 
 export function getMall(id: MallId): Mall {
   return MALLS.find((m) => m.id === id) ?? MALLS[0];
+}
+
+/** inject 스크래핑 지원 몰 */
+export function isScrapeSupported(mallId: MallId): boolean {
+  return mallId === 'musinsa';
 }

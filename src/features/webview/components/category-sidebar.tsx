@@ -27,50 +27,35 @@ export function CategorySidebar({
 }: CategorySidebarProps) {
   const { sidebarVisible, activeCategory, slots, deleteMode } = session;
 
-  // 접힌 상태: 활성 카테고리(없으면 첫 카테고리) 1개 + < 토글
+  // 접힌 상태: 토글 버튼(<)만. 우측 세로 중앙에 고정.
   if (!sidebarVisible) {
-    const visibleCat = activeCategory
-      ? CATEGORIES.find((c) => c.id === activeCategory)
-      : CATEGORIES[0];
-    const slot = visibleCat ? slots[visibleCat.id] : undefined;
-
     return (
-      <View className="absolute right-2 top-3 flex-row items-start gap-1" pointerEvents="box-none">
+      <View className="absolute right-2 top-0 bottom-0 justify-center" pointerEvents="box-none">
         <Pressable
           onPress={onToggle}
           hitSlop={6}
-          className="bg-white rounded-l-xl py-2 px-1 border border-gray-200 shadow"
+          className="bg-white rounded-l-xl py-2.5 px-1.5 border border-gray-200 shadow items-center"
         >
           <Ionicons name="chevron-back" size={18} color="#111827" />
+          <DragHandle />
         </Pressable>
-        {visibleCat && (
-          <Pressable
-            onPress={onToggle}
-            className="w-14 h-14 rounded-xl bg-white border-2 border-primary items-center justify-center overflow-hidden shadow"
-          >
-            {slot?.imageUri ? (
-              <Image source={{ uri: slot.imageUri }} className="w-full h-full" resizeMode="cover" />
-            ) : (
-              <Text className="text-[10px] font-sans-medium">{visibleCat.label}</Text>
-            )}
-          </Pressable>
-        )}
       </View>
     );
   }
 
-  // 펼친 상태: 카테고리 5개 + 생성
+  // 펼친 상태: 토글 버튼 + 카테고리 5개 + 생성. 우측 세로 중앙에 고정.
   return (
     <View
-      className="absolute right-2 top-3 bottom-3 flex-row items-start gap-1"
+      className="absolute right-2 top-0 bottom-0 flex-row items-center gap-1"
       pointerEvents="box-none"
     >
       <Pressable
         onPress={onToggle}
         hitSlop={6}
-        className="bg-white rounded-l-xl py-2 px-1 border border-gray-200 mt-1 shadow"
+        className="bg-white rounded-l-xl py-2 px-1.5 border border-gray-200 shadow items-center"
       >
         <Ionicons name="chevron-forward" size={18} color="#111827" />
+        <DragHandle />
       </Pressable>
 
       <View className="w-16 bg-white rounded-2xl border border-gray-200 p-1.5 gap-1.5 shadow">
@@ -120,6 +105,17 @@ export function CategorySidebar({
           <Text className="text-white text-xs font-sans-bold">생성</Text>
         </Pressable>
       </View>
+    </View>
+  );
+}
+
+/** 드래그 핸들 모양의 점 3개 (디자인 요소). */
+function DragHandle() {
+  return (
+    <View className="flex-row gap-0.5 mt-1.5">
+      <View className="w-1 h-1 rounded-full bg-gray-300" />
+      <View className="w-1 h-1 rounded-full bg-gray-300" />
+      <View className="w-1 h-1 rounded-full bg-gray-300" />
     </View>
   );
 }

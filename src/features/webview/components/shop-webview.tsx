@@ -63,6 +63,8 @@ export const ShopWebView = forwardRef<ShopWebViewHandle, ShopWebViewProps>(funct
         originWhitelist={['*']}
         startInLoadingState={false}
         setSupportMultipleWindows={false}
+        // iOS: 웹페이지 안에서 왼쪽 엣지 스와이프로 웹 방문기록 뒤로/앞으로 (Android는 무시됨)
+        allowsBackForwardNavigationGestures
         onNavigationStateChange={handleNavStateChange}
         onMessage={handleMessage}
         onLoadStart={() => {

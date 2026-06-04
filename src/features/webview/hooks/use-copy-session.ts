@@ -8,7 +8,8 @@ import {
   setCopySession,
   subscribeCopySession,
 } from '../store/copy-session-store';
-import type { SaveSlotPayload } from '../types/copy-session';
+import type { MeasurementSource, SaveSlotPayload } from '../types/copy-session';
+import { resolveSlotMeasurements } from '../utils/resolve-slot-measurements';
 
 export function useCopySession(_initialMallId?: MallId) {
   const session = useSyncExternalStore(subscribeCopySession, getCopySession, getCopySession);
@@ -48,23 +49,61 @@ export function useCopySession(_initialMallId?: MallId) {
         [categoryId]: {
           status: 'done',
           imageUri: payload.imageUri,
+          title: payload.title,
           measurements: payload.measurements,
+          measurementSource: payload.measurementSource,
+          selectedSize: payload.selectedSize,
+          sizeOptions: payload.sizeOptions,
+          sizeTable: payload.sizeTable,
+          sizeTableSource: payload.sizeTableSource,
           sourceUrl: payload.sourceUrl,
         },
       },
       activeCategory: null,
+      deleteMode: false,
     });
   }, []);
 
-  /** Mock 용 — 실제 inject 결과 들어오기 전 임시 */
-  const markCategoryDone = useCallback(
-    (categoryId: CategoryId) => {
-      saveSlot(categoryId, {
-        imageUri: 'https://placehold.co/120x160/png',
-        measurements: { shoulder: 48, chest: 52 },
+  // confirm 화면에서 사이즈만 변경
+  const setSlotSize = useCallback(
+    (
+      categoryId: CategoryId,
+      sizeName: string,
+      measurements?: Record<string, number>,
+      measurementSource?: MeasurementSource,
+    ) => {
+      const prev = getCopySession();
+      const slot = prev.slots[categoryId];
+      if (slot.status !== 'done') return;
+
+      let resolvedMeasurements = measurements;
+      let resolvedSource = measurementSource;
+
+      if (!resolvedMeasurements) {
+        const resolved = resolveSlotMeasurements(
+          categoryId,
+          sizeName,
+          slot.sizeTable,
+          slot.sizeTableSource,
+        );
+        resolvedMeasurements = resolved.measurements;
+        resolvedSource = resolved.source;
+      }
+
+      setCopySession({
+        ...prev,
+        slots: {
+          ...prev.slots,
+          [categoryId]: {
+            ...slot,
+            selectedSize: sizeName,
+            measurements: resolvedMeasurements,
+            measurementSource: resolvedSource,
+          },
+        },
       });
     },
-    [saveSlot],
+    [],
   );
 
   const clearCategory = useCallback((categoryId: CategoryId) => {
@@ -85,8 +124,13 @@ export function useCopySession(_initialMallId?: MallId) {
   const changeMall = useCallback((mallId: MallId) => {
     const prev = getCopySession();
     if (prev.mallId === mallId) return;
-    // 몰만 바꾸고 슬롯은 유지할지 정책 필요. 우선 슬롯도 리셋(요구사항 모호).
-    resetCopySessionStore(mallId);
+    // 몰만 변경 — 이미 캡처한 슬롯은 유지
+    setCopySession({
+      ...prev,
+      mallId,
+      activeCategory: null,
+      deleteMode: false,
+    });
   }, []);
 
   const resetSession = useCallback((mallId?: MallId) => {
@@ -110,7 +154,7 @@ export function useCopySession(_initialMallId?: MallId) {
     toggleSidebar,
     setSidebarVisible,
     saveSlot,
-    markCategoryDone, // mock (Phase 2에서 inject 결과로 대체)
+    setSlotSize,
     clearCategory,
     toggleDeleteMode,
     changeMall,
