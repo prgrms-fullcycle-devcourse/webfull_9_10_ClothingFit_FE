@@ -2,14 +2,14 @@
 
 ## app/ — 라우트
 
-| 경로 | 설명 |
-|------|------|
-| `(auth)/login` | 로그인 |
-| `(tabs)/fitting` | 가상 피팅 · 옷장 |
-| `(tabs)/explore` | WebView COPY (①~⑥) |
-| `(tabs)/explore/crop` | 영역 선택 + ✓ |
-| `(tabs)/feed` | OOTD (양희진) |
-| `(tabs)/profile` | 마이 · 체형 |
+| 경로                  | 설명               |
+| --------------------- | ------------------ |
+| `(auth)/login`        | 로그인             |
+| `(tabs)/fitting`      | 가상 피팅 · 옷장   |
+| `(tabs)/explore`      | WebView COPY (①~⑥) |
+| `(tabs)/explore/crop` | 영역 선택 + ✓      |
+| `(tabs)/feed`         | OOTD (양희진)      |
+| `(tabs)/profile`      | 마이 · 체형        |
 
 ## src/features/webview — COPY 플로우
 
@@ -23,4 +23,4 @@
 
 - `app/**/*.tsx`: default export, Screen import만
 - feature 간 import: `@/features/...` 또는 `@/components/...`
-- Orval 생성물: `src/types/generated/`
+- Orval 생성물: `src/api/generated/` (endpoints·schemas, 직접 수정 금지 / `npm run generate:api`로 재생성)
