@@ -7,7 +7,7 @@ import {
   type NativeSyntheticEvent,
 } from 'react-native';
 
-import type { GetHomePopularPosts200Item as PopularPost } from '@/api/generated/schemas';
+import type { PopularPost } from '@/features/home/api';
 import { cn } from '@/utils/cn';
 
 import { PopularPostCard } from './popular-post-card';

@@ -3,8 +3,8 @@ import { logout as kakaoLogout } from '@react-native-kakao/user';
 import { router } from 'expo-router';
 import { useState } from 'react';
 
+import { deleteAuthLogout } from '@/features/auth/api';
 import { setAuthToken } from '@/lib/api-client';
-import { deleteAuthLogout } from '@/api/generated/endpoints/auth/auth';
 import { clearTokens, getRefreshToken } from '@/lib/auth-storage';
 import { isNativeSocialAvailable } from '../lib/native-social';
 

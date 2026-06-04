@@ -1,8 +1,7 @@
 import { login } from '@react-native-kakao/user';
 import { useState } from 'react';
 
-import { postAuthKakao } from '@/api/generated/endpoints/auth/auth';
-import type { KakaoLoginResponseData } from '@/api/generated/schemas';
+import { postAuthKakao, type LoginData } from '@/features/auth/api';
 import { setAuthToken } from '@/lib/api-client';
 import { setTokens } from '@/lib/auth-storage';
 import { isNativeSocialAvailable } from '../lib/native-social';
@@ -10,7 +9,7 @@ import { isNativeSocialAvailable } from '../lib/native-social';
 export function useKakaoLogin() {
   const [isLoading, setIsLoading] = useState(false);
 
-  const signIn = async (): Promise<KakaoLoginResponseData> => {
+  const signIn = async (): Promise<LoginData> => {
     if (!isNativeSocialAvailable) {
       throw new Error('카카오 로그인은 개발 빌드에서만 동작합니다. (Expo Go·웹 미지원)');
     }

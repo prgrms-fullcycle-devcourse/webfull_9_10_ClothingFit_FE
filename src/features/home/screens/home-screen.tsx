@@ -6,10 +6,7 @@ import { ActivityIndicator, Pressable, ScrollView, View } from 'react-native';
 
 import { ScreenShell } from '@/components/blocks/screen-shell';
 import { Text } from '@/components/ui/text';
-import {
-  useGetHomePopularPosts,
-  useGetHomeRecommendedInfluencers,
-} from '@/api/generated/endpoints/home/home';
+import { usePopularPosts, useRecommendedInfluencers } from '@/features/home/api';
 import { HotUserCard } from '@/features/home/components/hot-user-card';
 import { PopularCarousel } from '@/features/home/components/popular-carousel';
 
@@ -53,8 +50,8 @@ function QuerySection<T>({
 }
 
 export function HomeScreen() {
-  const posts = useGetHomePopularPosts();
-  const influencers = useGetHomeRecommendedInfluencers();
+  const posts = usePopularPosts();
+  const influencers = useRecommendedInfluencers();
 
   return (
     <ScreenShell noHeader>

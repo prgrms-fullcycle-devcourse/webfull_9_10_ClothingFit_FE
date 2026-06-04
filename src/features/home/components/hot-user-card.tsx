@@ -3,7 +3,7 @@ import { Pressable, View } from 'react-native';
 
 import { Image } from '@/components/ui/image';
 import { Text } from '@/components/ui/text';
-import type { GetHomeRecommendedInfluencers200Item as RecommendedInfluencer } from '@/api/generated/schemas';
+import type { RecommendedInfluencer } from '@/features/home/api';
 import { personImageAt } from '@/features/home/constants/person-images';
 import { cn } from '@/utils/cn';
 

@@ -1,8 +1,7 @@
 import { GoogleSignin, isSuccessResponse } from '@react-native-google-signin/google-signin';
 import { useState } from 'react';
 
-import { postAuthGoogle } from '@/api/generated/endpoints/auth/auth';
-import type { KakaoLoginResponseData } from '@/api/generated/schemas';
+import { postAuthGoogle, type LoginData } from '@/features/auth/api';
 import { setAuthToken } from '@/lib/api-client';
 import { setTokens } from '@/lib/auth-storage';
 import { isNativeSocialAvailable } from '../lib/native-social';
@@ -18,7 +17,7 @@ import { isNativeSocialAvailable } from '../lib/native-social';
 export function useGoogleLogin() {
   const [isLoading, setIsLoading] = useState(false);
 
-  const signIn = async (): Promise<KakaoLoginResponseData | null> => {
+  const signIn = async (): Promise<LoginData | null> => {
     if (!isNativeSocialAvailable) {
       throw new Error('구글 로그인은 개발 빌드에서만 동작합니다. (Expo Go·웹 미지원)');
     }

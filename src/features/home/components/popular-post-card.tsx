@@ -3,7 +3,7 @@ import { View } from 'react-native';
 
 import { Image } from '@/components/ui/image';
 import { Text } from '@/components/ui/text';
-import type { GetHomePopularPosts200Item as PopularPost } from '@/api/generated/schemas';
+import type { PopularPost } from '@/features/home/api';
 
 /** ISO date-time → YYYY.MM.DD */
 function formatDate(iso: string) {
