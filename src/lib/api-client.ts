@@ -10,11 +10,12 @@ export const axiosInstance = create({
   },
 });
 
-export const apiClient = async (config: AxiosRequestConfig) => {
-  const response = await axiosInstance(config);
-
-  return response.data;
-};
+/**
+ * Orval 생성 코드 및 수작업 API가 공통으로 쓰는 mutator.
+ * config 한 개를 받아 응답 본문(response.data)만 Promise<T>로 반환한다.
+ */
+export const apiClient = <T = unknown>(config: AxiosRequestConfig): Promise<T> =>
+  axiosInstance(config).then((response) => response.data as T);
 
 /** JWT 연동 시 apiClient.interceptors.request에 Bearer 추가 */
 export function setAuthToken(token: string | null) {
