@@ -15,8 +15,10 @@ import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
+import { View } from 'react-native';
 import 'react-native-reanimated';
 
+import { AppBanner } from '@/components/blocks/app-banner';
 import { useColorScheme } from '@/components/useColorScheme';
 import { AppProviders } from '@/providers/app-providers';
 
@@ -54,7 +56,10 @@ export default function RootLayout() {
 
   return (
     <AppProviders>
-      <RootLayoutNav />
+      <View style={{ flex: 1 }}>
+        <RootLayoutNav />
+        <AppBanner />
+      </View>
     </AppProviders>
   );
 }

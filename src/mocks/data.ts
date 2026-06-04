@@ -56,9 +56,21 @@ export const MOCK_WORN_PRODUCTS = [
 
 export const MOCK_NOTIFICATIONS = [
   { id: 'n1', type: '3d', title: '3D 모델 생성이 완료되었습니다.', time: '방금', read: false },
-  { id: 'n2', type: 'follow', title: '민지님이 회원님을 팔로우합니다.', time: '1시간 전', read: false },
+  {
+    id: 'n2',
+    type: 'follow',
+    title: '민지님이 회원님을 팔로우합니다.',
+    time: '1시간 전',
+    read: false,
+  },
   { id: 'n3', type: 'like', title: '내 게시물에 좋아요를 눌렀습니다.', time: '2일 전', read: true },
-  { id: 'n4', type: 'avatar', title: 'AI 아바타 생성이 완료되었습니다.', time: '3주 전', read: true },
+  {
+    id: 'n4',
+    type: 'avatar',
+    title: 'AI 아바타 생성이 완료되었습니다.',
+    time: '3주 전',
+    read: true,
+  },
 ];
 
 export const MOCK_FOLLOWERS = Array.from({ length: 5 }, (_, i) => ({
@@ -66,13 +78,3 @@ export const MOCK_FOLLOWERS = Array.from({ length: 5 }, (_, i) => ({
   nickname: 'Kian_OOTD',
   isFollowing: i % 2 === 0,
 }));
-
-export const MOCK_MEASUREMENTS = {
-  top: { shoulder: 48, chest: 52, waist: 44 },
-  bottom: { waist: 32, hip: 48, length: 102 },
-};
-
-export const MOCK_FITTING_ITEMS = [
-  { id: 'fi1', brand: '버니즈', name: '버니포켓버니즈팬츠', category: 'bottom', size: 'L' },
-  { id: 'fi2', brand: '무신사', name: '오버핏 셔츠', category: 'top', size: 'M' },
-];
