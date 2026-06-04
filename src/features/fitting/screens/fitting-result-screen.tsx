@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import { useLayoutEffect } from 'react';
 import { Image, Pressable, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ScreenShell } from '@/components/blocks/screen-shell';
 import { Button } from '@/components/ui/button';
@@ -15,6 +16,7 @@ export function FittingResultScreen() {
   const latest = useLatestDoneJob();
   const job = byId ?? latest;
   const uri = job?.resultImageUri ?? null;
+  const insets = useSafeAreaInsets();
 
   // 결과 확인 화면에서는 하단 탭 바를 숨긴다 (저장 버튼이 탭바와 겹치지 않게).
   const navigation = useNavigation();
@@ -37,7 +39,7 @@ export function FittingResultScreen() {
         </Pressable>
       }
     >
-      <View className="flex-1 px-4 py-4">
+      <View className="flex-1 px-4 pt-4" style={{ paddingBottom: insets.bottom + 16 }}>
         <Text className="mb-4 text-center font-sans">생성된 2D 모델을 확인하세요</Text>
         <View className="flex-1 rounded-2xl bg-surface items-center justify-center mb-4 overflow-hidden">
           {uri ? (

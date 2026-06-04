@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { router, useNavigation } from 'expo-router';
 import { useLayoutEffect, useState } from 'react';
 import { Image, Pressable, ScrollView, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ScreenShell } from '@/components/blocks/screen-shell';
 import { Text } from '@/components/ui/text';
@@ -17,6 +18,7 @@ import { cn } from '@/utils/cn';
 
 export function FittingConfirmScreen() {
   const { session, setSlotSize } = useCopySession();
+  const insets = useSafeAreaInsets();
   // 어떤 슬롯의 사이즈 시트가 열려있는지 (null=닫힘)
   const [sizeSheetCat, setSizeSheetCat] = useState<CategoryId | null>(null);
   const [bodySheetOpen, setBodySheetOpen] = useState(false);
@@ -124,7 +126,10 @@ export function FittingConfirmScreen() {
       </ScrollView>
 
       {done.length > 0 && (
-        <View className="px-4 py-3 border-t border-border">
+        <View
+          className="px-4 pt-3 border-t border-border"
+          style={{ paddingBottom: insets.bottom + 12 }}
+        >
           <Pressable onPress={handleGenerate} className="bg-primary py-4 rounded-xl items-center">
             <Text className="text-white font-sans-bold text-base">생성</Text>
           </Pressable>

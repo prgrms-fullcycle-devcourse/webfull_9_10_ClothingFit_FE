@@ -9,7 +9,7 @@ import { cn } from '@/utils/cn';
 
 import { CategorySidebar } from '../components/category-sidebar';
 import { MallDropdown } from '../components/mall-dropdown';
-import { ScanOverlay } from '../components/scan-overlay';
+import { ScanSpinnerOverlay } from '../components/scan-spinner-overlay';
 import { ShopWebView, type ShopWebViewHandle } from '../components/shop-webview';
 import { Toast } from '../components/toast';
 import type { CategoryId } from '../constants/categories';
@@ -189,8 +189,8 @@ export function ExploreBrowserScreen() {
 
       <Toast message={toast ?? ''} visible={!!toast} onHide={() => setToast(null)} />
 
-      {/* COPY 직후 WebView 자동 스크롤을 가리는 로딩 오버레이 (게이지+단계 문구 자동) */}
-      <ScanOverlay visible={busy} />
+      {/* COPY 직후 스크래핑 동안 보여주는 로딩 오버레이 (동글동글 스피너 + 순환 문구) */}
+      <ScanSpinnerOverlay visible={busy} />
 
       <SafeAreaView edges={['bottom']} className="bg-white border-t border-border">
         <View className="flex-row gap-2 px-3 py-2">
