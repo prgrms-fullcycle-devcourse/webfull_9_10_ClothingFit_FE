@@ -1,36 +1,162 @@
-import { router } from 'expo-router';
-import { ScrollView, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { router, useNavigation } from 'expo-router';
+import { useLayoutEffect, useState } from 'react';
+import { Image, Pressable, ScrollView, View } from 'react-native';
 
 import { ScreenShell } from '@/components/blocks/screen-shell';
-import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
-import { MOCK_FITTING_ITEMS } from '@/mocks/data';
+import { startFittingJob } from '@/features/fitting/store/fitting-job-store';
+import type { FittingItem } from '@/features/fitting/types';
+import { BodyMeasureSheet } from '@/features/webview/components/body-measure-sheet';
+import { SizeSelectSheet } from '@/features/webview/components/size-select-sheet';
+import { CATEGORIES } from '@/features/webview/constants/categories';
+import type { CategoryId } from '@/features/webview/constants/categories';
+import { useCopySession } from '@/features/webview/hooks/use-copy-session';
+import { MOCK_USER } from '@/mocks/data';
+import { cn } from '@/utils/cn';
 
 export function FittingConfirmScreen() {
+  const { session, setSlotSize } = useCopySession();
+  // 어떤 슬롯의 사이즈 시트가 열려있는지 (null=닫힘)
+  const [sizeSheetCat, setSizeSheetCat] = useState<CategoryId | null>(null);
+  const [bodySheetOpen, setBodySheetOpen] = useState(false);
+
+  // 의상 최종 확인 화면에서는 하단 탭 바를 숨긴다 (떠날 때 복원).
+  const navigation = useNavigation();
+  useLayoutEffect(() => {
+    const parent = navigation.getParent();
+    parent?.setOptions({ tabBarStyle: { display: 'none' } });
+    return () => parent?.setOptions({ tabBarStyle: undefined });
+  }, [navigation]);
+
+  const done = CATEGORIES.filter((c) => session.slots[c.id].status === 'done').map((c) => ({
+    category: c.id,
+    label: c.label,
+    slot: session.slots[c.id],
+  }));
+
+  const handleGenerate = () => {
+    const items: FittingItem[] = done.map((d) => ({
+      category: d.category,
+      label: d.label,
+      imageUri: d.slot.imageUri,
+      selectedSize: d.slot.selectedSize,
+      measurements: d.slot.measurements,
+      measurementSource: d.slot.measurementSource,
+    }));
+    const id = startFittingJob(items);
+    router.push({ pathname: '/(tabs)/fitting/[jobId]', params: { jobId: id } });
+  };
+
+  const sizeSheetSlot = sizeSheetCat ? session.slots[sizeSheetCat] : null;
+
   return (
-    <ScreenShell title="의상 최종 확인">
-      <ScrollView className="flex-1 px-4 py-4">
-        <Text variant="caption" className="mb-4">
-          2D 아바타 생성 전 — mock 데이터 (최대 5벌)
-        </Text>
-        {MOCK_FITTING_ITEMS.map((item) => (
-          <View key={item.id} className="mb-3 p-4 rounded-xl border border-border flex-row gap-3">
-            <View className="w-16 h-16 rounded-lg bg-surface" />
-            <View className="flex-1">
-              <Text className="font-sans-medium">{item.brand}</Text>
-              <Text variant="caption">{item.name}</Text>
-              <Button label="사이즈 선택 (mock)" variant="ghost" className="mt-2 py-2" />
-            </View>
+    <ScreenShell title="의상 최종 확인" onBack={() => router.replace('/(tabs)/explore')}>
+      <ScrollView className="flex-1 px-4 py-4" contentContainerClassName="pb-4">
+        {done.length === 0 ? (
+          <View className="items-center py-16 gap-4">
+            <Text variant="caption">아직 담은 옷이 없어요.</Text>
+            <Pressable
+              onPress={() => router.push('/(tabs)/explore')}
+              className="bg-primary px-5 py-3 rounded-xl"
+            >
+              <Text className="text-white font-sans-bold">쇼핑몰 COPY 하러 가기</Text>
+            </Pressable>
           </View>
-        ))}
-        <Button label="신체 치수 수정하기" variant="ghost" onPress={() => router.push('/(tabs)/profile/body')} />
+        ) : (
+          <>
+            {/* 카드 2열 그리드 */}
+            <View className="flex-row flex-wrap -mx-1.5">
+              {done.map((d) => {
+                const hasSize = !!d.slot.selectedSize;
+                return (
+                  <View key={d.category} className="w-1/2 px-1.5 mb-3">
+                    <View className="rounded-2xl border border-border overflow-hidden">
+                      {d.slot.imageUri ? (
+                        <Image
+                          source={{ uri: d.slot.imageUri }}
+                          className="w-full aspect-square"
+                          resizeMode="cover"
+                        />
+                      ) : (
+                        <View className="w-full aspect-square bg-surface" />
+                      )}
+                      <View className="p-2.5">
+                        <Text className="font-sans-bold text-sm">{d.label}</Text>
+                        <Text variant="caption" numberOfLines={1} className="text-muted mb-2">
+                          {d.slot.title ?? '상품 정보 없음'}
+                        </Text>
+                        {/* 사이즈 선택 버튼 */}
+                        <Pressable
+                          onPress={() => setSizeSheetCat(d.category)}
+                          className={cn(
+                            'flex-row items-center justify-between rounded-lg px-3 py-2 border',
+                            hasSize ? 'bg-primary/10 border-primary' : 'bg-surface border-border',
+                          )}
+                        >
+                          <Text
+                            className={cn(
+                              'font-sans-medium text-sm',
+                              hasSize ? 'text-primary' : 'text-muted',
+                            )}
+                          >
+                            {hasSize ? d.slot.selectedSize : '사이즈 선택'}
+                          </Text>
+                          <Ionicons
+                            name="chevron-forward"
+                            size={16}
+                            color={hasSize ? '#3b82f6' : '#9ca3af'}
+                          />
+                        </Pressable>
+                      </View>
+                    </View>
+                  </View>
+                );
+              })}
+            </View>
+
+            {/* 신체 치수 수정하기 */}
+            <Pressable onPress={() => setBodySheetOpen(true)} className="items-center py-3 mt-1">
+              <Text className="text-primary font-sans-bold">신체 치수 수정하기</Text>
+            </Pressable>
+          </>
+        )}
       </ScrollView>
-      <View className="p-4 border-t border-border">
-        <Button
-          label="생성 (mock)"
-          onPress={() => router.push('/(tabs)/fitting/mock-job-1')}
-        />
-      </View>
+
+      {done.length > 0 && (
+        <View className="px-4 py-3 border-t border-border">
+          <Pressable onPress={handleGenerate} className="bg-primary py-4 rounded-xl items-center">
+            <Text className="text-white font-sans-bold text-base">생성</Text>
+          </Pressable>
+        </View>
+      )}
+
+      {/* 사이즈 선택 바텀시트 */}
+      <SizeSelectSheet
+        visible={sizeSheetCat !== null}
+        productTitle={sizeSheetSlot?.title}
+        options={sizeSheetSlot?.sizeOptions ?? []}
+        sizeTable={sizeSheetSlot?.sizeTable}
+        selected={sizeSheetSlot?.selectedSize}
+        onClose={() => setSizeSheetCat(null)}
+        onSubmit={(label) => {
+          if (sizeSheetCat) setSlotSize(sizeSheetCat, label);
+          setSizeSheetCat(null);
+        }}
+      />
+
+      {/* 신체 치수 수정 바텀시트 (실제 저장은 프로필 담당 — 지금은 상세 이동만 연결) */}
+      <BodyMeasureSheet
+        visible={bodySheetOpen}
+        initialHeight={MOCK_USER.height}
+        initialWeight={MOCK_USER.weight}
+        onClose={() => setBodySheetOpen(false)}
+        onSave={() => setBodySheetOpen(false)}
+        onGoDetail={() => {
+          setBodySheetOpen(false);
+          router.push('/(tabs)/profile/body');
+        }}
+      />
     </ScreenShell>
   );
 }

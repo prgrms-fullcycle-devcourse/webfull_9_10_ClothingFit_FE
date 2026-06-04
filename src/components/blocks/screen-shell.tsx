@@ -10,6 +10,8 @@ type ScreenShellProps = {
   children: React.ReactNode;
   className?: string;
   noHeader?: boolean;
+  /** 뒤로가기 동작 커스텀 (없으면 router.back()) */
+  onBack?: () => void;
 };
 
 export function ScreenShell({
@@ -19,10 +21,13 @@ export function ScreenShell({
   children,
   className,
   noHeader,
+  onBack,
 }: ScreenShellProps) {
   return (
     <SafeAreaView className="flex-1 bg-white" edges={['top']}>
-      {!noHeader && <ScreenHeader title={title} showBack={showBack} right={right} />}
+      {!noHeader && (
+        <ScreenHeader title={title} showBack={showBack} right={right} onBack={onBack} />
+      )}
       <SafeAreaView className={cn('flex-1', className)} edges={['bottom']}>
         {children}
       </SafeAreaView>
