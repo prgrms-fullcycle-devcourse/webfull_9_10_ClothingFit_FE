@@ -1,5 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Pressable, Text } from 'react-native';
+import { Pressable } from 'react-native';
+
+import { Text } from '@/components/ui/text';
 
 type Props = {
   text: string;
@@ -13,12 +15,14 @@ export function Tag({ text, onPress, menuArrow, selected }: Props) {
     <Pressable
       onPress={onPress}
       className={`flex-row items-center gap-1 self-start rounded-full border px-3 py-1.5 ${
-        selected ? 'border-primary bg-primary' : 'border-border bg-surface'
+        selected ? 'border-primary' : 'border-border'
       }`}
     >
-      <Text className={`font-sans text-sm ${selected ? 'text-white' : 'text-muted'}`}>{text}</Text>
+      <Text className={`font-sans text-sm ${selected ? 'text-primary' : 'text-muted'}`}>
+        {text}
+      </Text>
       {menuArrow && (
-        <Ionicons name="chevron-down" size={14} color={selected ? '#ffffff' : '#6a7282'} />
+        <Ionicons name="chevron-down" size={14} color={selected ? '#111827' : '#6a7282'} />
       )}
     </Pressable>
   );
