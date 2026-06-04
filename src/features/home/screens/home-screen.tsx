@@ -1,17 +1,59 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { Pressable, ScrollView, View } from 'react-native';
+import type { UseQueryResult } from '@tanstack/react-query';
+import type { ReactNode } from 'react';
+import { ActivityIndicator, Pressable, ScrollView, View } from 'react-native';
 
 import { ScreenShell } from '@/components/blocks/screen-shell';
 import { Text } from '@/components/ui/text';
 import { HotUserCard } from '@/features/home/components/hot-user-card';
 import { PopularCarousel } from '@/features/home/components/popular-carousel';
-import { MOCK_POPULAR_USERS, MOCK_POSTS } from '@/mocks/data';
+import { usePopularPosts } from '@/features/home/hooks/use-popular-posts';
+import { useRecommendedInfluencers } from '@/features/home/hooks/use-recommended-influencers';
 
-// HOT 카드 배경 placeholder 색 (인물 이미지 자리)
+// HOT 카드 배경 placeholder 색 (이미지 로딩 전/없을 때 자리)
 const HOT_BG = ['#fca5a5', '#bfdbfe', '#99f6e4'];
 
+function StateMessage({ children }: { children: ReactNode }) {
+  return <View className="items-center py-10">{children}</View>;
+}
+
+/** 쿼리 상태에 따라 로딩/에러/빈/콘텐츠를 한 곳에서 렌더링 */
+function QuerySection<T>({
+  query,
+  children,
+}: {
+  query: UseQueryResult<T[]>;
+  children: (data: T[]) => ReactNode;
+}) {
+  if (query.isLoading) {
+    return (
+      <StateMessage>
+        <ActivityIndicator />
+      </StateMessage>
+    );
+  }
+  if (query.isError) {
+    return (
+      <StateMessage>
+        <Text variant="caption">불러오지 못했습니다. 잠시 후 다시 시도해 주세요.</Text>
+      </StateMessage>
+    );
+  }
+  if (!query.data || query.data.length === 0) {
+    return (
+      <StateMessage>
+        <Text variant="caption">표시할 항목이 없습니다.</Text>
+      </StateMessage>
+    );
+  }
+  return <>{children(query.data)}</>;
+}
+
 export function HomeScreen() {
+  const posts = usePopularPosts();
+  const influencers = useRecommendedInfluencers();
+
   return (
     <ScreenShell noHeader>
       {/* 헤더 */}
@@ -30,27 +72,25 @@ export function HomeScreen() {
         <Text variant="subtitle" className="px-4 pb-2 pt-4">
           인기글
         </Text>
-        <PopularCarousel posts={MOCK_POSTS.slice(0, 5)} />
+        <QuerySection query={posts}>{(data) => <PopularCarousel posts={data} />}</QuerySection>
 
         {/* HOT */}
         <Text variant="subtitle" className="px-4 pb-2 pt-6">
           HOT
         </Text>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerClassName="gap-3 px-4 pb-8"
-        >
-          {MOCK_POPULAR_USERS.map((user, i) => (
-            <HotUserCard
-              key={user.id}
-              user={user}
-              bgColor={HOT_BG[i % HOT_BG.length]}
-              defaultFollowing={i === 1}
-              index={i}
-            />
-          ))}
-        </ScrollView>
+        <QuerySection query={influencers}>
+          {(data) => (
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerClassName="gap-3 px-4 pb-8"
+            >
+              {data.map((user, i) => (
+                <HotUserCard key={i} user={user} bgColor={HOT_BG[i % HOT_BG.length]} index={i} />
+              ))}
+            </ScrollView>
+          )}
+        </QuerySection>
       </ScrollView>
     </ScreenShell>
   );
