@@ -1,6 +1,6 @@
 module.exports = {
-  thin: 'NotoSans_100Thin',
-  regular: 'NotoSans_400Regular',
-  medium: 'NotoSans_500Medium',
-  bold: 'NotoSans_700Bold',
+  thin: 'NotoSansKR_100Thin',
+  regular: 'NotoSansKR_400Regular',
+  medium: 'NotoSansKR_500Medium',
+  bold: 'NotoSansKR_700Bold',
 };

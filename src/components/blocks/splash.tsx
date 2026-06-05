@@ -20,7 +20,7 @@ export function Splash() {
           color: '#ffffff',
           fontSize: 28,
           letterSpacing: 4,
-          fontFamily: 'NotoSans_700Bold',
+          fontFamily: 'NotoSansKR_700Bold',
         }}
       >
         CLOTHING - FIT
