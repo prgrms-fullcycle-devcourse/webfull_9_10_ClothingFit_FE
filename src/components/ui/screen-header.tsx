@@ -8,15 +8,20 @@ type ScreenHeaderProps = {
   title: string;
   showBack?: boolean;
   right?: React.ReactNode;
+  /** 뒤로가기 동작 커스텀 (없으면 router.back()) */
+  onBack?: () => void;
 };
 
-export function ScreenHeader({ title, showBack = true, right }: ScreenHeaderProps) {
+export function ScreenHeader({ title, showBack = true, right, onBack }: ScreenHeaderProps) {
   return (
     <View className="flex-row items-center justify-between px-4 py-3 border-b border-border bg-white">
       <View className="flex-row items-center gap-2 flex-1">
         {showBack ? (
           <Pressable
-            onPress={() => (router.canGoBack() ? router.back() : router.replace('/(tabs)/home'))}
+            onPress={
+              onBack ??
+              (() => (router.canGoBack() ? router.back() : router.replace('/(tabs)/home')))
+            }
             hitSlop={8}
           >
             <Ionicons name="chevron-back" size={24} color="#111827" />

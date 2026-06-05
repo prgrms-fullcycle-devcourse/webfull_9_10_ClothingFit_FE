@@ -27,7 +27,8 @@ cp .env.example .env    # EXPO_PUBLIC_API_URL 입력
 npm start               # 개발 서버 → Expo Go (SDK 54) QR 스캔
 ```
 
-> **Expo SDK 54** — App Store **Expo Go**와 호환됩니다. 시뮬레이터: `npm run ios` / `npm run android`.
+> **Expo SDK 54** — App Store **Expo Go**와 호환됩니다. 시뮬레이터: `npm run ios` / `npm run android`.  
+> WebView COPY **화면 캡처**는 Expo Go에서 제한될 수 있어 **EAS development build** 실기기 테스트를 권장합니다.
 
 **Mock UI 뼈대** — 와이어 기준 화면·탭 연결, `src/mocks/` 데이터. [MOCK_SKELETON.md](./docs/MOCK_SKELETON.md)
 
@@ -92,13 +93,13 @@ clothing-fit-fe/
 
 ### `app/` ↔ 기능 매핑
 
-| 탭·경로          | feature             | 설명                              |
-| ---------------- | ------------------- | --------------------------------- |
-| `(tabs)/explore` | `webview`           | 이커머스 WebView, COPY, 영역 선택 |
-| `(tabs)/fitting` | `fitting`, `closet` | AI 피팅, 옷장                     |
-| `(tabs)/feed`    | `feed`              | OOTD 그리드 · 좋아요 · 댓글       |
-| `(tabs)/profile` | `profile`           | 마이페이지, 체형 정보             |
-| `(auth)/`        | `auth`              | 로그인 · 회원가입                 |
+| 탭·경로          | feature             | 설명                                          |
+| ---------------- | ------------------- | --------------------------------------------- |
+| `(tabs)/explore` | `webview`           | 이커머스 WebView, COPY, crop, inject 스크래핑 |
+| `(tabs)/fitting` | `fitting`, `closet` | AI 피팅, 옷장                                 |
+| `(tabs)/feed`    | `feed`              | OOTD 그리드 · 좋아요 · 댓글                   |
+| `(tabs)/profile` | `profile`           | 마이페이지, 체형 정보                         |
+| `(auth)/`        | `auth`              | 로그인 · 회원가입                             |
 
 ### 코딩 규칙 (팀)
 
