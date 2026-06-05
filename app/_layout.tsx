@@ -1,12 +1,7 @@
 import '../global.css';
 // import '@expo/browser-polyfill';
 import {
-  NotoSans_100Thin,
-  NotoSans_400Regular,
-  NotoSans_500Medium,
-  NotoSans_700Bold,
-} from '@expo-google-fonts/noto-sans';
-import {
+  NotoSansKR_100Thin,
   NotoSansKR_400Regular,
   NotoSansKR_500Medium,
   NotoSansKR_700Bold,
@@ -51,10 +46,7 @@ if (Platform.OS !== 'web' && !isExpoGo) {
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
-    NotoSans_100Thin,
-    NotoSans_400Regular,
-    NotoSans_500Medium,
-    NotoSans_700Bold,
+    NotoSansKR_100Thin,
     NotoSansKR_400Regular,
     NotoSansKR_500Medium,
     NotoSansKR_700Bold,
