@@ -5,15 +5,21 @@ import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
 import { cn } from '@/utils/cn';
 
-import type { SizeOption } from '../types/copy-session';
+import type { CategoryId } from '../constants/categories';
+import type { SizeOption, SizeTableSource } from '../types/copy-session';
+import { resolveMeasurementsForDisplay } from '../utils/resolve-slot-measurements';
 import { BottomSheet } from './bottom-sheet';
 
 type SizeSelectSheetProps = {
   visible: boolean;
   productTitle?: string;
+  /** 기준표 폴백 lookup에 사용할 카테고리 */
+  category?: CategoryId;
   options: SizeOption[];
-  /** 선택 시 보여줄 사이즈별 측정값 (없으면 상세 미표시) */
+  /** 선택 시 보여줄 사이즈별 측정값 (없으면 기준표 seed로 폴백) */
   sizeTable?: Record<string, Record<string, number>>;
+  /** sizeTable 출처 (image/actual/reference 표기용) */
+  sizeTableSource?: SizeTableSource;
   /** 현재 선택된 사이즈 */
   selected?: string;
   onClose: () => void;
@@ -33,8 +39,10 @@ function formatRow(row: Record<string, number>): string {
 export function SizeSelectSheet({
   visible,
   productTitle,
+  category,
   options,
   sizeTable,
+  sizeTableSource,
   selected,
   onClose,
   onSubmit,
@@ -43,7 +51,14 @@ export function SizeSelectSheet({
 
   // 시트가 열릴 때마다 현재 선택값으로 초기화
   const current = picked ?? selected;
-  const detail = current && sizeTable ? sizeTable[current] : undefined;
+
+  // 1) 실측/OCR 표 → 2) 핵심 측정항목 누락 시 기준표 보완 → 3) 사이즈 없으면 기준표 폴백
+  const resolved =
+    current && category
+      ? resolveMeasurementsForDisplay(category, current, sizeTable, sizeTableSource)
+      : {};
+  const detail = resolved.measurements;
+  const isReference = !!resolved.usedReference;
 
   return (
     <BottomSheet visible={visible} title="사이즈 선택" onClose={onClose}>
@@ -84,9 +99,16 @@ export function SizeSelectSheet({
 
       {/* 제품 상세 사이즈 */}
       <View className="mt-5 rounded-xl bg-surface px-4 py-3">
-        <Text variant="caption" className="font-sans-medium mb-1">
-          제품 상세 사이즈
-        </Text>
+        <View className="flex-row items-center mb-1">
+          <Text variant="caption" className="font-sans-medium">
+            제품 상세 사이즈
+          </Text>
+          {isReference ? (
+            <Text variant="caption" className="ml-2 text-muted">
+              · 기준표 추정
+            </Text>
+          ) : null}
+        </View>
         <Text variant="caption" className="text-muted">
           {detail ? formatRow(detail) : '사이즈를 선택하면 상세 치수가 표시돼요'}
         </Text>

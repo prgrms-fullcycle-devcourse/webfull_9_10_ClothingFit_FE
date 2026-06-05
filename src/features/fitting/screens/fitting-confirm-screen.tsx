@@ -140,8 +140,10 @@ export function FittingConfirmScreen() {
       <SizeSelectSheet
         visible={sizeSheetCat !== null}
         productTitle={sizeSheetSlot?.title}
+        category={sizeSheetCat ?? undefined}
         options={sizeSheetSlot?.sizeOptions ?? []}
         sizeTable={sizeSheetSlot?.sizeTable}
+        sizeTableSource={sizeSheetSlot?.sizeTableSource}
         selected={sizeSheetSlot?.selectedSize}
         onClose={() => setSizeSheetCat(null)}
         onSubmit={(label) => {

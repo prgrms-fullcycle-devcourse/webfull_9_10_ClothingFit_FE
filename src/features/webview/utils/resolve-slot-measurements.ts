@@ -12,10 +12,28 @@ import type { MeasurementSource, SizeOption, SizeTableSource } from '../types/co
 export type ResolvedMeasurements = {
   measurements?: Record<string, number>;
   source?: MeasurementSource;
+  /** 기준표 seed가 사용됐는지 (UI "기준표 추정" 표기용) */
+  usedReference?: boolean;
+};
+
+/** 카테고리별 2D 핏에 필요한 핵심 측정항목 (부분 문자열로 매칭) */
+const PRIMARY_MEASUREMENT: Partial<Record<CategoryId, string>> = {
+  hat: '머리둘레',
+  shoes: '발길이',
+  top: '가슴',
+  outer: '가슴',
+  bottom: '허리',
 };
 
 function normalizeLabel(label: string): string {
   return label.trim().replace(/\s+/g, '').toUpperCase();
+}
+
+/** 표 row에 카테고리 핵심 측정항목이 들어있는지 (예: 모자 → "머리둘레") */
+function hasPrimaryMeasurement(categoryId: CategoryId, row: Record<string, number>): boolean {
+  const key = PRIMARY_MEASUREMENT[categoryId];
+  if (!key) return true;
+  return Object.keys(row).some((name) => name.includes(key));
 }
 
 function chartForCategory(categoryId: CategoryId): ReferenceSizeEntry[] {
@@ -168,8 +186,8 @@ export function logCopySizeData(params: {
   }
 }
 
-/** sizeTable → 선택 사이즈 measurements 해석 */
-export function resolveSlotMeasurements(
+/** 로깅 없이 sizeTable → measurements 해석 (UI 미리보기/내부 공용) */
+function resolveCore(
   categoryId: CategoryId,
   sizeLabel: string,
   sizeTable?: SizeTable,
@@ -181,16 +199,53 @@ export function resolveSlotMeasurements(
     if (sizeTableSource === 'reference') source = 'reference';
     else if (sizeTableSource === 'image') source = 'image';
     else source = 'actual'; // actual / html (실측·실측에 준함)
-    return { measurements: fromTable, source };
+
+    // 사이즈는 표에 있지만 핵심 측정항목(머리둘레/발길이/가슴/허리)이 빠진 경우
+    // → 기준표 seed로 보완 (예: 모자 표에 챙길이만 있고 머리둘레 누락)
+    if (!hasPrimaryMeasurement(categoryId, fromTable)) {
+      const ref = lookupInChart(chartForCategory(categoryId), sizeLabel, categoryId);
+      if (ref) {
+        return {
+          measurements: { ...fromTable, ...ref },
+          source: 'reference',
+          usedReference: true,
+        };
+      }
+    }
+    return { measurements: fromTable, source, usedReference: source === 'reference' };
   }
 
+  // 사이즈 자체가 표에 없음 (예: OCR 표에 4XL 누락) → 기준표 seed 폴백
   const reference = lookupInChart(chartForCategory(categoryId), sizeLabel, categoryId);
   if (reference) {
-    logReferenceResolved(categoryId, sizeLabel, reference);
-    return { measurements: reference, source: 'reference' };
+    return { measurements: reference, source: 'reference', usedReference: true };
   }
 
   return {};
+}
+
+/** sizeTable → 선택 사이즈 measurements 해석 (등록 시: dev 로그 포함) */
+export function resolveSlotMeasurements(
+  categoryId: CategoryId,
+  sizeLabel: string,
+  sizeTable?: SizeTable,
+  sizeTableSource?: SizeTableSource,
+): ResolvedMeasurements {
+  const resolved = resolveCore(categoryId, sizeLabel, sizeTable, sizeTableSource);
+  if (resolved.usedReference && resolved.measurements) {
+    logReferenceResolved(categoryId, sizeLabel, resolved.measurements);
+  }
+  return resolved;
+}
+
+/** UI 미리보기용 — 로그 없이 measurements + 기준표 추정 여부만 반환 */
+export function resolveMeasurementsForDisplay(
+  categoryId: CategoryId,
+  sizeLabel: string,
+  sizeTable?: SizeTable,
+  sizeTableSource?: SizeTableSource,
+): ResolvedMeasurements {
+  return resolveCore(categoryId, sizeLabel, sizeTable, sizeTableSource);
 }
 
 export function lookupReferenceMeasurements(
