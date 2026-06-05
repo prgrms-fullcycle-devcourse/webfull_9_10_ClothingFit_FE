@@ -68,8 +68,7 @@ export function ProfileHomeScreen() {
           {MOCK_CLOSET_ITEMS.map((c) => (
             <Pressable
               key={c.id}
-              className="w-24 h-32 rounded-xl mr-2"
-              style={{ backgroundColor: c.color }}
+              className="w-24 h-32 rounded-xl mr-2 bg-surface"
               onPress={() => router.push(`/(tabs)/closet/${c.id}`)}
             />
           ))}
@@ -80,7 +79,8 @@ export function ProfileHomeScreen() {
             <Pressable
               key={l.href}
               className="py-3 border-b border-border flex-row justify-between"
-              onPress={() => router.push(l.href)}>
+              onPress={() => router.push(l.href)}
+            >
               <Text>{l.label}</Text>
               <Ionicons name="chevron-forward" size={18} color="#9ca3af" />
             </Pressable>
