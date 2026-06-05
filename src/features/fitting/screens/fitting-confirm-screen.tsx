@@ -1,12 +1,14 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router, useNavigation } from 'expo-router';
 import { useLayoutEffect, useState } from 'react';
-import { Image, Pressable, ScrollView, View } from 'react-native';
+import { Alert, Image, Pressable, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ScreenShell } from '@/components/blocks/screen-shell';
 import { Text } from '@/components/ui/text';
+import { MOCK_BODY } from '@/features/fitting/data/mock-body';
 import { startFittingJob } from '@/features/fitting/store/fitting-job-store';
+import { checkFit } from '@/features/fitting/utils/fit-check';
 import type { FittingItem } from '@/features/fitting/types';
 import { BodyMeasureSheet } from '@/features/webview/components/body-measure-sheet';
 import { SizeSelectSheet } from '@/features/webview/components/size-select-sheet';
@@ -37,7 +39,20 @@ export function FittingConfirmScreen() {
     slot: session.slots[c.id],
   }));
 
-  const handleGenerate = () => {
+  // 슬롯의 선택 사이즈 ↔ 체형 핏 판정 (체형은 mock — body_info API 연동 전)
+  const slotFit = (d: (typeof done)[number]) =>
+    d.slot.selectedSize
+      ? checkFit({
+          category: d.category,
+          selectedSize: d.slot.selectedSize,
+          sizeTable: d.slot.sizeTable,
+          sizeTableSource: d.slot.sizeTableSource,
+          sizeOptions: d.slot.sizeOptions,
+          body: MOCK_BODY,
+        })
+      : null;
+
+  const doGenerate = () => {
     const items: FittingItem[] = done.map((d) => ({
       category: d.category,
       label: d.label,
@@ -48,6 +63,23 @@ export function FittingConfirmScreen() {
     }));
     const id = startFittingJob(items);
     router.push({ pathname: '/(tabs)/fitting/[jobId]', params: { jobId: id } });
+  };
+
+  const handleGenerate = () => {
+    // 안 맞는(작은) 사이즈가 있으면 생성 전에 경고
+    const unfit = done.filter((d) => slotFit(d)?.verdict === 'small');
+    if (unfit.length > 0) {
+      Alert.alert(
+        '안 맞는 사이즈가 있어요',
+        `${unfit.map((d) => d.label).join(', ')} 사이즈가 작아요.\n수정 후 생성을 권장해요.`,
+        [
+          { text: '수정하기', style: 'cancel' },
+          { text: '그대로 생성', onPress: doGenerate },
+        ],
+      );
+      return;
+    }
+    doGenerate();
   };
 
   const sizeSheetSlot = sizeSheetCat ? session.slots[sizeSheetCat] : null;
@@ -71,9 +103,16 @@ export function FittingConfirmScreen() {
             <View className="flex-row flex-wrap -mx-1.5">
               {done.map((d) => {
                 const hasSize = !!d.slot.selectedSize;
+                const fit = slotFit(d);
+                const tooSmall = fit?.verdict === 'small';
                 return (
                   <View key={d.category} className="w-1/2 px-1.5 mb-3">
-                    <View className="rounded-2xl border border-border overflow-hidden">
+                    <View
+                      className={cn(
+                        'rounded-2xl border overflow-hidden',
+                        tooSmall ? 'border-red-400' : 'border-border',
+                      )}
+                    >
                       {d.slot.imageUri ? (
                         <Image
                           source={{ uri: d.slot.imageUri }}
@@ -110,6 +149,18 @@ export function FittingConfirmScreen() {
                             color={hasSize ? '#3b82f6' : '#9ca3af'}
                           />
                         </Pressable>
+                        {tooSmall ? (
+                          <Text variant="caption" className="mt-1 text-red-500">
+                            작아요
+                            {fit && fit.recommendedSizes.length
+                              ? ` · ${fit.recommendedSizes.join('/')} 가능`
+                              : ''}
+                          </Text>
+                        ) : fit?.verdict === 'loose' ? (
+                          <Text variant="caption" className="mt-1 text-amber-600">
+                            넉넉한 핏
+                          </Text>
+                        ) : null}
                       </View>
                     </View>
                   </View>
