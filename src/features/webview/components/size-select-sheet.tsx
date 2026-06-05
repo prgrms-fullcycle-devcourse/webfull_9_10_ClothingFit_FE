@@ -3,6 +3,8 @@ import { Pressable, View } from 'react-native';
 
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
+import { MOCK_BODY } from '@/features/fitting/data/mock-body';
+import { checkFit } from '@/features/fitting/utils/fit-check';
 import { cn } from '@/utils/cn';
 
 import type { CategoryId } from '../constants/categories';
@@ -60,6 +62,19 @@ export function SizeSelectSheet({
   const detail = resolved.measurements;
   const isReference = !!resolved.usedReference;
 
+  // 선택 사이즈 ↔ 체형 핏 비교 (체형은 현재 mock — body_info API 연동 전)
+  const fit =
+    current && category
+      ? checkFit({
+          category,
+          selectedSize: current,
+          sizeTable,
+          sizeTableSource,
+          sizeOptions: options,
+          body: MOCK_BODY,
+        })
+      : null;
+
   return (
     <BottomSheet visible={visible} title="사이즈 선택" onClose={onClose}>
       {productTitle ? (
@@ -113,6 +128,47 @@ export function SizeSelectSheet({
           {detail ? formatRow(detail) : '사이즈를 선택하면 상세 치수가 표시돼요'}
         </Text>
       </View>
+
+      {/* 핏 판정 (체형 vs 사이즈) */}
+      {fit && !fit.insufficientData ? (
+        <View
+          className={cn(
+            'mt-3 rounded-xl px-4 py-3',
+            fit.verdict === 'small'
+              ? 'bg-red-50'
+              : fit.verdict === 'loose'
+                ? 'bg-amber-50'
+                : 'bg-green-50',
+          )}
+        >
+          <Text
+            className={cn(
+              'font-sans-bold text-sm',
+              fit.verdict === 'small'
+                ? 'text-red-600'
+                : fit.verdict === 'loose'
+                  ? 'text-amber-700'
+                  : 'text-green-700',
+            )}
+          >
+            {fit.verdict === 'small'
+              ? '이 사이즈는 작아서 못 입어요'
+              : fit.verdict === 'loose'
+                ? '넉넉한 핏이에요'
+                : '잘 맞아요'}
+          </Text>
+          {fit.verdict === 'small' && fit.failedParts.length > 0 ? (
+            <Text variant="caption" className="mt-0.5 text-red-500">
+              {fit.failedParts.join('·')}이(가) 작아요
+            </Text>
+          ) : null}
+          {fit.verdict === 'small' && fit.recommendedSizes.length > 0 ? (
+            <Text variant="caption" className="mt-0.5 text-red-500">
+              입을 수 있는 사이즈: {fit.recommendedSizes.join(', ')}
+            </Text>
+          ) : null}
+        </View>
+      ) : null}
 
       <Button
         label="등록"
