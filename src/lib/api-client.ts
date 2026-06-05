@@ -1,8 +1,8 @@
-import { AxiosRequestConfig, create } from 'axios';
+import axios, { type AxiosRequestConfig } from 'axios';
 
 import { env } from './env';
 
-export const axiosInstance = create({
+export const axiosInstance = axios.create({
   baseURL: env.apiUrl || undefined,
   timeout: 30_000,
   headers: {
@@ -17,7 +17,7 @@ export const axiosInstance = create({
 export const apiClient = <T = unknown>(config: AxiosRequestConfig): Promise<T> =>
   axiosInstance(config).then((response) => response.data as T);
 
-/** JWT 연동 시 apiClient.interceptors.request에 Bearer 추가 */
+/** JWT 연동 시 axiosInstance interceptor에 Bearer 추가 */
 export function setAuthToken(token: string | null) {
   if (token) {
     axiosInstance.defaults.headers.common.Authorization = `Bearer ${token}`;
