@@ -9,9 +9,22 @@ import { Text } from '@/components/ui/text';
 import { usePopularPosts, useRecommendedInfluencers } from '@/features/home/api';
 import { HotUserCard } from '@/features/home/components/hot-user-card';
 import { PopularCarousel } from '@/features/home/components/popular-carousel';
+import { useBodyInfo, type BodyInfo } from '@/features/profile/api';
 
 // HOT 카드 배경 placeholder 색 (이미지 로딩 전/없을 때 자리)
 const HOT_BG = ['#fca5a5', '#bfdbfe', '#99f6e4'];
+
+// 체형 정보 출력 항목 (백엔드는 라벨/단위를 주지 않음)
+const BODY_INFO_FIELDS: { key: keyof BodyInfo; label: string; unit: string }[] = [
+  { key: 'height', label: '키', unit: 'cm' },
+  { key: 'weight', label: '몸무게', unit: 'kg' },
+  { key: 'chest', label: '가슴 둘레', unit: 'cm' },
+  { key: 'waist', label: '허리 둘레', unit: 'cm' },
+  { key: 'hip', label: '엉덩이 둘레', unit: 'cm' },
+  { key: 'shoulder', label: '어깨 둘레', unit: 'cm' },
+  { key: 'head', label: '머리 둘레', unit: 'cm' },
+  { key: 'footSize', label: '발 크기', unit: 'mm' },
+];
 
 function StateMessage({ children }: { children: ReactNode }) {
   return <View className="items-center py-10">{children}</View>;
@@ -49,7 +62,37 @@ function QuerySection<T>({
   return <>{children(query.data)}</>;
 }
 
+/** 메인 진입 시 GET /profile/body 결과를 카드로 출력 */
+function BodyInfoSection({ query }: { query: UseQueryResult<BodyInfo, unknown> }) {
+  if (query.isLoading) {
+    return (
+      <StateMessage>
+        <ActivityIndicator />
+      </StateMessage>
+    );
+  }
+  if (query.isError || !query.data) {
+    return (
+      <StateMessage>
+        <Text variant="caption">체형 정보를 불러오지 못했습니다.</Text>
+      </StateMessage>
+    );
+  }
+  const info = query.data;
+  return (
+    <View className="mx-4 mt-2 gap-2 rounded-2xl border border-border p-4">
+      {BODY_INFO_FIELDS.map((f) => (
+        <View key={f.key} className="flex-row justify-between">
+          <Text variant="caption">{f.label}</Text>
+          <Text variant="label">{info[f.key] != null ? `${info[f.key]} ${f.unit}` : '-'}</Text>
+        </View>
+      ))}
+    </View>
+  );
+}
+
 export function HomeScreen() {
+  const bodyInfo = useBodyInfo();
   const posts = usePopularPosts();
   const influencers = useRecommendedInfluencers();
 
@@ -67,8 +110,14 @@ export function HomeScreen() {
       </View>
 
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-        {/* 인기글 */}
+        {/* 내 체형 정보 */}
         <Text variant="subtitle" className="px-4 pb-2 pt-4">
+          내 체형 정보
+        </Text>
+        <BodyInfoSection query={bodyInfo} />
+
+        {/* 인기글 */}
+        <Text variant="subtitle" className="px-4 pb-2 pt-6">
           인기글
         </Text>
         <QuerySection query={posts}>{(data) => <PopularCarousel posts={data} />}</QuerySection>
