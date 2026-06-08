@@ -61,6 +61,10 @@ export function FittingConfirmScreen() {
       selectedSize: d.slot.selectedSize,
       measurements: d.slot.measurements,
       measurementSource: d.slot.measurementSource,
+      title: d.slot.title,
+      sourceUrl: d.slot.sourceUrl,
+      sizeTable: d.slot.sizeTable,
+      sizeTableSource: d.slot.sizeTableSource,
     }));
     const id = startFittingJob(items);
     router.push({ pathname: '/(tabs)/fitting/[jobId]', params: { jobId: id } });
