@@ -67,19 +67,27 @@ export function FittingConfirmScreen() {
   };
 
   const handleGenerate = () => {
-    // 안 맞는(작은) 사이즈가 있으면 생성 전에 경고
-    const unfit = done.filter((d) => slotFit(d)?.verdict === 'small');
-    if (unfit.length > 0) {
+    // 1) 사이즈 미선택 검증 (사이즈를 골라야 핏 판단도 가능하므로 먼저)
+    const unselected = done.filter((d) => !d.slot.selectedSize);
+    if (unselected.length > 0) {
       Alert.alert(
-        '안 맞는 사이즈가 있어요',
-        `${unfit.map((d) => d.label).join(', ')} 사이즈가 작아요.\n수정 후 생성을 권장해요.`,
-        [
-          { text: '수정하기', style: 'cancel' },
-          { text: '그대로 생성', onPress: doGenerate },
-        ],
+        '사이즈를 선택해 주세요',
+        `아직 사이즈를 고르지 않은 옷이 있어요: ${unselected.map((d) => d.label).join(', ')}`,
       );
       return;
     }
+
+    // 2) 신체보다 작은 사이즈 검증
+    const tooSmall = done.filter((d) => slotFit(d)?.verdict === 'small');
+    if (tooSmall.length > 0) {
+      Alert.alert(
+        '사이즈를 수정해 주세요',
+        `신체 사이즈보다 작은 옷이 있어요: ${tooSmall.map((d) => d.label).join(', ')}`,
+      );
+      return;
+    }
+
+    // 3) 둘 다 통과 → 생성
     doGenerate();
   };
 
