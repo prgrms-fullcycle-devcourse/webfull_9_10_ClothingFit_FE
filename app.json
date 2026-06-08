@@ -53,6 +53,14 @@
             "extraMavenRepos": ["https://devrepo.kakao.com/nexus/content/groups/public/"]
           }
         }
+      ],
+      "@react-native-google-signin/google-signin",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "아바타 사진을 등록하기 위해 사진 보관함 접근 권한이 필요합니다.",
+          "cameraPermission": "아바타 사진을 촬영하기 위해 카메라 접근 권한이 필요합니다."
+        }
       ]
     ],
     "experiments": {

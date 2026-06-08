@@ -1,21 +1,46 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Pressable, ScrollView, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, View } from 'react-native';
 
 import { Image } from '@/components/ui/image';
 import { Text } from '@/components/ui/text';
-import { AVATARS, GENDERS, type Gender } from '@/features/auth/constants/avatars';
+import {
+  BODY_TYPE_LABEL,
+  GENDERS,
+  fallbackImage,
+  type Gender,
+} from '@/features/auth/constants/avatars';
+import type { Character } from '@/features/characters/api';
 import { cn } from '@/utils/cn';
 
 type AvatarStepProps = {
   gender: Gender;
-  selectedId: string;
+  characters: Character[];
+  selectedId: string | null;
+  isLoading: boolean;
+  isError: boolean;
+  /** 업로드한 사진 미리보기 uri (있으면 캐릭터 대신 사진을 표시) */
+  uploadedUri: string | null;
+  isUploading: boolean;
   onChangeGender: (next: Gender) => void;
   onSelectId: (id: string) => void;
+  onPickAlbum: () => void;
+  onPickCamera: () => void;
 };
 
-export function AvatarStep({ gender, selectedId, onChangeGender, onSelectId }: AvatarStepProps) {
-  const avatars = AVATARS[gender];
-  const selected = avatars.find((a) => a.id === selectedId) ?? avatars[0];
+export function AvatarStep({
+  gender,
+  characters,
+  selectedId,
+  isLoading,
+  isError,
+  uploadedUri,
+  isUploading,
+  onChangeGender,
+  onSelectId,
+  onPickAlbum,
+  onPickCamera,
+}: AvatarStepProps) {
+  const selected = characters.find((c) => c.id === selectedId) ?? characters[0];
 
   return (
     <View className="flex-1 gap-4">
@@ -37,30 +62,41 @@ export function AvatarStep({ gender, selectedId, onChangeGender, onSelectId }: A
         })}
       </View>
 
-      {/* 소스 버튼 + 아바타 썸네일 */}
+      {/* 소스 버튼 + 캐릭터 썸네일 */}
       <View className="flex-row gap-3">
         <View className="gap-2">
-          <SourceButton icon="image-outline" label="앨범" />
-          <SourceButton icon="camera-outline" label="사진 촬영" />
+          <SourceButton
+            icon="image-outline"
+            label="앨범"
+            onPress={onPickAlbum}
+            disabled={isUploading}
+          />
+          <SourceButton
+            icon="camera-outline"
+            label="사진 촬영"
+            onPress={onPickCamera}
+            disabled={isUploading}
+          />
         </View>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerClassName="gap-3 pr-2"
         >
-          {avatars.map((a) => {
-            const active = selectedId === a.id;
+          {characters.map((c) => {
+            const active = selectedId === c.id;
             return (
               <Pressable
-                key={a.id}
-                onPress={() => onSelectId(a.id)}
+                key={c.id}
+                onPress={() => onSelectId(c.id)}
                 className={cn(
                   'h-28 w-20 overflow-hidden rounded-xl border bg-surface',
                   active ? 'border-primary' : 'border-border',
                 )}
               >
                 <Image
-                  source={a.source}
+                  source={c.imageUrl}
+                  placeholder={fallbackImage(gender, c.bodyType)}
                   contentFit="contain"
                   className="w-full h-full bg-transparent"
                 />
@@ -75,16 +111,49 @@ export function AvatarStep({ gender, selectedId, onChangeGender, onSelectId }: A
         </ScrollView>
       </View>
 
-      {/* 큰 미리보기 */}
+      {/* 큰 미리보기 / 상태 */}
       <View className="flex-1 rounded-2xl border border-border p-4">
-        <Text variant="label" className="text-base">
-          {selected.label}
-        </Text>
-        <Image
-          source={selected.source}
-          contentFit="contain"
-          className="flex-1 w-full bg-transparent"
-        />
+        {isUploading ? (
+          <View className="flex-1 items-center justify-center gap-2">
+            <ActivityIndicator />
+            <Text variant="caption">사진 업로드 중...</Text>
+          </View>
+        ) : uploadedUri ? (
+          <>
+            <Text variant="label" className="text-base">
+              내 사진
+            </Text>
+            <Image
+              source={uploadedUri}
+              contentFit="contain"
+              className="flex-1 w-full bg-transparent"
+            />
+          </>
+        ) : isLoading ? (
+          <View className="flex-1 items-center justify-center">
+            <ActivityIndicator />
+          </View>
+        ) : isError ? (
+          <View className="flex-1 items-center justify-center">
+            <Text variant="caption">캐릭터를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.</Text>
+          </View>
+        ) : selected ? (
+          <>
+            <Text variant="label" className="text-base">
+              {BODY_TYPE_LABEL[selected.bodyType]}
+            </Text>
+            <Image
+              source={selected.imageUrl}
+              placeholder={fallbackImage(gender, selected.bodyType)}
+              contentFit="contain"
+              className="flex-1 w-full bg-transparent"
+            />
+          </>
+        ) : (
+          <View className="flex-1 items-center justify-center">
+            <Text variant="caption">표시할 캐릭터가 없어요.</Text>
+          </View>
+        )}
       </View>
 
       <Text variant="caption" className="text-center">
@@ -94,9 +163,26 @@ export function AvatarStep({ gender, selectedId, onChangeGender, onSelectId }: A
   );
 }
 
-function SourceButton({ icon, label }: { icon: keyof typeof Ionicons.glyphMap; label: string }) {
+function SourceButton({
+  icon,
+  label,
+  onPress,
+  disabled,
+}: {
+  icon: keyof typeof Ionicons.glyphMap;
+  label: string;
+  onPress?: () => void;
+  disabled?: boolean;
+}) {
   return (
-    <Pressable className="h-[52px] w-16 items-center justify-center gap-1 rounded-xl bg-surface">
+    <Pressable
+      onPress={onPress}
+      disabled={disabled}
+      className={cn(
+        'h-[52px] w-16 items-center justify-center gap-1 rounded-xl bg-surface',
+        disabled && 'opacity-50',
+      )}
+    >
       <Ionicons name={icon} size={20} color="#6a7282" />
       <Text variant="label">{label}</Text>
     </Pressable>
