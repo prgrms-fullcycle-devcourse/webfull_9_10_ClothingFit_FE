@@ -38,9 +38,25 @@ export function useAvatarImage(onUploaded?: (imageUrl: string) => void) {
       setLocalUri(imageUrl);
       onUploaded?.(imageUrl);
     } catch (e) {
-      const err = e as { response?: { status?: number; data?: { message?: string } } };
-      const msg = err?.response?.status === 400 ? err.response?.data?.message : undefined;
-      Alert.alert('업로드 실패', msg ?? '사진 업로드에 실패했어요. 잠시 후 다시 시도해 주세요.');
+      // 실제 실패 원인(상태코드/서버메시지/네트워크코드)을 드러내 진단을 쉽게 한다.
+      const err = e as {
+        code?: string;
+        message?: string;
+        config?: { url?: string };
+        response?: { status?: number; data?: { message?: string } };
+      };
+      const status = err?.response?.status;
+      const serverMsg = err?.response?.data?.message;
+      console.error('[avatar-upload] 실패', {
+        status,
+        code: err?.code,
+        url: err?.config?.url,
+        data: err?.response?.data,
+        message: err?.message,
+      });
+      const hint =
+        serverMsg ?? err?.message ?? '사진 업로드에 실패했어요. 잠시 후 다시 시도해 주세요.';
+      Alert.alert('업로드 실패', `[${status ?? err?.code ?? 'ERR'}] ${hint}`);
       setLocalUri(null);
     }
   };
