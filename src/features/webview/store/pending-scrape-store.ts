@@ -38,15 +38,15 @@ export function subscribePendingScrape(listener: () => void) {
 
 // 무신사 공식 카테고리(상의 001/아우터 002/하의 003/신발 103) 품목명 기반 키워드
 const CATEGORY_KEYWORDS: Record<CategoryId, RegExp> = {
-  hat: /모자|캡|버킷|비니|(?:^|\s)hat(?:\s|$)|(?:^|\s)cap(?:\s|$)|beanie/i,
+  hat: /모자|캡|버킷|비니|페도라|비치햇|베레모|스냅백|바이저|헌팅캡|(?:^|\s)hat(?:\s|$)|(?:^|\s)cap(?:\s|$)|beanie|fedora|beret|snapback|visor/i,
   outer:
-    /자켓|재킷|코트|패딩|점퍼|아우터|집업|블루종|라이더스|레더|블레이저|카디건|베스트|사파리|헌팅|트러커|스타디움|코치|아노락|플리스|뽀글이|무스탕|ma-?1|jacket|coat|padding|outer|blouson|rider|leather|blazer|cardigan|vest|safari|trucker|stadium|fleece|coach|anorak/i,
+    /자켓|재킷|코트|패딩|점퍼|아우터|집업|블루종|라이더스|레더|블레이저|카디건|베스트|사파리|헌팅|트러커|스타디움|코치|아노락|플리스|뽀글이|무스탕|바람막이|윈드브레이커|야상|파카|봄버|후리스|트렌치|덕다운|ma-?1|jacket|coat|padding|outer|blouson|rider|leather|blazer|cardigan|vest|safari|trucker|stadium|fleece|coach|anorak|windbreaker|bomber|parka|trench/i,
   // `티` 단독 패턴 제거 — "빈티지·멀티·오드티" 등 신발명에 오탐
-  top: /티셔츠|셔츠|블라우스|니트|스웨터|맨투맨|스웨트|후드|피케|카라|폴로|반팔|긴팔|반소매|긴소매|민소매|나시|헨리넥|상의|유니폼|져지|저지|tee|shirt|blouse|knit|sweater|hoodie|jersey|polo|pique/i,
+  top: /티셔츠|셔츠|블라우스|니트|스웨터|맨투맨|스웨트|후드|피케|카라|폴로|반팔|긴팔|반소매|긴소매|민소매|나시|헨리넥|래시가드|탱크탑|크롭탑|크롭티|슬리브리스|롱슬리브|터틀넥|모크넥|상의|유니폼|져지|저지|tee|shirt|blouse|knit|sweater|hoodie|jersey|polo|pique|rashguard|tank|turtleneck/i,
   bottom:
-    /팬츠|바지|청바지|데님|치마|스커트|쇼츠|슬랙스|조거|트레이닝|레깅스|점프\s*슈트|오버올|하의|pants|shorts|skirt|jean|denim|slacks|jogger|legging|overall|jumpsuit/i,
+    /팬츠|바지|청바지|데님|치마|스커트|쇼츠|슬랙스|조거|트레이닝|레깅스|점프\s*슈트|오버올|카고|치노|트라우저|배기|버뮤다|핫팬츠|하의|pants|shorts|skirt|jean|denim|slacks|jogger|legging|overall|jumpsuit|cargo|chino|trouser/i,
   shoes:
-    /신발|운동화|스니커즈|스포츠화|로퍼|부츠|워커|샌들|슬리퍼|구두|뮬|클로그|슬라이드|플립플롭|shoes|sneaker|boot|sandal|slipper|loafer|walker|mule|clog|slide|flip/i,
+    /신발|운동화|스니커즈|스포츠화|로퍼|부츠|워커|샌들|슬리퍼|구두|뮬|클로그|슬라이드|플립플롭|더비|첼시|첼시부츠|모카신|에스파드리유|발레슈즈|메리제인|shoes|sneaker|boot|sandal|slipper|loafer|walker|mule|clog|slide|flip|derby|chelsea|moccasin|espadrille/i,
 };
 
 /**
