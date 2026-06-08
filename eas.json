@@ -6,16 +6,28 @@
   "build": {
     "development": {
       "developmentClient": true,
-      "distribution": "internal"
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://clothing-fit-be.onrender.com/api/v1/",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "1005195807825-vacp5istnd7hank4rklcq3s1qrhbs212.apps.googleusercontent.com"
+      }
     },
     "preview": {
       "distribution": "internal",
       "android": {
         "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://clothing-fit-be.onrender.com/api/v1/",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "1005195807825-vacp5istnd7hank4rklcq3s1qrhbs212.apps.googleusercontent.com"
       }
     },
     "production": {
-      "autoIncrement": true
+      "autoIncrement": true,
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://clothing-fit-be.onrender.com/api/v1/",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "1005195807825-vacp5istnd7hank4rklcq3s1qrhbs212.apps.googleusercontent.com"
+      }
     }
   },
   "submit": {

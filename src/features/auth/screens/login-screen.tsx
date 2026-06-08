@@ -29,7 +29,7 @@ export function LoginScreen() {
   };
 
   return (
-    <ScreenShell noHeader>
+    <ScreenShell noHeader edges={['top', 'bottom']}>
       <View className="flex-1 px-6">
         <View className="flex-1 justify-center gap-4">
           <Image variant="logo" source={require('../../../../assets/images/logo.png')} />
