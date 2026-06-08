@@ -62,6 +62,8 @@ export function FittingConfirmScreen() {
       measurements: d.slot.measurements,
       measurementSource: d.slot.measurementSource,
       title: d.slot.title,
+      brand: d.slot.brand,
+      productName: d.slot.productName,
       sourceUrl: d.slot.sourceUrl,
       sizeTable: d.slot.sizeTable,
       sizeTableSource: d.slot.sizeTableSource,

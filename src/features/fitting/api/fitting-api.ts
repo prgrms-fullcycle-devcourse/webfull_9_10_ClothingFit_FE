@@ -30,7 +30,9 @@ export function buildFittingFormData(items: FittingItem[]): FormData {
     category: it.category,
     selectedSize: it.selectedSize ?? null,
     imageField: it.imageUri ? imageFieldName(it.category) : null,
-    title: it.title ?? null,
+    brand: it.brand ?? null,
+    name: it.productName ?? null,
+    title: it.title ?? null, // 원본(브랜드 포함) — 참고용
     sourceUrl: it.sourceUrl ?? null,
     selectedMeasurements: it.measurements ?? null,
     sizeTable: it.sizeTable ?? null,
