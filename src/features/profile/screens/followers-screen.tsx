@@ -1,43 +1,129 @@
-import { useState } from 'react';
-import { FlatList, Pressable, View } from 'react-native';
+import { router, useLocalSearchParams } from 'expo-router';
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, FlatList, Image, Pressable, View } from 'react-native';
 
+import {
+  useGetUsersIdFollowers,
+  useGetUsersIdFollowings,
+} from '@/api/generated/endpoints/follows/follows';
 import { ScreenShell } from '@/components/blocks/screen-shell';
+import { TabButton } from '@/components/ui/tab-button';
 import { Text } from '@/components/ui/text';
-import { MOCK_FOLLOWERS } from '@/mocks/data';
+import { FollowButton } from '@/features/feed/components/follow-button';
+import { useUserFollow } from '@/features/feed/hooks/use-user-follow';
+import { getUserId } from '@/lib/auth-storage';
+
+type FollowItem = {
+  id: string;
+  imageUrl: string | null;
+  nickname: string;
+  isFollowing: boolean;
+};
+
+type Tab = 'followers' | 'following';
+
+function FollowListItem({
+  item,
+  myUserId,
+}: {
+  item: FollowItem;
+  myUserId: string | null | undefined;
+}) {
+  const { isFollowing, toggle } = useUserFollow({ userId: item.id, isFollowing: item.isFollowing });
+  const isMe = !!myUserId && myUserId === item.id;
+
+  return (
+    <View className="flex-row items-center mb-4">
+      <Pressable
+        className="flex-row items-center flex-1"
+        onPress={() => router.push(`/(tabs)/profile/user/${item.id}`)}
+      >
+        {item.imageUrl ? (
+          <Image
+            source={{ uri: item.imageUrl }}
+            style={{ width: 48, height: 48, borderRadius: 24, marginRight: 12 }}
+          />
+        ) : (
+          <View className="w-[48px] h-[48px] rounded-full bg-surface mr-3" />
+        )}
+        <Text className="font-sans-medium">{item.nickname}</Text>
+      </Pressable>
+      {myUserId !== undefined && !isMe && (
+        <FollowButton isFollowing={isFollowing} onPress={toggle} />
+      )}
+    </View>
+  );
+}
+
+function FollowList({
+  items,
+  myUserId,
+}: {
+  items: FollowItem[];
+  myUserId: string | null | undefined;
+}) {
+  return (
+    <FlatList
+      data={items}
+      keyExtractor={(item) => item.id}
+      contentContainerStyle={{ padding: 16 }}
+      renderItem={({ item }) => <FollowListItem item={item} myUserId={myUserId} />}
+    />
+  );
+}
 
 export function FollowersScreen() {
-  const [tab, setTab] = useState<'followers' | 'following'>('followers');
+  const { userId, tab: initialTab } = useLocalSearchParams<{ userId: string; tab?: Tab }>();
+  const [tab, setTab] = useState<Tab>(initialTab ?? 'followers');
+  const [myUserId, setMyUserId] = useState<string | null | undefined>(undefined);
+
+  useEffect(() => {
+    getUserId().then(setMyUserId);
+  }, []);
+
+  const { data: followersData, isLoading: followersLoading } = useGetUsersIdFollowers(userId);
+  const { data: followingsData, isLoading: followingsLoading } = useGetUsersIdFollowings(userId);
+
+  const isLoading = tab === 'followers' ? followersLoading : followingsLoading;
+  const followerItems = followersData?.data ?? [];
+  const followingItems = followingsData?.data ?? [];
 
   return (
     <ScreenShell title="팔로워 · 팔로잉">
-      <View className="flex-row border-b border-border">
-        <Pressable
-          className={`flex-1 py-3 items-center ${tab === 'followers' ? 'border-b-2 border-primary' : ''}`}
-          onPress={() => setTab('followers')}>
-          <Text className="font-sans-medium">팔로워 3명</Text>
-        </Pressable>
-        <Pressable
-          className={`flex-1 py-3 items-center ${tab === 'following' ? 'border-b-2 border-primary' : ''}`}
-          onPress={() => setTab('following')}>
-          <Text className="font-sans-medium">팔로잉 4명</Text>
-        </Pressable>
+      <View className="flex-row border-b border-border px-4">
+        <TabButton
+          label={`팔로워 ${followersData?.totalCount ?? 0}`}
+          selected={tab === 'followers'}
+          onPress={() => setTab('followers')}
+          className="flex-1 py-3"
+        />
+        <TabButton
+          label={`팔로잉 ${followingsData?.totalCount ?? 0}`}
+          selected={tab === 'following'}
+          onPress={() => setTab('following')}
+          className="flex-1 py-3"
+        />
       </View>
-      <FlatList
-        data={MOCK_FOLLOWERS}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={{ padding: 16 }}
-        renderItem={({ item }) => (
-          <View className="flex-row items-center mb-4">
-            <View className="w-12 h-12 rounded-full bg-surface mr-3" />
-            <Text className="flex-1 font-sans-medium">{item.nickname}</Text>
-            <View className={`px-4 py-2 rounded-lg ${item.isFollowing ? 'bg-accent' : 'bg-primary'}`}>
-              <Text className="text-white text-sm font-sans-medium">
-                {item.isFollowing ? '팔로잉' : '팔로우'}
-              </Text>
-            </View>
+
+      {isLoading ? (
+        <View className="flex-1 items-center justify-center">
+          <ActivityIndicator />
+        </View>
+      ) : tab === 'followers' ? (
+        followerItems.length === 0 ? (
+          <View className="flex-1 items-center justify-center">
+            <Text variant="caption">회원님을 팔로우 하는 모든 사용자가 여기에 표시됩니다.</Text>
           </View>
-        )}
-      />
+        ) : (
+          <FollowList items={followerItems} myUserId={myUserId} />
+        )
+      ) : followingItems.length === 0 ? (
+        <View className="flex-1 items-center justify-center">
+          <Text variant="caption">마음에 드는 회원님을 팔로우 해보세요.</Text>
+        </View>
+      ) : (
+        <FollowList items={followingItems} myUserId={myUserId} />
+      )}
     </ScreenShell>
   );
 }

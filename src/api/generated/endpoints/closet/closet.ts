@@ -6,16 +6,20 @@
  * OpenAPI spec version: 1.0.0
  */
 import {
+  useMutation,
   useQuery
 } from '@tanstack/react-query';
 import type {
   DataTag,
   DefinedInitialDataOptions,
   DefinedUseQueryResult,
+  MutationFunction,
   QueryClient,
   QueryFunction,
   QueryKey,
   UndefinedInitialDataOptions,
+  UseMutationOptions,
+  UseMutationResult,
   UseQueryOptions,
   UseQueryResult
 } from '@tanstack/react-query';
@@ -219,3 +223,127 @@ export function useGetClosetId<TData = Awaited<ReturnType<typeof getClosetId>>, 
 
 
 
+/**
+ * 특정 옷장 아카이브를 삭제합니다. 게시된 게시글도 함께 삭제됩니다.
+ * @summary 코디 삭제
+ */
+export const deleteClosetId = (
+    id: string,
+ signal?: AbortSignal
+) => {
+
+
+      return apiClient<void>(
+      {url: `/closet/${id}`, method: 'DELETE', signal
+    },
+      );
+    }
+
+
+
+export const getDeleteClosetIdMutationOptions = <TError = ErrorResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteClosetId>>, TError,{id: string}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof deleteClosetId>>, TError,{id: string}, TContext> => {
+
+const mutationKey = ['deleteClosetId'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteClosetId>>, {id: string}> = (props) => {
+          const {id} = props ?? {};
+
+          return  deleteClosetId(id,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteClosetIdMutationResult = NonNullable<Awaited<ReturnType<typeof deleteClosetId>>>
+
+    export type DeleteClosetIdMutationError = ErrorResponse
+
+    /**
+ * @summary 코디 삭제
+ */
+export const useDeleteClosetId = <TError = ErrorResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteClosetId>>, TError,{id: string}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof deleteClosetId>>,
+        TError,
+        {id: string},
+        TContext
+      > => {
+      return useMutation(getDeleteClosetIdMutationOptions(options), queryClient);
+    }
+    /**
+ * 옷장 아카이브를 커뮤니티에 게시합니다. 이미 게시된 경우 409를 반환합니다.
+ * @summary 커뮤니티에 게시
+ */
+export const postClosetIdPublish = (
+    id: string,
+ signal?: AbortSignal
+) => {
+
+
+      return apiClient<void>(
+      {url: `/closet/${id}/publish`, method: 'POST', signal
+    },
+      );
+    }
+
+
+
+export const getPostClosetIdPublishMutationOptions = <TError = ErrorResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postClosetIdPublish>>, TError,{id: string}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof postClosetIdPublish>>, TError,{id: string}, TContext> => {
+
+const mutationKey = ['postClosetIdPublish'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postClosetIdPublish>>, {id: string}> = (props) => {
+          const {id} = props ?? {};
+
+          return  postClosetIdPublish(id,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PostClosetIdPublishMutationResult = NonNullable<Awaited<ReturnType<typeof postClosetIdPublish>>>
+
+    export type PostClosetIdPublishMutationError = ErrorResponse
+
+    /**
+ * @summary 커뮤니티에 게시
+ */
+export const usePostClosetIdPublish = <TError = ErrorResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postClosetIdPublish>>, TError,{id: string}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof postClosetIdPublish>>,
+        TError,
+        {id: string},
+        TContext
+      > => {
+      return useMutation(getPostClosetIdPublishMutationOptions(options), queryClient);
+    }

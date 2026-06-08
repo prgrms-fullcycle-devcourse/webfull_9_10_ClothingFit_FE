@@ -6,6 +6,11 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export type PatchProfileNickname200 = {
-  message: string;
+export type GetProfileRecentPostsParams = {
+cursor?: string;
+/**
+ * @minimum 1
+ * @maximum 50
+ */
+limit?: number;
 };

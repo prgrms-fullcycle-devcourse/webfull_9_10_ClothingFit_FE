@@ -3,7 +3,7 @@ import { useState } from 'react';
 
 import { postAuthKakao, type LoginData } from '@/features/auth/api';
 import { setAuthToken } from '@/lib/api-client';
-import { setTokens } from '@/lib/auth-storage';
+import { saveUserIdFromToken, setTokens } from '@/lib/auth-storage';
 import { isNativeSocialAvailable } from '../lib/native-social';
 
 export function useKakaoLogin() {
@@ -17,8 +17,9 @@ export function useKakaoLogin() {
     setIsLoading(true);
     try {
       const token = await login(); // 카카오 로그인 → 카카오 토큰
-      const { data } = await postAuthKakao({ accessToken: token.accessToken }); // 백엔드 → 앱 토큰
+      const data = await postAuthKakao({ accessToken: token.accessToken }); // 백엔드 → 앱 토큰
       await setTokens(data.accessToken, data.refreshToken);
+      await saveUserIdFromToken(data.accessToken);
       setAuthToken(data.accessToken);
       return data;
     } finally {

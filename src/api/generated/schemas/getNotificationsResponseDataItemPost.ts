@@ -6,6 +6,11 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export interface MessageResponse {
-  message: string;
-}
+/**
+ * @nullable
+ */
+export type GetNotificationsResponseDataItemPost = {
+  id: string;
+  /** @nullable */
+  image: string | null;
+} | null;
