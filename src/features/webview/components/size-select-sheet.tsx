@@ -3,7 +3,7 @@ import { Pressable, View } from 'react-native';
 
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
-import { MOCK_BODY } from '@/features/fitting/data/mock-body';
+import { useBodyMeasurements } from '@/features/fitting/hooks/use-body-measurements';
 import { checkFit } from '@/features/fitting/utils/fit-check';
 import { cn } from '@/utils/cn';
 
@@ -50,6 +50,7 @@ export function SizeSelectSheet({
   onSubmit,
 }: SizeSelectSheetProps) {
   const [picked, setPicked] = useState<string | undefined>(selected);
+  const body = useBodyMeasurements();
 
   // 시트가 열릴 때마다 현재 선택값으로 초기화
   const current = picked ?? selected;
@@ -71,7 +72,7 @@ export function SizeSelectSheet({
           sizeTable,
           sizeTableSource,
           sizeOptions: options,
-          body: MOCK_BODY,
+          body,
         })
       : null;
 

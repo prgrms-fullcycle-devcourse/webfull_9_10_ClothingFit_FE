@@ -6,7 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ScreenShell } from '@/components/blocks/screen-shell';
 import { Text } from '@/components/ui/text';
-import { MOCK_BODY } from '@/features/fitting/data/mock-body';
+import { useBodyMeasurements } from '@/features/fitting/hooks/use-body-measurements';
 import { startFittingJob } from '@/features/fitting/store/fitting-job-store';
 import { checkFit } from '@/features/fitting/utils/fit-check';
 import type { FittingItem } from '@/features/fitting/types';
@@ -21,6 +21,7 @@ import { cn } from '@/utils/cn';
 export function FittingConfirmScreen() {
   const { session, setSlotSize } = useCopySession();
   const insets = useSafeAreaInsets();
+  const body = useBodyMeasurements();
   // 어떤 슬롯의 사이즈 시트가 열려있는지 (null=닫힘)
   const [sizeSheetCat, setSizeSheetCat] = useState<CategoryId | null>(null);
   const [bodySheetOpen, setBodySheetOpen] = useState(false);
@@ -48,7 +49,7 @@ export function FittingConfirmScreen() {
           sizeTable: d.slot.sizeTable,
           sizeTableSource: d.slot.sizeTableSource,
           sizeOptions: d.slot.sizeOptions,
-          body: MOCK_BODY,
+          body,
         })
       : null;
 
