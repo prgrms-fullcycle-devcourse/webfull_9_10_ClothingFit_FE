@@ -72,7 +72,7 @@ function lookupInChart(
   // ── 이하 폴백: 시드에 라벨이 없을 때 숫자에서 추정 ──
   // ★ 카테고리별로 측정항목명이 다르므로 categoryId 기준으로 분기한다.
 
-  // 신발: mm 라벨 처리 (괄호 "05(250)" / 범위 "225-230" / 순수 mm)
+  // 신발: mm 라벨 처리 (괄호 "05(250)" / 범위 "225-230" / mm·US 복합 "265/M8W10")
   if (categoryId === 'shoes') {
     const parenMatch = sizeLabel.match(/\((\d{3})\)/); // "05(250)"
     if (parenMatch) {
@@ -85,9 +85,12 @@ function lookupInChart(
       const b = parseFloat(rangeMatch[2]);
       if (a >= 180 && b <= 360) return { 발길이: Math.round(((a + b) / 2 / 10) * 10) / 10 };
     }
-    const mm = parseFloat(sizeLabel.replace(/[^0-9.]/g, ''));
-    if (Number.isFinite(mm) && mm >= 100 && mm <= 350) {
-      return { 발길이: Math.round((mm / 10) * 10) / 10 };
+    // mm/US 복합("220/M3W5", "265/M8W10") 또는 "260mm" → 맨 앞 3자리 mm만 사용.
+    // (모든 숫자를 붙이면 "265/M8W10"→"265810"이 돼 실패하므로 첫 3자리만 추출)
+    const mmMatch = sizeLabel.match(/(\d{3})/);
+    if (mmMatch) {
+      const mm = parseFloat(mmMatch[1]);
+      if (mm >= 100 && mm <= 360) return { 발길이: Math.round((mm / 10) * 10) / 10 };
     }
     return null;
   }
