@@ -69,6 +69,8 @@ export * from './notificationEventType';
 export * from './notificationSettingsResponse';
 export * from './otherPost';
 export * from './patchAvatarImageBody';
+export * from './patchNotificationsSettings200';
+export * from './patchNotificationsSettingsBody';
 export * from './patchProfileBody200';
 export * from './patchProfileBodyBody';
 export * from './patchProfileNickname200';
