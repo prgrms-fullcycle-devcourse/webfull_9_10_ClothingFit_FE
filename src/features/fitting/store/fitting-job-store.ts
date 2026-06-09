@@ -1,7 +1,6 @@
 import { useSyncExternalStore } from 'react';
 
 import { showBanner } from '@/features/notifications/banner-store';
-import { addNotification } from '@/features/notifications/notifications-store';
 
 import { generateFitting } from '../api/fitting-api';
 import type { FittingItem, FittingJob } from '../types';
@@ -52,13 +51,7 @@ export function startFittingJob(items: FittingItem[]): string {
       if (!prev) return;
       setJob({ ...prev, status: 'done', resultImageUri: res.imageUri });
       const route = { pathname: '/(tabs)/fitting/result', params: { jobId: id } } as const;
-      addNotification({
-        type: 'avatar',
-        title: 'AI 아바타 생성이 완료되었습니다.',
-        time: '방금',
-        read: false,
-        route,
-      });
+      // 알림은 서버(SSE/알림 목록)가 단일 소스. 로컬 2D 피팅 완료는 즉시성 위해 배너만 띄운다.
       showBanner({
         title: '2D 아바타 생성 완료',
         message: '탭하여 결과를 확인하세요',
