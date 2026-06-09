@@ -1,5 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useSyncExternalStore } from 'react';
+import { Platform } from 'react-native';
 import EventSource from 'react-native-sse';
 
 import { getAuthVersion, subscribeAuthChange } from '@/lib/api-client';
@@ -20,7 +21,8 @@ export function useNotificationsStream(enabled = true) {
   const authVersion = useSyncExternalStore(subscribeAuthChange, getAuthVersion);
 
   useEffect(() => {
-    if (!enabled || !env.apiUrl) return;
+    // SecureStore·react-native-sse는 네이티브 전용 → 웹에서는 SSE 구독을 건너뛴다.
+    if (!enabled || !env.apiUrl || Platform.OS === 'web') return;
 
     let es: EventSource | null = null;
     let cancelled = false;
