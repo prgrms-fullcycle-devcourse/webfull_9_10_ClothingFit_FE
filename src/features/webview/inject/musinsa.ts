@@ -84,7 +84,7 @@ export function buildMusinsaScrapeScript(requestId: string): string {
   }
 
   // 측정항목 헤더 키워드 (이 컬럼들은 숫자 cm 값)
-  var MEAS_RE = /어깨|가슴|총장|기장|밑단|소매|허리|암홀|밑위|허벅지|단면|둘레|품|폭|길이/;
+  var MEAS_RE = /어깨|가슴|총장|기장|밑단|소매|허리|암홀|밑위|허벅지|단면|둘레|품|폭|길이|깊이|높이/;
   // 사이즈 라벨 형태 (S/M/L, FREE, 또는 숫자 사이즈)
   var SIZE_LABEL_RE = /^(XS|S|M|L|XL|2XL|3XL|4XL|XXL|XXXL|FREE|F|\\d{1,3}(\\.\\d+)?)$/i;
 
@@ -343,13 +343,38 @@ export function buildMusinsaScrapeScript(requestId: string): string {
       }
       if (records.length === 0) continue;
 
-      // 사이즈명 결정: 표 안 라벨 우선, 없으면 표 밖 위치정렬 탐색
-      var labels = hasInlineLabel ? inlineLabels : collectExternalLabels(table, dataRowEls);
+      // 단일 사이즈인데 색상만 여러 개(모든 행 측정값 동일)인 경우 → FREE 하나로 합침.
+      // (예: 볼캡 1사이즈 × 17색상 → "깊이=11"이 17번 중복되던 문제 방지)
+      var forcedSingle = false;
+      if (records.length > 1) {
+        var sig0 = JSON.stringify(records[0]);
+        var allSame = true;
+        for (var sci = 1; sci < records.length; sci++) {
+          if (JSON.stringify(records[sci]) !== sig0) {
+            allSame = false;
+            break;
+          }
+        }
+        if (allSame) {
+          records = [records[0]];
+          dataRowEls = [dataRowEls[0]];
+          forcedSingle = true;
+          log('table[' + ti + '] 모든 행 동일 → 단일 사이즈(FREE)로 합침 (색상 변형 등)');
+        }
+      }
+
+      // 사이즈명 결정: 합쳐진 단일=FREE, 표 안 라벨 우선, 없으면 표 밖 위치정렬 탐색
+      var labels = forcedSingle
+        ? ['FREE']
+        : hasInlineLabel
+          ? inlineLabels
+          : collectExternalLabels(table, dataRowEls);
 
       var result = {};
       for (var di = 0; di < records.length; di++) {
         var name = labels[di] ? String(labels[di]).trim() : '';
-        if (!name) name = '사이즈' + (di + 1);
+        // 라벨 없는 단일 행은 FREE로 (사이즈 1개 상품)
+        if (!name) name = records.length === 1 ? 'FREE' : '사이즈' + (di + 1);
         if (result[name]) name = name + '_' + (di + 1); // 키 충돌 방지
         result[name] = records[di];
       }
