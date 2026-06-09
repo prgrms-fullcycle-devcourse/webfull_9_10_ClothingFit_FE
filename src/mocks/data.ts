@@ -261,25 +261,6 @@ export const MOCK_CLOSET_ITEMS = [
   },
 ];
 
-export const MOCK_NOTIFICATIONS = [
-  { id: 'n1', type: '3d', title: '3D 모델 생성이 완료되었습니다.', time: '방금', read: false },
-  {
-    id: 'n2',
-    type: 'follow',
-    title: '민지님이 회원님을 팔로우합니다.',
-    time: '1시간 전',
-    read: false,
-  },
-  { id: 'n3', type: 'like', title: '내 게시물에 좋아요를 눌렀습니다.', time: '2일 전', read: true },
-  {
-    id: 'n4',
-    type: 'avatar',
-    title: 'AI 아바타 생성이 완료되었습니다.',
-    time: '3주 전',
-    read: true,
-  },
-];
-
 export const MOCK_FOLLOWERS = Array.from({ length: 5 }, (_, i) => ({
   id: `f-${i}`,
   nickname: 'Kian_OOTD',

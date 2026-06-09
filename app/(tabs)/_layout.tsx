@@ -4,9 +4,12 @@ import { View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { colors, fonts } from '@/constants/theme';
+import { useNotificationsStream } from '@/features/notifications/use-notifications-stream';
 
 export default function TabLayout() {
   const insets = useSafeAreaInsets();
+  // 앱 전역에서 1개 SSE 연결 유지 → 새 알림 도착 시 홈/마이 뱃지가 실시간 갱신됨
+  useNotificationsStream();
 
   return (
     <Tabs
@@ -79,6 +82,13 @@ export default function TabLayout() {
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="person-outline" size={size} color={color} />
           ),
+        }}
+        listeners={{
+          // 알림 등 프로필 하위 화면이 스택에 남아있어도, 탭을 누르면 항상 마이페이지(index)로
+          tabPress: (e) => {
+            e.preventDefault();
+            router.navigate('/(tabs)/profile');
+          },
         }}
       />
       <Tabs.Screen

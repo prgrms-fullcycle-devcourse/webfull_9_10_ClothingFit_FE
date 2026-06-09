@@ -8,6 +8,7 @@ import { ScreenShell } from '@/components/blocks/screen-shell';
 import { Text } from '@/components/ui/text';
 import { usePopularPosts, useRecommendedInfluencers } from '@/features/home/api';
 import { HotUserCard } from '@/features/home/components/hot-user-card';
+import { useUnreadNotificationCount } from '@/features/notifications/api';
 import { PopularCarousel } from '@/features/home/components/popular-carousel';
 
 // HOT 카드 배경 placeholder 색 (이미지 로딩 전/없을 때 자리)
@@ -52,6 +53,7 @@ function QuerySection<T>({
 export function HomeScreen() {
   const posts = usePopularPosts();
   const influencers = useRecommendedInfluencers();
+  const { data: unreadCount = 0 } = useUnreadNotificationCount();
 
   return (
     <ScreenShell noHeader>
@@ -60,9 +62,17 @@ export function HomeScreen() {
         <Text variant="title">CLOTHING-FIT</Text>
         <Pressable onPress={() => router.push('/(tabs)/profile/notifications')} hitSlop={8}>
           <Ionicons name="notifications-outline" size={24} color="#111827" />
-          <View className="absolute -right-1 -top-1 h-4 w-4 items-center justify-center rounded-full bg-red-500">
-            <Text className="text-[10px] font-sans-bold text-white">1</Text>
-          </View>
+          {unreadCount > 0 && (
+            <View className="absolute -right-1.5 -top-1.5 h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1">
+              <Text
+                className="text-[10px] font-sans-bold text-white"
+                // 작은 뱃지 안에서 NotoSansKR 글리프가 아래로 잘리는 것 방지
+                style={{ includeFontPadding: false, lineHeight: 12, textAlignVertical: 'center' }}
+              >
+                {unreadCount > 99 ? '99+' : unreadCount}
+              </Text>
+            </View>
+          )}
         </Pressable>
       </View>
 

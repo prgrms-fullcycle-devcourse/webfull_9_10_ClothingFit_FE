@@ -4,6 +4,7 @@ import { Pressable, ScrollView, View } from 'react-native';
 
 import { ScreenShell } from '@/components/blocks/screen-shell';
 import { Text } from '@/components/ui/text';
+import { useUnreadNotificationCount } from '@/features/notifications/api';
 import { MOCK_CLOSET_ITEMS, MOCK_POSTS, MOCK_USER } from '@/mocks/data';
 
 const links = [
@@ -17,6 +18,8 @@ const links = [
 ] as const;
 
 export function ProfileHomeScreen() {
+  const { data: unreadCount = 0 } = useUnreadNotificationCount();
+
   return (
     <ScreenShell title="마이페이지" showBack={false} noHeader>
       <View className="flex-row items-center justify-between px-4 py-3 border-b border-border">
@@ -24,6 +27,10 @@ export function ProfileHomeScreen() {
         <View className="flex-row gap-3">
           <Pressable onPress={() => router.push('/(tabs)/profile/notifications')}>
             <Ionicons name="notifications-outline" size={22} />
+            {/* 작은 영역이라 개수 없이 빨간 점만 */}
+            {unreadCount > 0 && (
+              <View className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-red-500" />
+            )}
           </Pressable>
           <Pressable onPress={() => router.push('/(tabs)/profile/settings')}>
             <Ionicons name="settings-outline" size={22} />
@@ -80,7 +87,8 @@ export function ProfileHomeScreen() {
             <Pressable
               key={l.href}
               className="py-3 border-b border-border flex-row justify-between"
-              onPress={() => router.push(l.href)}>
+              onPress={() => router.push(l.href)}
+            >
               <Text>{l.label}</Text>
               <Ionicons name="chevron-forward" size={18} color="#9ca3af" />
             </Pressable>
