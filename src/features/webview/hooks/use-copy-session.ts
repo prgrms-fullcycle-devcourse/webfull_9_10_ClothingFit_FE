@@ -50,6 +50,8 @@ export function useCopySession(_initialMallId?: MallId) {
           status: 'done',
           imageUri: payload.imageUri,
           title: payload.title,
+          brand: payload.brand,
+          productName: payload.productName,
           measurements: payload.measurements,
           measurementSource: payload.measurementSource,
           selectedSize: payload.selectedSize,

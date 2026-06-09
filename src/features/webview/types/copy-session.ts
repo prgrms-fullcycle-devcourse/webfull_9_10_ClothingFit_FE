@@ -19,8 +19,12 @@ export type CategorySlot = {
   status: CategorySlotStatus;
   /** WebView에서 캡처한 의류 영역 이미지 (file:// or data:) */
   imageUri?: string;
-  /** 상품명 (스크래핑 제목) */
+  /** 상품명 (스크래핑 제목 — 브랜드·쓰레기 포함 원본) */
   title?: string;
+  /** 브랜드명 (meta product:brand — 깨끗함) */
+  brand?: string;
+  /** 정제된 상품명 (JSON-LD name — 브랜드/쓰레기 없음) */
+  productName?: string;
   /** 선택한 사이즈의 측정값 (cm) */
   measurements?: Record<string, number>;
   /** measurements가 actual-size/HTML 실측인지, 기준표 seed 추정인지 */
@@ -51,6 +55,8 @@ export type CopySession = {
 export type SaveSlotPayload = {
   imageUri: string;
   title?: string;
+  brand?: string;
+  productName?: string;
   measurements?: Record<string, number>;
   measurementSource?: MeasurementSource;
   selectedSize?: string;
