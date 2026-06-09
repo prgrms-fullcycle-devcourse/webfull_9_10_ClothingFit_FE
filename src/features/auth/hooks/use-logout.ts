@@ -20,20 +20,21 @@ export function useLogout() {
   const logout = async (): Promise<void> => {
     setIsLoading(true);
     try {
-      // 서버에 refresh token 무효화 요청 (로컬 삭제 전에 읽어야 함, best-effort)
+      // refresh token은 로컬 삭제 전에 읽어둔다.
       const refreshToken = await getRefreshToken();
+
+      // 서버 refresh token 무효화 + 소셜 SDK 정리는 모두 best-effort라 await하지 않는다.
+      // (onrender 콜드 스타트/SDK 지연으로 로그아웃이 최대 30초 걸리던 문제 방지 → 백그라운드 실행)
       if (refreshToken) {
-        await deleteAuthLogout({ refreshToken }).catch(() => {}); // 네트워크 실패해도 로컬 로그아웃 진행
+        deleteAuthLogout({ refreshToken }).catch(() => {});
+      }
+      if (isNativeSocialAvailable) {
+        void Promise.allSettled([kakaoLogout(), GoogleSignin.signOut()]);
       }
 
-      // 앱 세션 정리
+      // 로컬 세션만 즉시 정리 → 사용자는 바로 로그아웃됨 (SecureStore 삭제는 빠름)
       await clearTokens();
       setAuthToken(null);
-
-      // 소셜 SDK 세션 정리 (best-effort: 이미 만료/미로그인 상태여도 무시)
-      if (isNativeSocialAvailable) {
-        await Promise.allSettled([kakaoLogout(), GoogleSignin.signOut()]);
-      }
     } finally {
       setIsLoading(false);
       router.replace('/(auth)/login');
