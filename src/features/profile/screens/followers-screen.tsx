@@ -73,7 +73,7 @@ function FollowList({
 }
 
 export function FollowersScreen() {
-  const { userId, tab: initialTab } = useLocalSearchParams<{ userId: string; tab?: Tab }>();
+  const { userId, tab: initialTab } = useLocalSearchParams<{ userId?: string; tab?: Tab }>();
   const [tab, setTab] = useState<Tab>(initialTab ?? 'followers');
   const [myUserId, setMyUserId] = useState<string | null | undefined>(undefined);
 
@@ -81,22 +81,27 @@ export function FollowersScreen() {
     getUserId().then(setMyUserId);
   }, []);
 
+  // userId 없이 진입하면(예: 설정 > 팔로잉&팔로워) 내 팔로워/팔로잉을 본다.
+  const targetId = userId ?? myUserId ?? undefined;
+
   const { data: followersData, isLoading: followersLoading } = useGetUsersIdFollowers(
-    userId,
+    targetId ?? '',
     undefined,
     {
-      query: { enabled: !!userId },
+      query: { enabled: !!targetId },
     },
   );
   const { data: followingsData, isLoading: followingsLoading } = useGetUsersIdFollowings(
-    userId,
+    targetId ?? '',
     undefined,
     {
-      query: { enabled: !!userId },
+      query: { enabled: !!targetId },
     },
   );
 
-  const isLoading = tab === 'followers' ? followersLoading : followingsLoading;
+  // 내 id를 아직 읽는 중이면(설정 진입) 로딩으로 처리해 빈 화면 깜빡임 방지
+  const resolvingMe = !userId && myUserId === undefined;
+  const isLoading = resolvingMe || (tab === 'followers' ? followersLoading : followingsLoading);
   const followerItems = followersData?.data ?? [];
   const followingItems = followingsData?.data ?? [];
 
