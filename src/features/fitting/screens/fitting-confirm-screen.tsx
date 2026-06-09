@@ -19,7 +19,7 @@ import { MOCK_USER } from '@/mocks/data';
 import { cn } from '@/utils/cn';
 
 export function FittingConfirmScreen() {
-  const { session, setSlotSize } = useCopySession();
+  const { session, setSlotSize, clearCategory } = useCopySession();
   const insets = useSafeAreaInsets();
   const body = useBodyMeasurements();
   // 어떤 슬롯의 사이즈 시트가 열려있는지 (null=닫힘)
@@ -97,6 +97,14 @@ export function FittingConfirmScreen() {
     doGenerate();
   };
 
+  // 카드에서 의상 빼기 (확인 후 슬롯 비움)
+  const handleRemove = (category: CategoryId, label: string) => {
+    Alert.alert('의상 빼기', `${label}을(를) 코디에서 뺄까요?`, [
+      { text: '취소', style: 'cancel' },
+      { text: '빼기', style: 'destructive', onPress: () => clearCategory(category) },
+    ]);
+  };
+
   const sizeSheetSlot = sizeSheetCat ? session.slots[sizeSheetCat] : null;
 
   return (
@@ -137,6 +145,14 @@ export function FittingConfirmScreen() {
                       ) : (
                         <View className="w-full aspect-square bg-surface" />
                       )}
+                      {/* 우상단 X — 의상 빼기 */}
+                      <Pressable
+                        onPress={() => handleRemove(d.category, d.label)}
+                        hitSlop={8}
+                        className="absolute right-1.5 top-1.5 h-7 w-7 items-center justify-center rounded-full bg-black/55"
+                      >
+                        <Ionicons name="close" size={16} color="#fff" />
+                      </Pressable>
                       <View className="p-2.5">
                         <Text className="font-sans-bold text-sm">{d.label}</Text>
                         <Text variant="caption" numberOfLines={1} className="text-muted mb-2">
