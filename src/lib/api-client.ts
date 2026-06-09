@@ -1,6 +1,8 @@
-import axios, { type AxiosRequestConfig } from 'axios';
+import axios, { type AxiosRequestConfig, type InternalAxiosRequestConfig } from 'axios';
+import { router } from 'expo-router';
 
 import { env } from './env';
+import { clearTokens, getAccessToken, getRefreshToken, setTokens } from './auth-storage';
 
 export const axiosInstance = axios.create({
   baseURL: env.apiUrl || undefined,
@@ -9,6 +11,94 @@ export const axiosInstance = axios.create({
     'Content-Type': 'application/json',
   },
 });
+
+// ── Refresh Token Queue/Lock ───────────────────────────────────────────────
+
+let isRefreshing = false;
+let failedQueue: {
+  resolve: (token: string) => void;
+  reject: (error: unknown) => void;
+}[] = [];
+
+const processQueue = (error: unknown, token: string | null) => {
+  failedQueue.forEach(({ resolve, reject }) => {
+    if (error) reject(error);
+    else resolve(token!);
+  });
+  failedQueue = [];
+};
+
+// ── Request Interceptor: SecureStore에서 토큰 꺼내 헤더에 붙임 ─────────────
+
+axiosInstance.interceptors.request.use(async (config: InternalAxiosRequestConfig) => {
+  const token = await getAccessToken();
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+// ── Response Interceptor: TOKEN_EXPIRED → refresh → 재시도 ────────────────
+
+axiosInstance.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+
+    const isTokenExpired =
+      error.response?.status === 401 &&
+      error.response?.data?.code === 'TOKEN_EXPIRED' &&
+      !originalRequest._retry;
+
+    if (!isTokenExpired) {
+      return Promise.reject(error);
+    }
+
+    // 이미 refresh 중이면 큐에 대기
+    if (isRefreshing) {
+      return new Promise((resolve, reject) => {
+        failedQueue.push({ resolve, reject });
+      }).then((newToken) => {
+        originalRequest.headers.Authorization = `Bearer ${newToken}`;
+        return axiosInstance(originalRequest);
+      });
+    }
+
+    originalRequest._retry = true;
+    isRefreshing = true;
+
+    try {
+      const refreshToken = await getRefreshToken();
+      if (!refreshToken) throw new Error('리프레시 토큰 없음');
+
+      // axiosInstance 우회 — 인터셉터 무한루프 방지
+      const { data } = await axios.post(
+        `${env.apiUrl}/auth/refresh`,
+        { refreshToken },
+        { headers: { 'Content-Type': 'application/json' } },
+      );
+
+      // Rotation: 새 accessToken + refreshToken 모두 저장
+      await setTokens(data.accessToken, data.refreshToken);
+      setAuthToken(data.accessToken);
+
+      processQueue(null, data.accessToken);
+
+      originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
+      return axiosInstance(originalRequest);
+    } catch (refreshError) {
+      processQueue(refreshError, null);
+      await clearTokens();
+      setAuthToken(null);
+      router.replace('/(auth)/login');
+      return Promise.reject(refreshError);
+    } finally {
+      isRefreshing = false;
+    }
+  },
+);
+
+// ── Mutator ───────────────────────────────────────────────────────────────
 
 /**
  * Orval 생성 코드 및 수작업 API가 공통으로 쓰는 mutator.
@@ -26,7 +116,8 @@ export const apiClient = <T = unknown>(config: AxiosRequestConfig): Promise<T> =
   return axiosInstance(config).then((response) => response.data as T);
 };
 
-// 인증 변경(로그인/로그아웃) 구독 — SSE 등 토큰에 의존하는 연결이 재설정되도록.
+// ── Auth 변경 구독 (SSE 등 토큰 의존 연결 재설정용) ──────────────────────────
+
 let authVersion = 0;
 const authListeners = new Set<() => void>();
 
