@@ -5,9 +5,7 @@
  * ClothingFit 백엔드 API 문서
  * OpenAPI spec version: 1.0.0
  */
-import type { RefreshResponseData } from './refreshResponseData';
 
 export interface RefreshResponse {
-  message: string;
-  data: RefreshResponseData;
+  accessToken: string;
 }

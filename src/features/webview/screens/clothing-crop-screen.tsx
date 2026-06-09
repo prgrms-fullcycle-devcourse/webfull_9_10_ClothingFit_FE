@@ -100,6 +100,8 @@ export function ClothingCropScreen() {
       saveSlot(pending.category, {
         imageUri: finalUri,
         title: data?.title,
+        brand: data?.brand,
+        productName: data?.name,
         sizeOptions: sizeOptions.length ? sizeOptions : undefined,
         sizeTable,
         sizeTableSource,

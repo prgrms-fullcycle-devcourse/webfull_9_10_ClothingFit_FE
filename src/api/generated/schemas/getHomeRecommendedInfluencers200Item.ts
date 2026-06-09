@@ -7,6 +7,8 @@
  */
 
 export type GetHomeRecommendedInfluencers200Item = {
+  postId: string;
+  userId: string;
   /** @nullable */
   postImage: string | null;
   /** @nullable */

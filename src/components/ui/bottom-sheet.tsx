@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Modal, Pressable, View } from 'react-native';
+import { KeyboardAvoidingView, Modal, Pressable, StyleSheet, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -23,20 +23,25 @@ export function BottomSheet({ visible, onClose, children }: Props) {
 
   return (
     <Modal visible={visible} transparent animationType="none" onRequestClose={onClose}>
-      <View className="flex-1">
-        <View className="absolute inset-0 bg-black/40">
-          <Pressable className="flex-1" onPress={onClose} />
-        </View>
-        <Animated.View
-          style={[sheetStyle, { paddingBottom: bottom }]}
-          className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl"
-        >
-          <View className="items-center pt-3 pb-1">
-            <View className="w-10 h-1 rounded-full bg-border" />
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior="height">
+        <View style={{ flex: 1 }}>
+          <Pressable
+            style={[StyleSheet.absoluteFillObject, { backgroundColor: 'rgba(0,0,0,0.4)' }]}
+            onPress={onClose}
+          />
+          <View style={{ flex: 1, justifyContent: 'flex-end' }}>
+            <Animated.View
+              style={[sheetStyle, { paddingBottom: bottom }]}
+              className="bg-white rounded-t-2xl"
+            >
+              <View className="items-center pt-3 pb-1">
+                <View className="w-10 h-1 rounded-full bg-border" />
+              </View>
+              {children}
+            </Animated.View>
           </View>
-          {children}
-        </Animated.View>
-      </View>
+        </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }

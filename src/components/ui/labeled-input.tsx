@@ -26,7 +26,10 @@ export function LabeledInput({
         {required && <Text className="text-red-500"> *</Text>}
       </Text>
       <TextInput
-        className={cn('border border-border rounded-xl px-4 py-4 text-lg', className)}
+        // text-lg(=fontSize+lineHeight 동시 지정) 대신 fontSize만 지정.
+        // 한글 폰트에서 강제 lineHeight가 글리프를 클리핑해 입력 안 텍스트가 세로 스크롤되는 것 방지.
+        className={cn('border border-border rounded-xl px-4 py-4', className)}
+        style={{ fontSize: 18 }}
         {...props}
       />
     </View>

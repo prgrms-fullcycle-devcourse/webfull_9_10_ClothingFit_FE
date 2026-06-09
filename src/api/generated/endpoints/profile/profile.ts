@@ -25,9 +25,16 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
+  BodyInfoResponse,
   CheckNicknameResponse,
   ErrorResponse,
+  GetPostsResponse,
+  GetProfileBookmarksParams,
+  GetProfileInterestsParams,
   GetProfileNicknameCheckParams,
+  GetProfileRecentPostsParams,
+  PatchProfileBody200,
+  PatchProfileBodyBody,
   PatchProfileNickname200,
   PatchProfileNicknameBody,
   ProfileResponse
@@ -232,7 +239,7 @@ export const patchProfileNickname = (
 ) => {
 
 
-      return apiClient<PatchProfileNickname200>(
+      return apiClient<void>(
       {url: `/profile/nickname`, method: 'PATCH',
       headers: {'Content-Type': 'application/json', },
       data: patchProfileNicknameBody, signal
@@ -286,3 +293,437 @@ export const usePatchProfileNickname = <TError = ErrorResponse,
       > => {
       return useMutation(getPatchProfileNicknameMutationOptions(options), queryClient);
     }
+    /**
+ * @summary 체형 정보 조회
+ */
+export const getProfileBody = (
+
+ signal?: AbortSignal
+) => {
+
+
+      return apiClient<BodyInfoResponse>(
+      {url: `/profile/body`, method: 'GET', signal
+    },
+      );
+    }
+
+
+
+
+export const getGetProfileBodyQueryKey = () => {
+    return [
+    `/profile/body`
+    ] as const;
+    }
+
+
+export const getGetProfileBodyQueryOptions = <TData = Awaited<ReturnType<typeof getProfileBody>>, TError = ErrorResponse>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProfileBody>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetProfileBodyQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getProfileBody>>> = ({ signal }) => getProfileBody(signal);
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getProfileBody>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetProfileBodyQueryResult = NonNullable<Awaited<ReturnType<typeof getProfileBody>>>
+export type GetProfileBodyQueryError = ErrorResponse
+
+
+export function useGetProfileBody<TData = Awaited<ReturnType<typeof getProfileBody>>, TError = ErrorResponse>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProfileBody>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getProfileBody>>,
+          TError,
+          Awaited<ReturnType<typeof getProfileBody>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetProfileBody<TData = Awaited<ReturnType<typeof getProfileBody>>, TError = ErrorResponse>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProfileBody>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getProfileBody>>,
+          TError,
+          Awaited<ReturnType<typeof getProfileBody>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetProfileBody<TData = Awaited<ReturnType<typeof getProfileBody>>, TError = ErrorResponse>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProfileBody>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary 체형 정보 조회
+ */
+
+export function useGetProfileBody<TData = Awaited<ReturnType<typeof getProfileBody>>, TError = ErrorResponse>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProfileBody>>, TError, TData>>, }
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetProfileBodyQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+/**
+ * @summary 체형 정보 수정
+ */
+export const patchProfileBody = (
+    patchProfileBodyBody?: PatchProfileBodyBody,
+ signal?: AbortSignal
+) => {
+
+
+      return apiClient<PatchProfileBody200>(
+      {url: `/profile/body`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: patchProfileBodyBody, signal
+    },
+      );
+    }
+
+
+
+export const getPatchProfileBodyMutationOptions = <TError = ErrorResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof patchProfileBody>>, TError,{data?: PatchProfileBodyBody}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof patchProfileBody>>, TError,{data?: PatchProfileBodyBody}, TContext> => {
+
+const mutationKey = ['patchProfileBody'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof patchProfileBody>>, {data?: PatchProfileBodyBody}> = (props) => {
+          const {data} = props ?? {};
+
+          return  patchProfileBody(data,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PatchProfileBodyMutationResult = NonNullable<Awaited<ReturnType<typeof patchProfileBody>>>
+    export type PatchProfileBodyMutationBody = PatchProfileBodyBody | undefined
+    export type PatchProfileBodyMutationError = ErrorResponse
+
+    /**
+ * @summary 체형 정보 수정
+ */
+export const usePatchProfileBody = <TError = ErrorResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof patchProfileBody>>, TError,{data?: PatchProfileBodyBody}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof patchProfileBody>>,
+        TError,
+        {data?: PatchProfileBodyBody},
+        TContext
+      > => {
+      return useMutation(getPatchProfileBodyMutationOptions(options), queryClient);
+    }
+    /**
+ * @summary 최근 조회한 커뮤니티 목록
+ */
+export const getProfileRecentPosts = (
+    params?: GetProfileRecentPostsParams,
+ signal?: AbortSignal
+) => {
+
+
+      return apiClient<GetPostsResponse>(
+      {url: `/profile/recent-posts`, method: 'GET',
+        params, signal
+    },
+      );
+    }
+
+
+
+
+export const getGetProfileRecentPostsQueryKey = (params?: GetProfileRecentPostsParams,) => {
+    return [
+    `/profile/recent-posts`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetProfileRecentPostsQueryOptions = <TData = Awaited<ReturnType<typeof getProfileRecentPosts>>, TError = ErrorResponse>(params?: GetProfileRecentPostsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProfileRecentPosts>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetProfileRecentPostsQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getProfileRecentPosts>>> = ({ signal }) => getProfileRecentPosts(params, signal);
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getProfileRecentPosts>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetProfileRecentPostsQueryResult = NonNullable<Awaited<ReturnType<typeof getProfileRecentPosts>>>
+export type GetProfileRecentPostsQueryError = ErrorResponse
+
+
+export function useGetProfileRecentPosts<TData = Awaited<ReturnType<typeof getProfileRecentPosts>>, TError = ErrorResponse>(
+ params: undefined |  GetProfileRecentPostsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProfileRecentPosts>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getProfileRecentPosts>>,
+          TError,
+          Awaited<ReturnType<typeof getProfileRecentPosts>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetProfileRecentPosts<TData = Awaited<ReturnType<typeof getProfileRecentPosts>>, TError = ErrorResponse>(
+ params?: GetProfileRecentPostsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProfileRecentPosts>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getProfileRecentPosts>>,
+          TError,
+          Awaited<ReturnType<typeof getProfileRecentPosts>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetProfileRecentPosts<TData = Awaited<ReturnType<typeof getProfileRecentPosts>>, TError = ErrorResponse>(
+ params?: GetProfileRecentPostsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProfileRecentPosts>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary 최근 조회한 커뮤니티 목록
+ */
+
+export function useGetProfileRecentPosts<TData = Awaited<ReturnType<typeof getProfileRecentPosts>>, TError = ErrorResponse>(
+ params?: GetProfileRecentPostsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProfileRecentPosts>>, TError, TData>>, }
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetProfileRecentPostsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+/**
+ * @summary 북마크한 코디 목록
+ */
+export const getProfileBookmarks = (
+    params?: GetProfileBookmarksParams,
+ signal?: AbortSignal
+) => {
+
+
+      return apiClient<GetPostsResponse>(
+      {url: `/profile/bookmarks`, method: 'GET',
+        params, signal
+    },
+      );
+    }
+
+
+
+
+export const getGetProfileBookmarksQueryKey = (params?: GetProfileBookmarksParams,) => {
+    return [
+    `/profile/bookmarks`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetProfileBookmarksQueryOptions = <TData = Awaited<ReturnType<typeof getProfileBookmarks>>, TError = ErrorResponse>(params?: GetProfileBookmarksParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProfileBookmarks>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetProfileBookmarksQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getProfileBookmarks>>> = ({ signal }) => getProfileBookmarks(params, signal);
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getProfileBookmarks>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetProfileBookmarksQueryResult = NonNullable<Awaited<ReturnType<typeof getProfileBookmarks>>>
+export type GetProfileBookmarksQueryError = ErrorResponse
+
+
+export function useGetProfileBookmarks<TData = Awaited<ReturnType<typeof getProfileBookmarks>>, TError = ErrorResponse>(
+ params: undefined |  GetProfileBookmarksParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProfileBookmarks>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getProfileBookmarks>>,
+          TError,
+          Awaited<ReturnType<typeof getProfileBookmarks>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetProfileBookmarks<TData = Awaited<ReturnType<typeof getProfileBookmarks>>, TError = ErrorResponse>(
+ params?: GetProfileBookmarksParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProfileBookmarks>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getProfileBookmarks>>,
+          TError,
+          Awaited<ReturnType<typeof getProfileBookmarks>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetProfileBookmarks<TData = Awaited<ReturnType<typeof getProfileBookmarks>>, TError = ErrorResponse>(
+ params?: GetProfileBookmarksParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProfileBookmarks>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary 북마크한 코디 목록
+ */
+
+export function useGetProfileBookmarks<TData = Awaited<ReturnType<typeof getProfileBookmarks>>, TError = ErrorResponse>(
+ params?: GetProfileBookmarksParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProfileBookmarks>>, TError, TData>>, }
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetProfileBookmarksQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+/**
+ * @summary 좋아요한 게시글 목록
+ */
+export const getProfileInterests = (
+    params?: GetProfileInterestsParams,
+ signal?: AbortSignal
+) => {
+
+
+      return apiClient<GetPostsResponse>(
+      {url: `/profile/interests`, method: 'GET',
+        params, signal
+    },
+      );
+    }
+
+
+
+
+export const getGetProfileInterestsQueryKey = (params?: GetProfileInterestsParams,) => {
+    return [
+    `/profile/interests`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetProfileInterestsQueryOptions = <TData = Awaited<ReturnType<typeof getProfileInterests>>, TError = ErrorResponse>(params?: GetProfileInterestsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProfileInterests>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetProfileInterestsQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getProfileInterests>>> = ({ signal }) => getProfileInterests(params, signal);
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getProfileInterests>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetProfileInterestsQueryResult = NonNullable<Awaited<ReturnType<typeof getProfileInterests>>>
+export type GetProfileInterestsQueryError = ErrorResponse
+
+
+export function useGetProfileInterests<TData = Awaited<ReturnType<typeof getProfileInterests>>, TError = ErrorResponse>(
+ params: undefined |  GetProfileInterestsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProfileInterests>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getProfileInterests>>,
+          TError,
+          Awaited<ReturnType<typeof getProfileInterests>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetProfileInterests<TData = Awaited<ReturnType<typeof getProfileInterests>>, TError = ErrorResponse>(
+ params?: GetProfileInterestsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProfileInterests>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getProfileInterests>>,
+          TError,
+          Awaited<ReturnType<typeof getProfileInterests>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetProfileInterests<TData = Awaited<ReturnType<typeof getProfileInterests>>, TError = ErrorResponse>(
+ params?: GetProfileInterestsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProfileInterests>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary 좋아요한 게시글 목록
+ */
+
+export function useGetProfileInterests<TData = Awaited<ReturnType<typeof getProfileInterests>>, TError = ErrorResponse>(
+ params?: GetProfileInterestsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProfileInterests>>, TError, TData>>, }
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetProfileInterestsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+

@@ -5,8 +5,9 @@
  * ClothingFit 백엔드 API 문서
  * OpenAPI spec version: 1.0.0
  */
-import type { GroupedCharacters } from './groupedCharacters';
+import type { CharacterListItem } from './characterListItem';
 
 export interface CharacterListResponse {
-  data: GroupedCharacters;
+  MALE: CharacterListItem[];
+  FEMALE: CharacterListItem[];
 }

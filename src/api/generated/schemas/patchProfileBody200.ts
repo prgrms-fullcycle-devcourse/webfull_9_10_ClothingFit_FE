@@ -6,8 +6,6 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export type KakaoLoginResponseData = {
-  accessToken: string;
-  refreshToken: string;
-  isNewUser: boolean;
+export type PatchProfileBody200 = {
+  message: string;
 };

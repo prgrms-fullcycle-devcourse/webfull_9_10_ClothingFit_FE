@@ -75,8 +75,7 @@ export function ProfileHomeScreen() {
           {MOCK_CLOSET_ITEMS.map((c) => (
             <Pressable
               key={c.id}
-              className="w-24 h-32 rounded-xl mr-2"
-              style={{ backgroundColor: c.color }}
+              className="w-24 h-32 rounded-xl mr-2 bg-surface"
               onPress={() => router.push(`/(tabs)/closet/${c.id}`)}
             />
           ))}

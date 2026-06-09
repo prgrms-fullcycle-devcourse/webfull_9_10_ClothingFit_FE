@@ -264,6 +264,28 @@ export function buildMusinsaScrapeScript(requestId: string): string {
     if (hit === 0) log('[진단] 큰 이미지 없음');
   }
 
+  // 브랜드: meta[property="product:brand"]가 가장 깨끗하고 일관적이다.
+  function getBrand() {
+    var m = document.querySelector('meta[property="product:brand"]');
+    return m ? (m.getAttribute('content') || '').trim() : '';
+  }
+
+  // 상품명: JSON-LD(schema.org Product)의 name이 브랜드·"사이즈&후기" 없이 깨끗하다.
+  function getProductName() {
+    var lds = document.querySelectorAll('script[type="application/ld+json"]');
+    for (var i = 0; i < lds.length; i++) {
+      try {
+        var data = JSON.parse(lds[i].textContent || '{}');
+        if (data && typeof data.name === 'string' && data.name.trim()) {
+          return data.name.trim();
+        }
+      } catch (e) {
+        /* JSON 파싱 실패 시 다음 스크립트로 */
+      }
+    }
+    return '';
+  }
+
   function extractSizeTable() {
     var tables = document.querySelectorAll('table');
     vlog('사이즈표 탐색: <table> ' + tables.length + '개 발견');
@@ -346,12 +368,16 @@ export function buildMusinsaScrapeScript(requestId: string): string {
 
     // 최소 조건: title이나 imageUrl 중 하나는 잡혀야 페이지로 인정
     if (!title && !imageUrl) return null;
+    var brand = getBrand();
+    var name = getProductName();
 
     // 이미지 후보(base64)는 무거우니 매 폴링이 아니라 종료 시점에만 채운다.
     // (tick에서 snap.sizeChartCandidates에 주입)
     return {
       url: location.href,
       title: title || '',
+      brand: brand,
+      name: name,
       imageUrl: imageUrl,
       sizeTable: sizeTable,
       sizeChartImageUrl: null,

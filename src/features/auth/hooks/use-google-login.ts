@@ -3,7 +3,7 @@ import { useState } from 'react';
 
 import { postAuthGoogle, type LoginData } from '@/features/auth/api';
 import { setAuthToken } from '@/lib/api-client';
-import { setTokens } from '@/lib/auth-storage';
+import { saveUserIdFromToken, setTokens } from '@/lib/auth-storage';
 import { isNativeSocialAvailable } from '../lib/native-social';
 
 /**
@@ -35,8 +35,10 @@ export function useGoogleLogin() {
         throw new Error('구글 idToken을 받지 못했습니다. (webClientId 설정 확인)');
       }
 
-      const { data } = await postAuthGoogle({ idToken });
+      // 백엔드는 토큰을 최상위로 반환(스펙의 { message, data } 래퍼와 다름 — 실제 배포 응답 기준)
+      const data = (await postAuthGoogle({ idToken })) as unknown as LoginData;
       await setTokens(data.accessToken, data.refreshToken);
+      await saveUserIdFromToken(data.accessToken);
       setAuthToken(data.accessToken);
 
       return data;

@@ -16,14 +16,13 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
-  DeleteAuthLogout200,
   DeleteAuthLogoutBody,
   ErrorResponse,
-  KakaoLoginResponse,
   PostAuthGoogleBody,
   PostAuthKakaoBody,
   PostAuthRefreshBody,
-  RefreshResponse
+  RefreshResponse,
+  SocialLoginResponse
 } from '../../schemas';
 
 import { apiClient } from '../../../../lib/api-client';
@@ -40,7 +39,7 @@ export const postAuthKakao = (
 ) => {
 
 
-      return apiClient<KakaoLoginResponse>(
+      return apiClient<SocialLoginResponse>(
       {url: `/auth/kakao`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
       data: postAuthKakaoBody, signal
@@ -95,6 +94,69 @@ export const usePostAuthKakao = <TError = ErrorResponse,
       return useMutation(getPostAuthKakaoMutationOptions(options), queryClient);
     }
     /**
+ * @summary 구글 소셜 로그인
+ */
+export const postAuthGoogle = (
+    postAuthGoogleBody?: PostAuthGoogleBody,
+ signal?: AbortSignal
+) => {
+
+
+      return apiClient<SocialLoginResponse>(
+      {url: `/auth/google`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: postAuthGoogleBody, signal
+    },
+      );
+    }
+
+
+
+export const getPostAuthGoogleMutationOptions = <TError = ErrorResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postAuthGoogle>>, TError,{data?: PostAuthGoogleBody}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof postAuthGoogle>>, TError,{data?: PostAuthGoogleBody}, TContext> => {
+
+const mutationKey = ['postAuthGoogle'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postAuthGoogle>>, {data?: PostAuthGoogleBody}> = (props) => {
+          const {data} = props ?? {};
+
+          return  postAuthGoogle(data,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PostAuthGoogleMutationResult = NonNullable<Awaited<ReturnType<typeof postAuthGoogle>>>
+    export type PostAuthGoogleMutationBody = PostAuthGoogleBody | undefined
+    export type PostAuthGoogleMutationError = ErrorResponse
+
+    /**
+ * @summary 구글 소셜 로그인
+ */
+export const usePostAuthGoogle = <TError = ErrorResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postAuthGoogle>>, TError,{data?: PostAuthGoogleBody}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof postAuthGoogle>>,
+        TError,
+        {data?: PostAuthGoogleBody},
+        TContext
+      > => {
+      return useMutation(getPostAuthGoogleMutationOptions(options), queryClient);
+    }
+    /**
  * @summary 로그아웃
  */
 export const deleteAuthLogout = (
@@ -103,7 +165,7 @@ export const deleteAuthLogout = (
 ) => {
 
 
-      return apiClient<DeleteAuthLogout200>(
+      return apiClient<void>(
       {url: `/auth/logout`, method: 'DELETE',
       headers: {'Content-Type': 'application/json', },
       data: deleteAuthLogoutBody, signal
@@ -219,67 +281,4 @@ export const usePostAuthRefresh = <TError = ErrorResponse,
         TContext
       > => {
       return useMutation(getPostAuthRefreshMutationOptions(options), queryClient);
-    }
-    /**
- * @summary 구글 소셜 로그인
- */
-export const postAuthGoogle = (
-    postAuthGoogleBody?: PostAuthGoogleBody,
- signal?: AbortSignal
-) => {
-
-
-      return apiClient<KakaoLoginResponse>(
-      {url: `/auth/google`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: postAuthGoogleBody, signal
-    },
-      );
-    }
-
-
-
-export const getPostAuthGoogleMutationOptions = <TError = ErrorResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postAuthGoogle>>, TError,{data?: PostAuthGoogleBody}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof postAuthGoogle>>, TError,{data?: PostAuthGoogleBody}, TContext> => {
-
-const mutationKey = ['postAuthGoogle'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postAuthGoogle>>, {data?: PostAuthGoogleBody}> = (props) => {
-          const {data} = props ?? {};
-
-          return  postAuthGoogle(data,)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type PostAuthGoogleMutationResult = NonNullable<Awaited<ReturnType<typeof postAuthGoogle>>>
-    export type PostAuthGoogleMutationBody = PostAuthGoogleBody | undefined
-    export type PostAuthGoogleMutationError = ErrorResponse
-
-    /**
- * @summary 구글 소셜 로그인
- */
-export const usePostAuthGoogle = <TError = ErrorResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postAuthGoogle>>, TError,{data?: PostAuthGoogleBody}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof postAuthGoogle>>,
-        TError,
-        {data?: PostAuthGoogleBody},
-        TContext
-      > => {
-      return useMutation(getPostAuthGoogleMutationOptions(options), queryClient);
     }

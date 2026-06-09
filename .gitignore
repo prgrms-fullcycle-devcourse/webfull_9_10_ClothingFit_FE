@@ -40,3 +40,6 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# 개인 메모 (팀 공유 X)
+docs/DEV_WORKFLOW.md

@@ -1,54 +1,169 @@
 import { Ionicons } from '@expo/vector-icons';
-import Feather from '@expo/vector-icons/Feather';
-import { useLocalSearchParams } from 'expo-router';
-import { useState } from 'react';
-import { ScrollView, View } from 'react-native';
+import { router, useLocalSearchParams } from 'expo-router';
+import { useEffect, useState } from 'react';
+import {
+  ActivityIndicator,
+  Image,
+  Modal,
+  Pressable,
+  ScrollView,
+  View,
+  useWindowDimensions,
+} from 'react-native';
 
+import { useGetPostsId } from '@/api/generated/endpoints/posts/posts';
+import { GetPostByIdResponse } from '@/api/generated/schemas';
 import { ScreenShell } from '@/components/blocks/screen-shell';
+import { BookmarkIcon } from '@/components/ui/bookmark-icon';
+import { HeartIcon } from '@/components/ui/heart-icon';
 import { Text } from '@/components/ui/text';
-import { MOCK_OTHER_POSTS, MOCK_POSTS, MOCK_USER, MOCK_WORN_PRODUCTS } from '@/mocks/data';
-
+import { ProfileHeader } from '@/features/profile/components/profile-header';
+import { getUserId } from '@/lib/auth-storage';
+import { formatDate } from '@/lib/format';
 import { ClothInfo } from '../components/cloth-info';
-import { FeedDetailHeader } from '../components/feed-detail-header';
+import { FollowButton } from '../components/follow-button';
 import { OtherPosts } from '../components/other-posts';
+import { usePostBookmark } from '../hooks/use-post-bookmark';
+import { usePostLike } from '../hooks/use-post-like';
+import { useUserFollow } from '../hooks/use-user-follow';
 
-export function FeedPostDetailScreen() {
-  const { postId } = useLocalSearchParams<{ postId: string }>();
-  const post = MOCK_POSTS.find((p) => p.id === postId) ?? MOCK_POSTS[0];
-  const [isFollowing, setIsFollowing] = useState(false);
+function FeedPostDetailContent({ post }: { post: GetPostByIdResponse }) {
+  const userId = post.user.id;
+  const [imageVisible, setImageVisible] = useState(false);
+  const [myUserId, setMyUserId] = useState<string | null | undefined>(undefined);
+  const { width, height } = useWindowDimensions();
+
+  useEffect(() => {
+    getUserId().then(setMyUserId);
+  }, []);
+
+  const isMe = !!myUserId && myUserId === userId;
+
+  const { isFollowing, toggle: toggleFollow } = useUserFollow({
+    userId,
+    isFollowing: post.user.isFollowing,
+  });
+
+  const {
+    isLiked,
+    likeCount,
+    toggle: toggleLike,
+  } = usePostLike({
+    id: post.id,
+    isLiked: post.isLiked,
+    likeCount: post.likeCount,
+  });
+
+  const { isBookmarked, toggle: toggleBookmark } = usePostBookmark({
+    id: post.id,
+    isBookmarked: post.isBookmarked,
+  });
 
   return (
     <ScreenShell title="게시물">
+      <Modal
+        visible={imageVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setImageVisible(false)}
+      >
+        <Pressable
+          className="flex-1 bg-black/90 items-center justify-center"
+          onPress={() => setImageVisible(false)}
+        >
+          <Pressable onPress={() => {}} className="w-full">
+            <Image
+              source={{ uri: post.image2dUrl }}
+              style={{ width, height: height * 0.8 }}
+              resizeMode="contain"
+            />
+          </Pressable>
+          <Pressable onPress={() => setImageVisible(false)} className="absolute top-12 right-4 p-2">
+            <Ionicons name="close" size={28} color="#fff" />
+          </Pressable>
+        </Pressable>
+      </Modal>
       <ScrollView className="flex-1">
-        <FeedDetailHeader
-          nickname={MOCK_USER.nickname}
-          isFollowing={isFollowing}
-          onPressFollow={() => setIsFollowing((prev) => !prev)}
+        <ProfileHeader
+          nickname={post.user.nickname ?? '닉네임'}
+          imageUrl={post.user.imageUrl}
+          action={
+            myUserId !== undefined && !isMe ? (
+              <FollowButton isFollowing={isFollowing} onPress={toggleFollow} />
+            ) : undefined
+          }
+          imgSize="md"
+          onPress={
+            myUserId !== undefined && !isMe
+              ? () => router.push(`/(tabs)/profile/user/${userId}`)
+              : undefined
+          }
         />
-        <View style={{ height: 400, backgroundColor: post.imageColor }} />
-        <View className="flex-row justify-between px-4 py-3 gap-4">
-          <Text>{post.createdAt}</Text>
+        <Pressable onPress={() => setImageVisible(true)}>
+          <Image source={{ uri: post.image2dUrl }} style={{ height: 400 }} resizeMode="contain" />
+        </Pressable>
+        <View className="flex-row justify-between px-4 py-4 gap-4">
+          <Text>{formatDate(post.createdAt)}</Text>
           <View className="flex-row gap-4 items-center">
-            <Text>
-              <Ionicons name="heart" size={13} color="#111827" /> {post.likes}
-            </Text>
-            <Feather name="bookmark" size={24} color="black" />
+            <HeartIcon
+              isLiked={isLiked}
+              onPress={toggleLike}
+              size={18}
+              color="#111827"
+              count={likeCount}
+            />
+            <BookmarkIcon
+              isBookmarked={isBookmarked}
+              size={18}
+              color="#111827"
+              onPress={toggleBookmark}
+            />
           </View>
         </View>
         <Text variant="subtitle" className="px-4 mb-2">
           착용 제품
         </Text>
-        {MOCK_WORN_PRODUCTS.map((p) => (
-          <ClothInfo key={p.id} brand={p.brand} name={p.name} />
+        {post.items.map((item, index) => (
+          <ClothInfo key={index} item={item} />
         ))}
         <View className="px-4 pt-3 pb-1 flex-row">
-          <Text className="font-sans-bold">{MOCK_USER.nickname}</Text>
+          <Text className="font-sans-bold">{post.user.nickname ?? ''}</Text>
           <Text className="font-sans-medium">님의 다른 스타일</Text>
         </View>
         <View className="pb-3">
-          <OtherPosts posts={MOCK_OTHER_POSTS} />
+          <OtherPosts posts={post.otherPosts} />
         </View>
       </ScrollView>
     </ScreenShell>
   );
+}
+
+export function FeedPostDetailScreen() {
+  const { postId } = useLocalSearchParams<{ postId: string }>();
+  const { data, isLoading, isError } = useGetPostsId(postId, {
+    query: { enabled: !!postId },
+  });
+
+  if (isLoading) {
+    return (
+      <ScreenShell title="게시물">
+        <View className="flex-1 items-center justify-center">
+          <ActivityIndicator />
+        </View>
+      </ScreenShell>
+    );
+  }
+
+  if (isError || !data) {
+    return (
+      <ScreenShell title="게시물">
+        <View className="flex-1 items-center justify-center gap-2">
+          <Ionicons name="alert-circle-outline" size={48} color="#888" />
+          <Text variant="caption">불러오지 못했습니다. 잠시 후 다시 시도해 주세요.</Text>
+        </View>
+      </ScreenShell>
+    );
+  }
+
+  return <FeedPostDetailContent post={data} />;
 }

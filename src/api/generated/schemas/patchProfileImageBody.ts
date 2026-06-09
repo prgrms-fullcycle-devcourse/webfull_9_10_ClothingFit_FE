@@ -6,6 +6,6 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export type DeleteAuthLogout200 = {
-  message: string;
+export type PatchProfileImageBody = {
+  image?: Blob;
 };

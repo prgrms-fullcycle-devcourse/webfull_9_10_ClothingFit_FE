@@ -5,9 +5,9 @@
  * ClothingFit 백엔드 API 문서
  * OpenAPI spec version: 1.0.0
  */
-import type { KakaoLoginResponseData } from './kakaoLoginResponseData';
+import type { Fitting3DStatusResponseData } from './fitting3DStatusResponseData';
 
-export interface KakaoLoginResponse {
+export interface Fitting3DStatusResponse {
   message: string;
-  data: KakaoLoginResponseData;
+  data: Fitting3DStatusResponseData;
 }

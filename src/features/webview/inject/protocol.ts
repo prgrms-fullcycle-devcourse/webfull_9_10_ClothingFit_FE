@@ -6,8 +6,12 @@
 export type ScrapeProductData = {
   /** 페이지 URL (inject 시점 location.href) */
   url: string;
-  /** 상품명 (없으면 빈 문자열) */
+  /** 상품명 (og:title 등 — 브랜드·"사이즈&후기" 포함된 원본. 없으면 빈 문자열) */
   title: string;
+  /** 브랜드명 (meta product:brand — 깨끗함. 없으면 빈 문자열) */
+  brand: string;
+  /** 정제된 상품명 (JSON-LD name — 브랜드/쓰레기 없음. 없으면 빈 문자열) */
+  name: string;
   /** 대표 이미지 URL (없으면 null) */
   imageUrl: string | null;
   /**
