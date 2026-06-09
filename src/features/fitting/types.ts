@@ -11,8 +11,12 @@ export type FittingItem = {
   measurements?: Record<string, number>;
   /** actual-size 실측 · 이미지 OCR · 기준표 seed 추정 */
   measurementSource?: MeasurementSource;
-  /** 상품명 (브랜드 포함) — 2D 생성 요청 meta용 */
+  /** 상품명 (브랜드 포함 원본) — 2D 생성 요청 meta용 */
   title?: string;
+  /** 브랜드명 (분리됨) */
+  brand?: string;
+  /** 정제된 상품명 (분리됨) */
+  productName?: string;
   /** 상품 페이지 URL */
   sourceUrl?: string;
   /** 전체 사이즈표 */
