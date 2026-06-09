@@ -1,9 +1,9 @@
-import { router } from 'expo-router';
-import { FlatList, View } from 'react-native';
+import { FlatList, View, useWindowDimensions } from 'react-native';
 
 import { Text } from '@/components/ui/text';
 
-import { OtherPostCard } from './other-post-card';
+import { router } from 'expo-router';
+import { FeedThumbnailItem } from './feed-thumbnail-item';
 
 type Post = {
   id: string;
@@ -16,9 +16,10 @@ type Props = {
   posts: Post[];
 };
 
-const PADDING_LEFT = 16;
-
 export function OtherPosts({ posts }: Props) {
+  const { width: screenWidth } = useWindowDimensions();
+  const itemWidth = screenWidth * 0.3;
+
   if (posts.length === 0) {
     return (
       <View className="px-4 py-6 items-center">
@@ -32,13 +33,16 @@ export function OtherPosts({ posts }: Props) {
       horizontal
       data={posts}
       keyExtractor={(item) => item.id}
-      contentContainerStyle={{ paddingLeft: PADDING_LEFT }}
+      contentContainerStyle={{ paddingLeft: 16 }}
       decelerationRate="fast"
+      showsHorizontalScrollIndicator={false}
       renderItem={({ item }) => (
-        <OtherPostCard
+        <FeedThumbnailItem
+          id={item.id}
           imageUrl={item.imageUrl}
-          likeCount={item.likeCount}
           isLiked={item.isLiked}
+          likeCount={item.likeCount}
+          width={itemWidth}
           onPress={() => router.push(`/(tabs)/feed/${item.id}`)}
         />
       )}

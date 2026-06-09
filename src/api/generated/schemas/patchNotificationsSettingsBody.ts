@@ -6,6 +6,6 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export interface RefreshResponse {
-  accessToken: string;
-}
+export type PatchNotificationsSettingsBody = {
+  enabled: boolean;
+};

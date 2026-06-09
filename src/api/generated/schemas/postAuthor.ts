@@ -7,6 +7,7 @@
  */
 
 export interface PostAuthor {
+  id: string;
   /** @nullable */
   nickname: string | null;
   /** @nullable */

@@ -6,8 +6,11 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export type KakaoLoginResponseData = {
-  accessToken: string;
-  refreshToken: string;
-  isNewUser: boolean;
-};
+/**
+ * @nullable
+ */
+export type GetNotificationsResponseDataItemPost = {
+  id: string;
+  /** @nullable */
+  image: string | null;
+} | null;

@@ -6,6 +6,9 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export interface MessageResponse {
-  message: string;
-}
+/**
+ * @nullable
+ */
+export type NotificationEventClosetArchive = {
+  id: string;
+} | null;

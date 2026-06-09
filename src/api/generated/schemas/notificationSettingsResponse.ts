@@ -6,6 +6,6 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export type RefreshResponseData = {
-  accessToken: string;
-};
+export interface NotificationSettingsResponse {
+  enabled: boolean;
+}

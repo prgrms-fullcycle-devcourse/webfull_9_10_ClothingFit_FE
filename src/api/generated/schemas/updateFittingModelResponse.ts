@@ -6,6 +6,7 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export interface RefreshResponse {
-  accessToken: string;
+export interface UpdateFittingModelResponse {
+  /** 저장된 3D 모델(.glb) URL */
+  modelUrl: string;
 }

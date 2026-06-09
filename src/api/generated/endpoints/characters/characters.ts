@@ -6,29 +6,23 @@
  * OpenAPI spec version: 1.0.0
  */
 import {
-  useMutation,
   useQuery
 } from '@tanstack/react-query';
 import type {
   DataTag,
   DefinedInitialDataOptions,
   DefinedUseQueryResult,
-  MutationFunction,
   QueryClient,
   QueryFunction,
   QueryKey,
   UndefinedInitialDataOptions,
-  UseMutationOptions,
-  UseMutationResult,
   UseQueryOptions,
   UseQueryResult
 } from '@tanstack/react-query';
 
 import type {
   CharacterListResponse,
-  ErrorResponse,
-  MessageResponse,
-  SelectCharacterBody
+  ErrorResponse
 } from '../../schemas';
 
 import { apiClient } from '../../../../lib/api-client';
@@ -129,67 +123,3 @@ export function useGetCharacters<TData = Awaited<ReturnType<typeof getCharacters
 
 
 
-/**
- * 유저가 기본 캐릭터를 선택합니다. 이미 선택한 경우 변경됩니다.
- * @summary 캐릭터 선택
- */
-export const postCharactersMe = (
-    selectCharacterBody?: SelectCharacterBody,
- signal?: AbortSignal
-) => {
-
-
-      return apiClient<MessageResponse>(
-      {url: `/characters/me`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: selectCharacterBody, signal
-    },
-      );
-    }
-
-
-
-export const getPostCharactersMeMutationOptions = <TError = ErrorResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postCharactersMe>>, TError,{data?: SelectCharacterBody}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof postCharactersMe>>, TError,{data?: SelectCharacterBody}, TContext> => {
-
-const mutationKey = ['postCharactersMe'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postCharactersMe>>, {data?: SelectCharacterBody}> = (props) => {
-          const {data} = props ?? {};
-
-          return  postCharactersMe(data,)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type PostCharactersMeMutationResult = NonNullable<Awaited<ReturnType<typeof postCharactersMe>>>
-    export type PostCharactersMeMutationBody = SelectCharacterBody | undefined
-    export type PostCharactersMeMutationError = ErrorResponse
-
-    /**
- * @summary 캐릭터 선택
- */
-export const usePostCharactersMe = <TError = ErrorResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postCharactersMe>>, TError,{data?: SelectCharacterBody}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof postCharactersMe>>,
-        TError,
-        {data?: SelectCharacterBody},
-        TContext
-      > => {
-      return useMutation(getPostCharactersMeMutationOptions(options), queryClient);
-    }
