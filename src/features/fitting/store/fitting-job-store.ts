@@ -1,0 +1,90 @@
+import { useSyncExternalStore } from 'react';
+
+import { showBanner } from '@/features/notifications/banner-store';
+import { addNotification } from '@/features/notifications/notifications-store';
+
+import { generateFitting } from '../api/fitting-api';
+import type { FittingItem, FittingJob } from '../types';
+
+/**
+ * 피팅 작업 스토어 (모듈 레벨).
+ * 화면이 unmount 돼도 작업은 계속 진행되고, 완료 시 상단 배너 + 알림을 띄운다.
+ * (= 비동기 백그라운드 생성)
+ */
+let jobs: Record<string, FittingJob> = {};
+const listeners = new Set<() => void>();
+
+function emit() {
+  listeners.forEach((l) => l());
+}
+
+function setJob(job: FittingJob) {
+  jobs = { ...jobs, [job.id]: job };
+  emit();
+}
+
+export function getJobs() {
+  return jobs;
+}
+
+export function getJob(id?: string) {
+  return id ? jobs[id] : undefined;
+}
+
+export function getLatestDoneJob() {
+  return Object.values(jobs)
+    .filter((j) => j.status === 'done')
+    .sort((a, b) => b.createdAt - a.createdAt)[0];
+}
+
+export function subscribeJobs(listener: () => void) {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+}
+
+export function startFittingJob(items: FittingItem[]): string {
+  const id = 'fit-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 6);
+  setJob({ id, status: 'pending', createdAt: Date.now(), items });
+
+  generateFitting(items)
+    .then((res) => {
+      const prev = jobs[id];
+      if (!prev) return;
+      setJob({ ...prev, status: 'done', resultImageUri: res.imageUri });
+      const route = { pathname: '/(tabs)/fitting/result', params: { jobId: id } } as const;
+      addNotification({
+        type: 'avatar',
+        title: 'AI 아바타 생성이 완료되었습니다.',
+        time: '방금',
+        read: false,
+        route,
+      });
+      showBanner({
+        title: '2D 아바타 생성 완료',
+        message: '탭하여 결과를 확인하세요',
+        route,
+      });
+    })
+    .catch((err) => {
+      const prev = jobs[id];
+      if (!prev) return;
+      setJob({
+        ...prev,
+        status: 'failed',
+        error: err instanceof Error ? err.message : '생성 실패',
+      });
+      showBanner({ title: '2D 아바타 생성 실패', message: '다시 시도해주세요' });
+    });
+
+  return id;
+}
+
+export function useFittingJob(id?: string) {
+  const snapshot = useSyncExternalStore(subscribeJobs, getJobs, getJobs);
+  return id ? snapshot[id] : undefined;
+}
+
+export function useLatestDoneJob() {
+  useSyncExternalStore(subscribeJobs, getJobs, getJobs);
+  return getLatestDoneJob();
+}

@@ -5,13 +5,9 @@
  * ClothingFit 백엔드 API 문서
  * OpenAPI spec version: 1.0.0
  */
-import type { Fitting3DStatusResponseStatus } from './fitting3DStatusResponseStatus';
+import type { Fitting3DStatusResponseData } from './fitting3DStatusResponseData';
 
 export interface Fitting3DStatusResponse {
-  status: Fitting3DStatusResponseStatus;
-  progress?: number;
-  /** @nullable */
-  glbUrl: string | null;
-  /** @nullable */
-  thumbnailUrl: string | null;
+  message: string;
+  data: Fitting3DStatusResponseData;
 }

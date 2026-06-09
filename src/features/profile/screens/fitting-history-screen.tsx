@@ -15,8 +15,9 @@ export function FittingHistoryScreen() {
         renderItem={({ item }) => (
           <Pressable
             className="mb-3 p-4 rounded-xl border border-border flex-row items-center"
-            onPress={() => router.push(`/(tabs)/closet/${item.id}`)}>
-            <View className="w-16 h-20 rounded-lg mr-3" style={{ backgroundColor: item.color }} />
+            onPress={() => router.push(`/(tabs)/closet/${item.id}`)}
+          >
+            <View className="w-16 h-20 rounded-lg mr-3 bg-surface" />
             <View>
               <Text className="font-sans-medium">{item.name}</Text>
               <Text variant="caption">{item.createdAt}</Text>

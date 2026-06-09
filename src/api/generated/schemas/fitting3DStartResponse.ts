@@ -5,8 +5,9 @@
  * ClothingFit 백엔드 API 문서
  * OpenAPI spec version: 1.0.0
  */
+import type { Fitting3DStartResponseData } from './fitting3DStartResponseData';
 
 export interface Fitting3DStartResponse {
-  /** 상태 조회에 사용할 세션 ID (24시간 유효) */
-  sessionId: string;
+  message: string;
+  data: Fitting3DStartResponseData;
 }

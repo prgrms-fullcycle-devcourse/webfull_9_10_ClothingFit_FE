@@ -130,8 +130,8 @@ export function useGetAvatar<TData = Awaited<ReturnType<typeof getAvatar>>, TErr
 
 
 /**
- * 로그인한 사용자의 아바타를 지정한 캐릭터로 설정합니다. 최초 설정·변경 모두 처리합니다(upsert). 캐릭터로 전환되며 기존 업로드 이미지는 제거·정리되고, 설정된 아바타 이미지를 반환합니다.
- * @summary 사용자 아바타 캐릭터 설정 (온보딩/변경 공용)
+ * 로그인한 사용자의 아바타를 지정한 캐릭터로 변경합니다. 캐릭터로 전환되며 기존 업로드 이미지는 제거되고, 변경된 아바타 이미지를 반환합니다.
+ * @summary 사용자 아바타 캐릭터 변경
  */
 export const patchAvatar = (
     updateAvatarRequest?: UpdateAvatarRequest,
@@ -181,7 +181,7 @@ const {mutation: mutationOptions} = options ?
     export type PatchAvatarMutationError = ErrorResponse
 
     /**
- * @summary 사용자 아바타 캐릭터 설정 (온보딩/변경 공용)
+ * @summary 사용자 아바타 캐릭터 변경
  */
 export const usePatchAvatar = <TError = ErrorResponse,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof patchAvatar>>, TError,{data?: UpdateAvatarRequest}, TContext>, }
@@ -194,8 +194,8 @@ export const usePatchAvatar = <TError = ErrorResponse,
       return useMutation(getPatchAvatarMutationOptions(options), queryClient);
     }
     /**
- * 사용자가 업로드한 이미지로 아바타를 설정합니다. 최초 설정·변경 모두 처리합니다(upsert). 이미지는 검증·정규화 후 S3에 저장되며, 캐릭터 연결은 해제되고 설정된 이미지 URL을 반환합니다.
- * @summary 사용자 아바타 사진 설정 (온보딩/변경 공용)
+ * 사용자가 업로드한 이미지로 아바타를 변경합니다. 이미지는 S3에 저장되며, 캐릭터 연결은 해제되고 업로드한 이미지 URL을 반환합니다.
+ * @summary 사용자 아바타 사진 업로드
  */
 export const patchAvatarImage = (
     patchAvatarImageBody?: PatchAvatarImageBody,
@@ -249,7 +249,7 @@ const {mutation: mutationOptions} = options ?
     export type PatchAvatarImageMutationError = ErrorResponse
 
     /**
- * @summary 사용자 아바타 사진 설정 (온보딩/변경 공용)
+ * @summary 사용자 아바타 사진 업로드
  */
 export const usePatchAvatarImage = <TError = ErrorResponse,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof patchAvatarImage>>, TError,{data?: PatchAvatarImageBody}, TContext>, }

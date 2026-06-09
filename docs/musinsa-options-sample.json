@@ -1,0 +1,177 @@
+{
+  "meta": { "result": "SUCCESS", "errorCode": "", "message": "성공적으로 처리하였습니다." },
+  "data": {
+    "basic": [
+      {
+        "no": 5202337,
+        "type": "basic",
+        "displayType": "DROPDOWN",
+        "name": "사이즈",
+        "standardOptionNo": 3,
+        "sequence": 0,
+        "isDeleted": false,
+        "optionValues": [
+          {
+            "no": 6083637,
+            "optionNo": 5202337,
+            "name": "XS",
+            "code": "XS",
+            "sequence": 0,
+            "standardOptionValueNo": 55,
+            "color": null,
+            "isDeleted": false,
+            "imageUrl": ""
+          },
+          {
+            "no": 6083638,
+            "optionNo": 5202337,
+            "name": "S",
+            "code": "S",
+            "sequence": 1,
+            "standardOptionValueNo": 56,
+            "color": null,
+            "isDeleted": false,
+            "imageUrl": ""
+          },
+          {
+            "no": 6083639,
+            "optionNo": 5202337,
+            "name": "M",
+            "code": "M",
+            "sequence": 2,
+            "standardOptionValueNo": 57,
+            "color": null,
+            "isDeleted": false,
+            "imageUrl": ""
+          },
+          {
+            "no": 6083636,
+            "optionNo": 5202337,
+            "name": "L",
+            "code": "L",
+            "sequence": 3,
+            "standardOptionValueNo": 58,
+            "color": null,
+            "isDeleted": false,
+            "imageUrl": ""
+          },
+          {
+            "no": 22032628,
+            "optionNo": 5202337,
+            "name": "XL",
+            "code": "XL",
+            "sequence": 4,
+            "standardOptionValueNo": 59,
+            "color": null,
+            "isDeleted": false,
+            "imageUrl": ""
+          }
+        ]
+      }
+    ],
+    "extra": [],
+    "optionItems": [
+      {
+        "no": 12821755,
+        "goodsNo": 3074973,
+        "optionValueNos": [6083636],
+        "managedCode": "L",
+        "price": 0,
+        "activated": true,
+        "isDeleted": false,
+        "optionValues": [
+          {
+            "no": 6083636,
+            "name": "L",
+            "code": "L",
+            "optionNo": 5202337,
+            "optionName": "사이즈",
+            "imageUrl": ""
+          }
+        ],
+        "colors": [{ "optionItemNo": 12821755, "colorCode": "24", "colorType": "MUSINSA" }]
+      },
+      {
+        "no": 12821756,
+        "goodsNo": 3074973,
+        "optionValueNos": [6083639],
+        "managedCode": "M",
+        "price": 0,
+        "activated": true,
+        "isDeleted": false,
+        "optionValues": [
+          {
+            "no": 6083639,
+            "name": "M",
+            "code": "M",
+            "optionNo": 5202337,
+            "optionName": "사이즈",
+            "imageUrl": ""
+          }
+        ],
+        "colors": [{ "optionItemNo": 12821756, "colorCode": "24", "colorType": "MUSINSA" }]
+      },
+      {
+        "no": 12821757,
+        "goodsNo": 3074973,
+        "optionValueNos": [6083638],
+        "managedCode": "S",
+        "price": 0,
+        "activated": true,
+        "isDeleted": false,
+        "optionValues": [
+          {
+            "no": 6083638,
+            "name": "S",
+            "code": "S",
+            "optionNo": 5202337,
+            "optionName": "사이즈",
+            "imageUrl": ""
+          }
+        ],
+        "colors": [{ "optionItemNo": 12821757, "colorCode": "24", "colorType": "MUSINSA" }]
+      },
+      {
+        "no": 12821758,
+        "goodsNo": 3074973,
+        "optionValueNos": [6083637],
+        "managedCode": "XS",
+        "price": 0,
+        "activated": true,
+        "isDeleted": false,
+        "optionValues": [
+          {
+            "no": 6083637,
+            "name": "XS",
+            "code": "XS",
+            "optionNo": 5202337,
+            "optionName": "사이즈",
+            "imageUrl": ""
+          }
+        ],
+        "colors": [{ "optionItemNo": 12821758, "colorCode": "24", "colorType": "MUSINSA" }]
+      },
+      {
+        "no": 28782619,
+        "goodsNo": 3074973,
+        "optionValueNos": [22032628],
+        "managedCode": "XL",
+        "price": 0,
+        "activated": true,
+        "isDeleted": false,
+        "optionValues": [
+          {
+            "no": 22032628,
+            "name": "XL",
+            "code": "XL",
+            "optionNo": 5202337,
+            "optionName": "사이즈",
+            "imageUrl": ""
+          }
+        ],
+        "colors": [{ "optionItemNo": 28782619, "colorCode": "24", "colorType": "MUSINSA" }]
+      }
+    ]
+  },
+  "error": null
+}

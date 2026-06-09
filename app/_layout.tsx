@@ -1,11 +1,11 @@
 import '../global.css';
 // import '@expo/browser-polyfill';
 import {
-  NotoSans_100Thin,
-  NotoSans_400Regular,
-  NotoSans_500Medium,
-  NotoSans_700Bold,
-} from '@expo-google-fonts/noto-sans';
+  NotoSansKR_100Thin,
+  NotoSansKR_400Regular,
+  NotoSansKR_500Medium,
+  NotoSansKR_700Bold,
+} from '@expo-google-fonts/noto-sans-kr';
 import { useFonts } from 'expo-font';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { Stack } from 'expo-router';
@@ -13,11 +13,12 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
 import 'react-native-reanimated';
 
-import { Platform, useColorScheme } from 'react-native';
+import { Platform, View, useColorScheme } from 'react-native';
 import { initializeKakaoSDK } from '@react-native-kakao/core'; // 카카오 SDK 초기화
 import { GoogleSignin } from '@react-native-google-signin/google-signin'; // 구글 SDK 설정
 import Constants, { ExecutionEnvironment } from 'expo-constants';
 
+import { AppBanner } from '@/components/blocks/app-banner';
 import { Splash } from '@/components/blocks/splash';
 import { GOOGLE_WEB_CLIENT_ID } from '@/features/auth/constants/google';
 import { AppProviders } from '@/providers/app-providers';
@@ -45,10 +46,10 @@ if (Platform.OS !== 'web' && !isExpoGo) {
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
-    NotoSans_100Thin,
-    NotoSans_400Regular,
-    NotoSans_500Medium,
-    NotoSans_700Bold,
+    NotoSansKR_100Thin,
+    NotoSansKR_400Regular,
+    NotoSansKR_500Medium,
+    NotoSansKR_700Bold,
   });
   // 폰트 로드 후 커스텀 스플래시('CLOTHING - FIT')를 잠깐 보여준다.
   const [splashDone, setSplashDone] = useState(false);
@@ -75,7 +76,10 @@ export default function RootLayout() {
 
   return (
     <AppProviders>
-      <RootLayoutNav />
+      <View style={{ flex: 1 }}>
+        <RootLayoutNav />
+        <AppBanner />
+      </View>
     </AppProviders>
   );
 }
