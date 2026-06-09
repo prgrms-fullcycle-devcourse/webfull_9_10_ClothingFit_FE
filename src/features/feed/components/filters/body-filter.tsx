@@ -5,7 +5,7 @@ import { Text } from '@/components/ui/text';
 import { RangeSlider } from './range-slider';
 
 const WEIGHT_MIN = 0;
-const WEIGHT_MAX = 200;
+const WEIGHT_MAX = 500;
 
 type BodyValue = {
   height?: number | null;
@@ -28,14 +28,13 @@ export function BodyFilter({ value, onApply }: BodyFilterProps) {
   const isWeightInvalid =
     weightMin < WEIGHT_MIN || weightMax > WEIGHT_MAX || weightMin >= weightMax;
 
+  const parsedHeight = height ? Number(height) : null;
+  const isHeightInvalid =
+    parsedHeight !== null && (isNaN(parsedHeight) || parsedHeight < 0 || parsedHeight > 300);
+
   const handleApply = () => {
-    if (isWeightInvalid) return;
-    const parsedHeight = height ? Number(height) : null;
-    onApply({
-      height: parsedHeight,
-      weightMin,
-      weightMax,
-    });
+    if (isWeightInvalid || isHeightInvalid) return;
+    onApply({ height: parsedHeight, weightMin, weightMax });
   };
 
   return (
@@ -56,6 +55,9 @@ export function BodyFilter({ value, onApply }: BodyFilterProps) {
           </View>
           <Text className="text-gray-500">cm</Text>
         </View>
+        {isHeightInvalid && (
+          <Text style={{ color: '#dc2626', fontSize: 12 }}>0~300 사이의 값을 입력해주세요</Text>
+        )}
       </View>
 
       {/* 몸무게 */}
@@ -96,7 +98,7 @@ export function BodyFilter({ value, onApply }: BodyFilterProps) {
           minValue={weightMin}
           maxValue={weightMax}
           step={1}
-          labels={['0', '100', '200~']}
+          labels={['0', '250', '500']}
           onChangeMin={(v) => {
             setWeightMin(v);
             setWeightMinText(String(v));
@@ -108,7 +110,7 @@ export function BodyFilter({ value, onApply }: BodyFilterProps) {
         />
         {isWeightInvalid && (
           <Text style={{ color: '#dc2626', fontSize: 12, marginTop: 4 }}>
-            0~200 사이의 값을 입력해주세요
+            0~500 사이의 값을 입력해주세요
           </Text>
         )}
       </View>

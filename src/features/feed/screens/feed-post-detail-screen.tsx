@@ -140,7 +140,9 @@ function FeedPostDetailContent({ post }: { post: GetPostByIdResponse }) {
 
 export function FeedPostDetailScreen() {
   const { postId } = useLocalSearchParams<{ postId: string }>();
-  const { data, isLoading, isError } = useGetPostsId(postId);
+  const { data, isLoading, isError } = useGetPostsId(postId, {
+    query: { enabled: !!postId },
+  });
 
   if (isLoading) {
     return (

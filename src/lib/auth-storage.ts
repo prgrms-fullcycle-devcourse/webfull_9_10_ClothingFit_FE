@@ -27,22 +27,28 @@ export async function getUserId(): Promise<string | null> {
   const stored = await SecureStore.getItemAsync(USER_ID_KEY);
   if (stored) return stored;
 
-  // 저장된 userId 없으면 액세스 토큰에서 추출 후 저장
   const token = await getAccessToken();
   if (!token) return null;
-  await saveUserIdFromToken(token);
-  return SecureStore.getItemAsync(USER_ID_KEY);
+  return saveUserIdFromToken(token);
 }
 
-export async function saveUserIdFromToken(token: string): Promise<void> {
+export async function saveUserIdFromToken(token: string): Promise<string | null> {
   try {
-    const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
-    const payload = JSON.parse(atob(base64)) as Record<string, unknown>;
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+
+    const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+    const padded = base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), '=');
+    const payload = JSON.parse(atob(padded)) as Record<string, unknown>;
     const userId = (payload.userId ?? payload.sub) as string | undefined;
+
     if (userId) {
       await SecureStore.setItemAsync(USER_ID_KEY, userId);
+      return userId;
     }
-  } catch {
-    // 실패해도 로그인 흐름 유지
+    return null;
+  } catch (e) {
+    if (__DEV__) console.warn('[auth] JWT decode failed:', e);
+    return null;
   }
 }

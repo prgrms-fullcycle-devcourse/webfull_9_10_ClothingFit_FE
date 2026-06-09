@@ -22,8 +22,20 @@ export function UserProfileScreen() {
 
   const isMe = !!myUserId && myUserId === userId;
 
-  const { data: profile, isLoading: profileLoading, isError: profileError } = useGetUsersId(userId);
-  const { data: posts, isLoading: postsLoading, isError: postsError } = useGetUsersIdPosts(userId);
+  const {
+    data: profile,
+    isLoading: profileLoading,
+    isError: profileError,
+  } = useGetUsersId(userId, {
+    query: { enabled: !!userId },
+  });
+  const {
+    data: posts,
+    isLoading: postsLoading,
+    isError: postsError,
+  } = useGetUsersIdPosts(userId, undefined, {
+    query: { enabled: !!userId },
+  });
   const { isFollowing, toggle } = useUserFollow({
     userId,
     isFollowing: profile?.isFollowing ?? false,

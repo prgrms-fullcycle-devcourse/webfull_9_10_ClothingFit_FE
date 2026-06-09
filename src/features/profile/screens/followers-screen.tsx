@@ -81,8 +81,20 @@ export function FollowersScreen() {
     getUserId().then(setMyUserId);
   }, []);
 
-  const { data: followersData, isLoading: followersLoading } = useGetUsersIdFollowers(userId);
-  const { data: followingsData, isLoading: followingsLoading } = useGetUsersIdFollowings(userId);
+  const { data: followersData, isLoading: followersLoading } = useGetUsersIdFollowers(
+    userId,
+    undefined,
+    {
+      query: { enabled: !!userId },
+    },
+  );
+  const { data: followingsData, isLoading: followingsLoading } = useGetUsersIdFollowings(
+    userId,
+    undefined,
+    {
+      query: { enabled: !!userId },
+    },
+  );
 
   const isLoading = tab === 'followers' ? followersLoading : followingsLoading;
   const followerItems = followersData?.data ?? [];
