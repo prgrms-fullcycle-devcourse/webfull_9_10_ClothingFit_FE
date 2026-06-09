@@ -6,6 +6,6 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export interface SelectCharacterBody {
-  characterId: string;
-}
+export type PatchProfileImageBody = {
+  image?: Blob;
+};

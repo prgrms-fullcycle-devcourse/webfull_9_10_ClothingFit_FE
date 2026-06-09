@@ -6,6 +6,8 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export interface RefreshResponse {
+export interface SocialLoginResponse {
   accessToken: string;
+  refreshToken: string;
+  isNewUser: boolean;
 }

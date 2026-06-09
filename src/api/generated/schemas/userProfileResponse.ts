@@ -14,4 +14,5 @@ export interface UserProfileResponse {
   postCount: number;
   followerCount: number;
   followingCount: number;
+  isFollowing: boolean;
 }

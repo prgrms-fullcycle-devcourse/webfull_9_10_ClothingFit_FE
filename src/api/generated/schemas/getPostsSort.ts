@@ -12,4 +12,5 @@ export type GetPostsSort = typeof GetPostsSort[keyof typeof GetPostsSort];
 export const GetPostsSort = {
   LATEST: 'LATEST',
   OLDEST: 'OLDEST',
+  LIKE: 'LIKE',
 } as const;

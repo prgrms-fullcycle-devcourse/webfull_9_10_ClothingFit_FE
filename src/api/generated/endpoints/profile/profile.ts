@@ -239,7 +239,7 @@ export const patchProfileNickname = (
 ) => {
 
 
-      return apiClient<PatchProfileNickname200>(
+      return apiClient<void>(
       {url: `/profile/nickname`, method: 'PATCH',
       headers: {'Content-Type': 'application/json', },
       data: patchProfileNicknameBody, signal

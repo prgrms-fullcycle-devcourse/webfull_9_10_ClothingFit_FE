@@ -6,6 +6,11 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export interface RefreshResponse {
-  accessToken: string;
-}
+/**
+ * @nullable
+ */
+export type GetNotificationsResponseDataItemActor = {
+  id: string;
+  /** @nullable */
+  nickname: string | null;
+} | null;

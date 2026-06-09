@@ -7,6 +7,8 @@
  */
 
 export type GetHomePopularPosts200Item = {
+  postId: string;
+  userId: string;
   image: string;
   nickname: string;
   createdAt: string;

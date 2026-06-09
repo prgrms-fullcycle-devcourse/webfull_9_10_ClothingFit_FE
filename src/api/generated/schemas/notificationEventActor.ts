@@ -6,6 +6,11 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export type PatchProfileNickname200 = {
-  message: string;
-};
+/**
+ * @nullable
+ */
+export type NotificationEventActor = {
+  id: string;
+  /** @nullable */
+  nickname: string | null;
+} | null;

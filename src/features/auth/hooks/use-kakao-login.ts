@@ -3,7 +3,7 @@ import { useState } from 'react';
 
 import { postAuthKakao, type LoginData } from '@/features/auth/api';
 import { setAuthToken } from '@/lib/api-client';
-import { setTokens } from '@/lib/auth-storage';
+import { saveUserIdFromToken, setTokens } from '@/lib/auth-storage';
 import { isNativeSocialAvailable } from '../lib/native-social';
 
 export function useKakaoLogin() {
@@ -22,6 +22,7 @@ export function useKakaoLogin() {
         accessToken: token.accessToken,
       })) as unknown as LoginData;
       await setTokens(data.accessToken, data.refreshToken);
+      await saveUserIdFromToken(data.accessToken);
       setAuthToken(data.accessToken);
       return data;
     } finally {

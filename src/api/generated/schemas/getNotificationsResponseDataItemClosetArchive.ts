@@ -6,6 +6,9 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export interface RefreshResponse {
-  accessToken: string;
-}
+/**
+ * @nullable
+ */
+export type GetNotificationsResponseDataItemClosetArchive = {
+  id: string;
+} | null;
