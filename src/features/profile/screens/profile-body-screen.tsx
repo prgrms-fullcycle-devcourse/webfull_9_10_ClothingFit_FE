@@ -1,4 +1,4 @@
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, ScrollView, View } from 'react-native';
 
@@ -26,13 +26,16 @@ import { cn } from '@/utils/cn';
 
 type Tab = 'body' | 'avatar';
 
+/** 체형 정보 수정 화면. [체형 정보] 탭과 [아바타](캐릭터 선택·사진) 탭을 제공한다. */
 export function ProfileBodyScreen() {
   const bodyInfo = useBodyInfo();
   const updateBodyInfo = useUpdateBodyInfo();
   const selectCharacter = useSelectCharacter();
   const avatarImage = useAvatarImage();
 
-  const [tab, setTab] = useState<Tab>('body');
+  // "나의 AI 모델" 진입 시 ?tab=avatar 로 아바타 탭을 바로 연다 (없으면 체형 정보 탭).
+  const params = useLocalSearchParams<{ tab?: string }>();
+  const [tab, setTab] = useState<Tab>(params.tab === 'avatar' ? 'avatar' : 'body');
   const [form, setForm] = useState<Record<FieldKey, string>>(INITIAL_FORM);
   const [gender, setGender] = useState<Gender>('male');
   // 사용자가 이 화면에서 직접 고른 캐릭터. null이면 아바타를 건드리지 않는다
