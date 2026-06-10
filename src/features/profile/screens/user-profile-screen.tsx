@@ -78,7 +78,7 @@ export function UserProfileScreen() {
 
   const profileHeader = (
     <ProfileHeader
-      nickname={profile.nickname ?? '익명의 사용자'}
+      nickname={profile.nickname ?? ''}
       imageUrl={profile.imageUrl}
       action={
         myUserId !== undefined && !isMe ? (
