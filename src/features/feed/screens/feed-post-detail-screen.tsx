@@ -30,8 +30,10 @@ import { useUserFollow } from '../hooks/use-user-follow';
 function FeedPostDetailContent({ post }: { post: GetPostByIdResponse }) {
   const userId = post.user.id;
   const [imageVisible, setImageVisible] = useState(false);
+  const [is3d, setIs3d] = useState(false);
   const [myUserId, setMyUserId] = useState<string | null | undefined>(undefined);
   const { width, height } = useWindowDimensions();
+  const has3d = !!post.model3dUrl;
 
   useEffect(() => {
     getUserId().then(setMyUserId);
@@ -85,7 +87,7 @@ function FeedPostDetailContent({ post }: { post: GetPostByIdResponse }) {
       </Modal>
       <ScrollView className="flex-1">
         <ProfileHeader
-          nickname={post.user.nickname ?? '닉네임'}
+          nickname={post.user.nickname ?? ''}
           imageUrl={post.user.imageUrl}
           action={
             myUserId !== undefined && !isMe ? (
@@ -99,12 +101,30 @@ function FeedPostDetailContent({ post }: { post: GetPostByIdResponse }) {
               : undefined
           }
         />
-        <Pressable onPress={() => setImageVisible(true)}>
-          <Image source={{ uri: post.image2dUrl }} style={{ height: 400 }} resizeMode="contain" />
-        </Pressable>
+        {is3d && has3d ? (
+          <View style={{ height: 400 }} className="bg-surface items-center justify-center">
+            <Text variant="caption" className="text-muted">
+              3D 뷰어 준비 중
+            </Text>
+          </View>
+        ) : (
+          <Pressable onPress={() => setImageVisible(true)}>
+            <Image source={{ uri: post.image2dUrl }} style={{ height: 400 }} resizeMode="contain" />
+          </Pressable>
+        )}
         <View className="flex-row justify-between px-4 py-4 gap-4">
           <Text>{formatDate(post.createdAt)}</Text>
           <View className="flex-row gap-4 items-center">
+            {has3d && (
+              <Pressable
+                onPress={() => setIs3d((v) => !v)}
+                className="px-2 py-1 rounded border border-border"
+              >
+                <Text variant="caption" className="font-sans-bold">
+                  {is3d ? '2D' : '3D'}
+                </Text>
+              </Pressable>
+            )}
             <HeartIcon
               isLiked={isLiked}
               onPress={toggleLike}

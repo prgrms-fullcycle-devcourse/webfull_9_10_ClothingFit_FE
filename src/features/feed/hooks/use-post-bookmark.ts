@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 
 import {
@@ -13,28 +14,38 @@ type Options = {
 
 export function usePostBookmark({ id, isBookmarked }: Options) {
   const queryClient = useQueryClient();
+  const [optimistic, setOptimistic] = useState<boolean | null>(null);
 
-  const patchCache = (bookmarked: boolean) =>
-    queryClient.setQueryData<GetPostByIdResponse>([`/posts/${id}`], (old) =>
-      old ? { ...old, isBookmarked: bookmarked } : old,
-    );
+  const currentBookmarked = optimistic ?? isBookmarked;
 
   const onMutate = async (bookmarked: boolean) => {
     await queryClient.cancelQueries({ queryKey: [`/posts/${id}`] });
-    const snapshot = queryClient.getQueryData([`/posts/${id}`]);
-    patchCache(bookmarked);
+    const snapshot = queryClient.getQueryData<GetPostByIdResponse>([`/posts/${id}`]);
+    if (snapshot) {
+      queryClient.setQueryData<GetPostByIdResponse>([`/posts/${id}`], {
+        ...snapshot,
+        isBookmarked: bookmarked,
+      });
+    }
     return { snapshot };
   };
 
-  const onError = (_: unknown, __: unknown, ctx?: { snapshot: unknown }) => {
-    if (ctx?.snapshot !== undefined) {
-      queryClient.setQueryData([`/posts/${id}`], ctx.snapshot);
-    }
+  const onError = (
+    _: unknown,
+    __: unknown,
+    ctx?: { snapshot: GetPostByIdResponse | undefined },
+  ) => {
+    setOptimistic(null);
+    queryClient.setQueryData([`/posts/${id}`], ctx?.snapshot);
   };
 
   const onSettled = () => {
     queryClient.invalidateQueries({ queryKey: [`/posts/${id}`] });
     queryClient.invalidateQueries({ queryKey: ['/posts'] });
+    queryClient.invalidateQueries({
+      predicate: (q) =>
+        typeof q.queryKey[0] === 'string' && (q.queryKey[0] as string).startsWith('/profile'),
+    });
   };
 
   const { mutate: bookmark, isPending: isBookmarking } = usePostPostsIdBookmark({
@@ -48,12 +59,10 @@ export function usePostBookmark({ id, isBookmarked }: Options) {
 
   const toggle = () => {
     if (isPending) return;
-    if (isBookmarked) {
-      unbookmark({ id });
-    } else {
-      bookmark({ id });
-    }
+    setOptimistic(!currentBookmarked);
+    if (currentBookmarked) unbookmark({ id });
+    else bookmark({ id });
   };
 
-  return { isBookmarked, toggle, isPending };
+  return { isBookmarked: currentBookmarked, toggle, isPending };
 }
