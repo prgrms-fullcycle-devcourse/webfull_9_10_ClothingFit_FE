@@ -26,6 +26,7 @@ import { cn } from '@/utils/cn';
 
 type Tab = 'body' | 'avatar';
 
+/** 체형 정보 수정 화면. [체형 정보] 탭과 [아바타](캐릭터 선택·사진) 탭을 제공한다. */
 export function ProfileBodyScreen() {
   const bodyInfo = useBodyInfo();
   const updateBodyInfo = useUpdateBodyInfo();

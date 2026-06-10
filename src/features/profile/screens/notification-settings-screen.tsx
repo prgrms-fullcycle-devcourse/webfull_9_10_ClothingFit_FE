@@ -7,6 +7,7 @@ import {
   useUpdateNotificationSettings,
 } from '@/features/notifications/api';
 
+/** 알림 설정 화면. 푸시 알림 수신 여부(GET/PATCH /notifications/settings)를 토글한다. */
 export function NotificationSettingsScreen() {
   const settings = useNotificationSettings();
   const update = useUpdateNotificationSettings();

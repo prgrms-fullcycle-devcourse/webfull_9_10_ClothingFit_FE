@@ -23,6 +23,7 @@ const SECTIONS: { heading: string; body: string }[] = [
   },
 ];
 
+/** 개인정보 이용 약관 화면. 정적 약관 본문을 섹션별로 표시한다. */
 export function PrivacyTermsScreen() {
   return (
     <ScreenShell title="개인정보 이용 약관">

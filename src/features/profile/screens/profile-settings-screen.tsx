@@ -25,6 +25,7 @@ const sections = [
   },
 ];
 
+/** 설정 화면. 내 정보·커뮤니티·AI 피팅·약관 메뉴와 로그아웃·회원탈퇴를 제공한다. */
 export function ProfileSettingsScreen() {
   const { logout, isLoading: loggingOut } = useLogout();
   const { deleteAccount, isLoading: deleting } = useDeleteAccount();

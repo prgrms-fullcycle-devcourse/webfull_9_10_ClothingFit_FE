@@ -22,6 +22,7 @@ type FollowItem = {
 
 type Tab = 'followers' | 'following';
 
+/** 팔로워/팔로잉 목록의 한 행. 프로필 이동 + (내가 아니면) 팔로우 토글 버튼을 렌더한다. */
 function FollowListItem({
   item,
   myUserId,
@@ -55,6 +56,7 @@ function FollowListItem({
   );
 }
 
+/** 팔로워/팔로잉 사용자 목록(FlatList). */
 function FollowList({
   items,
   myUserId,
@@ -72,6 +74,7 @@ function FollowList({
   );
 }
 
+/** 팔로워·팔로잉 화면. userId 없이 진입하면(설정) 내 팔로워/팔로잉을 탭으로 보여준다. */
 export function FollowersScreen() {
   const { userId, tab: initialTab } = useLocalSearchParams<{ userId?: string; tab?: Tab }>();
   const [tab, setTab] = useState<Tab>(initialTab ?? 'followers');

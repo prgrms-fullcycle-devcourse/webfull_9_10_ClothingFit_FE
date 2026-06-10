@@ -19,6 +19,7 @@ const LICENSES: { name: string; license: string }[] = [
   { name: '@react-native-kakao/core', license: 'MIT' },
 ];
 
+/** 오픈 라이선스 화면. 주요 오픈소스 패키지와 라이선스 목록을 표시한다. */
 export function OpenLicensesScreen() {
   return (
     <ScreenShell title="오픈 라이선스">

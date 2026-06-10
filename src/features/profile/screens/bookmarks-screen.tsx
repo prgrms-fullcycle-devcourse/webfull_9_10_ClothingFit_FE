@@ -5,6 +5,7 @@ import { ScreenShell } from '@/components/blocks/screen-shell';
 import { Text } from '@/components/ui/text';
 import { useBookmarks } from '@/features/profile/api';
 
+/** 북마크한 코디 목록 화면. GET /profile/bookmarks를 커서 페이지네이션으로 그리드 표시한다. */
 export function BookmarksScreen() {
   const { data, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useBookmarks();

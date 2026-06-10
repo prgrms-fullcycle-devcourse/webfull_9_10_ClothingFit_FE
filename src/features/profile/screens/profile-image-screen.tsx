@@ -15,6 +15,7 @@ function readImageUrl(res: unknown): string | undefined {
   return r?.data?.imageUrl ?? r?.imageUrl;
 }
 
+/** 프로필(아바타) 이미지 변경 화면. 현재 이미지를 보여주고 앨범/카메라로 새 사진을 업로드한다. */
 export function ProfileImageScreen() {
   const qc = useQueryClient();
   const avatar = useAvatar();

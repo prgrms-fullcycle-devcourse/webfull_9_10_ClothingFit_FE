@@ -9,6 +9,7 @@ import { Text } from '@/components/ui/text';
 import { TextInput } from '@/components/ui/text-input';
 import { checkNickname, useProfile, useUpdateNickname } from '@/features/profile/api';
 
+/** 닉네임 변경 화면. 현재 닉네임을 불러와 중복확인 후 변경(PATCH /profile/nickname)한다. */
 export function NicknameScreen() {
   const qc = useQueryClient();
   const profile = useProfile();
