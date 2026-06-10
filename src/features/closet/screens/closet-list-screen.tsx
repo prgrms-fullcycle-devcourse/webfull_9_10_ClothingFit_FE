@@ -50,6 +50,7 @@ export function ClosetListScreen() {
           keyExtractor={(item) => item.id}
           onRefresh={refetch}
           refreshing={isRefetching}
+          contentContainerStyle={{ paddingBottom: 24 }}
           renderItem={({ item }) => (
             <Pressable
               className="flex-row gap-3"

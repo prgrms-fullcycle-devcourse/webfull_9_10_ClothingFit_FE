@@ -7,6 +7,7 @@ import {
   FlatList,
   Image,
   Pressable,
+  ScrollView,
   View,
 } from 'react-native';
 import { useQueryClient } from '@tanstack/react-query';
@@ -126,65 +127,73 @@ export function ClosetDetailScreen() {
           </View>
         }
       />
-      {/* 뷰어 영역 */}
-      <View style={{ height: 440 }}>
-        {view3d && item.modelUrl ? (
-          <ClosetViewer3D modelUrl={item.modelUrl} />
-        ) : (
-          <Image
-            className="flex-1 bg-surface items-center justify-center"
-            source={{ uri: item.imageUrl }}
-          />
-        )}
-      </View>
-      {/* 2D / 3D 토글 */}
-      <View className="flex-row justify-end px-4 py-2 border-b border-border">
-        <Toggle
-          labelLeft="2D"
-          labelRight="3D"
-          value={view3d}
-          onValueChange={setView3d}
-          disabled={!item.modelUrl}
-        />
-      </View>
-
-      <View className="py-4">
-        <Text variant="subtitle" className="mb-3 px-4">
-          착용 제품
-        </Text>
-        <FlatList
-          data={wornItems}
-          keyExtractor={(p) => p.id}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          snapToInterval={CARD_WIDTH + 12}
-          decelerationRate="normal"
-          disableIntervalMomentum
-          contentContainerStyle={{ paddingHorizontal: 16, gap: 12 }}
-          renderItem={({ item: p }) => (
-            <View
-              style={{ width: CARD_WIDTH }}
-              className="flex-row items-center p-3 rounded-xl border border-border"
-            >
-              {p.imageUrl ? (
-                <Image
-                  source={{ uri: p.imageUrl }}
-                  className="w-16 h-16 rounded-lg bg-surface mr-3"
-                />
-              ) : (
-                <View className="w-16 h-16 rounded-lg bg-surface mr-3" />
-              )}
-              <View className="flex-1">
-                <Text className="font-sans-medium">{p.brand ?? '브랜드 정보 없음'}</Text>
-                <Text variant="caption">{p.name}</Text>
-                {p.size ? <Text variant="caption">착용사이즈 {p.size}</Text> : null}
-              </View>
-            </View>
+      {/* 콘텐츠가 화면을 넘겨 하단(착용제품·버튼)이 잘리던 문제 → 스크롤 처리 */}
+      <ScrollView
+        className="flex-1"
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 24 }}
+        scrollEnabled={!view3d} // 3D 뷰어 조작 시엔 부모 스크롤 비활성(제스처 충돌 방지)
+      >
+        {/* 뷰어 영역 */}
+        <View style={{ height: 440 }}>
+          {view3d && item.modelUrl ? (
+            <ClosetViewer3D modelUrl={item.modelUrl} />
+          ) : (
+            <Image
+              className="flex-1 bg-surface items-center justify-center"
+              source={{ uri: item.imageUrl }}
+            />
           )}
-        />
-      </View>
+        </View>
+        {/* 2D / 3D 토글 */}
+        <View className="flex-row justify-end px-4 py-2 border-b border-border">
+          <Toggle
+            labelLeft="2D"
+            labelRight="3D"
+            value={view3d}
+            onValueChange={setView3d}
+            disabled={!item.modelUrl}
+          />
+        </View>
 
-      <View className="px-4 gap-2 border-t border-border">
+        <View className="py-4">
+          <Text variant="subtitle" className="mb-3 px-4">
+            착용 제품
+          </Text>
+          <FlatList
+            data={wornItems}
+            keyExtractor={(p) => p.id}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            snapToInterval={CARD_WIDTH + 12}
+            decelerationRate="normal"
+            disableIntervalMomentum
+            contentContainerStyle={{ paddingHorizontal: 16, gap: 12 }}
+            renderItem={({ item: p }) => (
+              <View
+                style={{ width: CARD_WIDTH }}
+                className="flex-row items-center p-3 rounded-xl border border-border"
+              >
+                {p.imageUrl ? (
+                  <Image
+                    source={{ uri: p.imageUrl }}
+                    className="w-16 h-16 rounded-lg bg-surface mr-3"
+                  />
+                ) : (
+                  <View className="w-16 h-16 rounded-lg bg-surface mr-3" />
+                )}
+                <View className="flex-1">
+                  <Text className="font-sans-medium">{p.brand ?? '브랜드 정보 없음'}</Text>
+                  <Text variant="caption">{p.name}</Text>
+                  {p.size ? <Text variant="caption">착용사이즈 {p.size}</Text> : null}
+                </View>
+              </View>
+            )}
+          />
+        </View>
+      </ScrollView>
+      {/* 버튼은 스크롤 밖에 고정 → 항상 보임(하단 잘림 방지) */}
+      <View className="border-t border-border px-4 pb-1 pt-3">
         <Button label="아바타 재생성" />
       </View>
     </ScreenShell>

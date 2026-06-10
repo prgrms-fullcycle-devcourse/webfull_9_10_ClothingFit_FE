@@ -8,7 +8,7 @@ import {
 } from '@expo-google-fonts/noto-sans-kr';
 import { useFonts } from 'expo-font';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
+import { Stack, router, useRootNavigationState, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
 import 'react-native-reanimated';
@@ -21,6 +21,8 @@ import Constants, { ExecutionEnvironment } from 'expo-constants';
 import { AppBanner } from '@/components/blocks/app-banner';
 import { Splash } from '@/components/blocks/splash';
 import { GOOGLE_WEB_CLIENT_ID } from '@/features/auth/constants/google';
+import { setAuthToken } from '@/lib/api-client';
+import { getAccessToken } from '@/lib/auth-storage';
 import { AppProviders } from '@/providers/app-providers';
 
 export { ErrorBoundary } from 'expo-router';
@@ -53,20 +55,38 @@ export default function RootLayout() {
   });
   // 폰트 로드 후 커스텀 스플래시('CLOTHING - FIT')를 잠깐 보여준다.
   const [splashDone, setSplashDone] = useState(false);
+  // 시작 시 SecureStore의 access token을 axios 헤더로 복원하고 로그인 여부를 판단한다.
+  const [authChecked, setAuthChecked] = useState(false);
+  const [authed, setAuthed] = useState(false);
 
   useEffect(() => {
     if (error) throw error;
   }, [error]);
 
   useEffect(() => {
-    if (loaded) {
+    (async () => {
+      try {
+        const token = await getAccessToken();
+        if (token) setAuthToken(token); // 재시작 후에도 로그인 유지(axios 헤더 복원)
+        setAuthed(!!token);
+      } catch {
+        // SecureStore 미지원(웹) 등 → 미로그인으로 처리(로그인 화면으로 이동)
+        setAuthed(false);
+      } finally {
+        setAuthChecked(true);
+      }
+    })();
+  }, []);
+
+  useEffect(() => {
+    if (loaded && authChecked) {
       SplashScreen.hideAsync();
       const timer = setTimeout(() => setSplashDone(true), 1500);
       return () => clearTimeout(timer);
     }
-  }, [loaded]);
+  }, [loaded, authChecked]);
 
-  if (!loaded) {
+  if (!loaded || !authChecked) {
     return null;
   }
 
@@ -77,15 +97,31 @@ export default function RootLayout() {
   return (
     <AppProviders>
       <View style={{ flex: 1 }}>
-        <RootLayoutNav />
+        <RootLayoutNav authed={authed} />
         <AppBanner />
       </View>
     </AppProviders>
   );
 }
 
-function RootLayoutNav() {
+function RootLayoutNav({ authed }: { authed: boolean }) {
   const colorScheme = useColorScheme();
+  // 네비게이터가 마운트된 뒤에만 이동해야 "navigate before mounting"으로 빈 화면이 뜨지 않는다.
+  // (expo-router 공식 인증 패턴) navState.key가 생기면 준비 완료.
+  const segments = useSegments();
+  const navState = useRootNavigationState();
+
+  useEffect(() => {
+    if (!navState?.key) return; // 네비게이션 준비 전
+    const inAuthGroup = segments[0] === '(auth)';
+    const inTabsGroup = segments[0] === '(tabs)';
+    if (!authed && !inAuthGroup) {
+      router.replace('/(auth)/login'); // 미로그인 → 로그인 화면
+    } else if (authed && !inTabsGroup) {
+      // 로그인됨인데 탭(메인) 밖이면(인증 화면·잘못된 경로/+not-found 등) → 메인으로
+      router.replace('/(tabs)/home');
+    }
+  }, [authed, segments, navState?.key]);
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
