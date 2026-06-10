@@ -15,21 +15,15 @@ export function ClothInfo({ item }: { item: PostClothingItem }) {
   };
 
   return (
-    <View className="mx-4 mb-2 rounded-xl border border-border flex-row">
+    <View className="mx-4 mb-2 rounded-xl border border-border flex-row overflow-hidden">
       {item.imageUrl ? (
         <Image
           source={{ uri: item.imageUrl }}
-          style={{
-            width: 96,
-            height: 96,
-            borderTopLeftRadius: 12,
-            borderBottomLeftRadius: 12,
-            marginRight: 12,
-          }}
+          style={{ width: 96, height: 96, marginRight: 12 }}
           resizeMode="cover"
         />
       ) : (
-        <View className="w-24 h-24 bg-surface rounded-l-xl mr-3" />
+        <View className="w-24 h-24 bg-surface mr-3" />
       )}
       <View className="flex-1 flex-row justify-between items-center px-5">
         <View className="flex-1 flex-col gap-2 mr-2">
