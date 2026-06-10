@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 
 import {
@@ -13,28 +14,38 @@ type Options = {
 
 export function useUserFollow({ userId, isFollowing }: Options) {
   const queryClient = useQueryClient();
+  const [optimistic, setOptimistic] = useState<boolean | null>(null);
 
-  const patchCache = (following: boolean) =>
-    queryClient.setQueryData<UserProfileResponse>([`/users/${userId}`], (old) =>
-      old ? { ...old, isFollowing: following } : old,
-    );
+  const currentFollowing = optimistic ?? isFollowing;
 
   const onMutate = async (following: boolean) => {
     await queryClient.cancelQueries({ queryKey: [`/users/${userId}`] });
-    const snapshot = queryClient.getQueryData([`/users/${userId}`]);
-    patchCache(following);
+    const snapshot = queryClient.getQueryData<UserProfileResponse>([`/users/${userId}`]);
+    if (snapshot) {
+      queryClient.setQueryData<UserProfileResponse>([`/users/${userId}`], {
+        ...snapshot,
+        isFollowing: following,
+      });
+    }
     return { snapshot };
   };
 
-  const onError = (_: unknown, __: unknown, ctx?: { snapshot: unknown }) => {
-    if (ctx?.snapshot !== undefined) {
-      queryClient.setQueryData([`/users/${userId}`], ctx.snapshot);
-    }
+  const onError = (
+    _: unknown,
+    __: unknown,
+    ctx?: { snapshot: UserProfileResponse | undefined },
+  ) => {
+    setOptimistic(null);
+    queryClient.setQueryData([`/users/${userId}`], ctx?.snapshot);
   };
 
   const onSettled = () => {
     queryClient.invalidateQueries({ queryKey: [`/users/${userId}`] });
     queryClient.invalidateQueries({ queryKey: ['/posts'] });
+    queryClient.invalidateQueries({
+      predicate: (q) =>
+        typeof q.queryKey[0] === 'string' && (q.queryKey[0] as string).startsWith('/profile'),
+    });
   };
 
   const { mutate: follow, isPending: isFollowPending } = usePostUsersIdFollow({
@@ -48,12 +59,10 @@ export function useUserFollow({ userId, isFollowing }: Options) {
 
   const toggle = () => {
     if (isPending) return;
-    if (isFollowing) {
-      unfollow({ id: userId });
-    } else {
-      follow({ id: userId });
-    }
+    setOptimistic(!currentFollowing);
+    if (currentFollowing) unfollow({ id: userId });
+    else follow({ id: userId });
   };
 
-  return { isFollowing, toggle, isPending };
+  return { isFollowing: currentFollowing, toggle, isPending };
 }
