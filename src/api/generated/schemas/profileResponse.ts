@@ -13,4 +13,10 @@ export interface ProfileResponse {
   imageUrl: string | null;
   /** @nullable */
   gender: string | null;
+  /** @nullable */
+  height: number | null;
+  /** @nullable */
+  weight: number | null;
+  followerCount: number;
+  followingCount: number;
 }

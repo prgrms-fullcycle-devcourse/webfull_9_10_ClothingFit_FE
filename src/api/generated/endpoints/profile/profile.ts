@@ -33,9 +33,8 @@ import type {
   GetProfileInterestsParams,
   GetProfileNicknameCheckParams,
   GetProfileRecentPostsParams,
-  PatchProfileBody200,
   PatchProfileBodyBody,
-  PatchProfileNickname200,
+  PatchProfileImageBody,
   PatchProfileNicknameBody,
   ProfileResponse
 } from '../../schemas';
@@ -394,7 +393,7 @@ export const patchProfileBody = (
 ) => {
 
 
-      return apiClient<PatchProfileBody200>(
+      return apiClient<void>(
       {url: `/profile/body`, method: 'PATCH',
       headers: {'Content-Type': 'application/json', },
       data: patchProfileBodyBody, signal
@@ -727,3 +726,70 @@ export function useGetProfileInterests<TData = Awaited<ReturnType<typeof getProf
 
 
 
+/**
+ * @summary 프로필 이미지 변경
+ */
+export const patchProfileImage = (
+    patchProfileImageBody?: PatchProfileImageBody,
+ signal?: AbortSignal
+) => {
+
+      const formData = new FormData();
+if(patchProfileImageBody?.image !== undefined) {
+ formData.append(`image`, patchProfileImageBody.image);
+ }
+
+      return apiClient<void>(
+      {url: `/profile/image`, method: 'PATCH',
+      headers: {'Content-Type': 'multipart/form-data', },
+       data: formData, signal
+    },
+      );
+    }
+
+
+
+export const getPatchProfileImageMutationOptions = <TError = ErrorResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof patchProfileImage>>, TError,{data?: PatchProfileImageBody}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof patchProfileImage>>, TError,{data?: PatchProfileImageBody}, TContext> => {
+
+const mutationKey = ['patchProfileImage'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof patchProfileImage>>, {data?: PatchProfileImageBody}> = (props) => {
+          const {data} = props ?? {};
+
+          return  patchProfileImage(data,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PatchProfileImageMutationResult = NonNullable<Awaited<ReturnType<typeof patchProfileImage>>>
+    export type PatchProfileImageMutationBody = PatchProfileImageBody | undefined
+    export type PatchProfileImageMutationError = ErrorResponse
+
+    /**
+ * @summary 프로필 이미지 변경
+ */
+export const usePatchProfileImage = <TError = ErrorResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof patchProfileImage>>, TError,{data?: PatchProfileImageBody}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof patchProfileImage>>,
+        TError,
+        {data?: PatchProfileImageBody},
+        TContext
+      > => {
+      return useMutation(getPatchProfileImageMutationOptions(options), queryClient);
+    }

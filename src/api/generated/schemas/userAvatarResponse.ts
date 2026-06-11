@@ -5,8 +5,8 @@
  * ClothingFit 백엔드 API 문서
  * OpenAPI spec version: 1.0.0
  */
-import type { UserAvatarResponseData } from './userAvatarResponseData';
 
 export interface UserAvatarResponse {
-  data: UserAvatarResponseData;
+  /** 아바타 이미지 URL */
+  imageUrl: string;
 }

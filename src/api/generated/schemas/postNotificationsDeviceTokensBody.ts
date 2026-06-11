@@ -6,6 +6,7 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export interface FittingTitleResponse {
-  message: string;
-}
+export type PostNotificationsDeviceTokensBody = {
+  /** @minLength 1 */
+  token: string;
+};
