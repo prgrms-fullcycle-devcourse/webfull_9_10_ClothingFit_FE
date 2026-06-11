@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ScreenShell } from '@/components/blocks/screen-shell';
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
+import { getTabBarStyle } from '@/constants/tab-bar';
 import { TextInput } from '@/components/ui/text-input';
 import { useFittingJob, useLatestDoneJob } from '@/features/fitting/store/fitting-job-store';
 
@@ -23,8 +24,8 @@ export function FittingResultScreen() {
   useLayoutEffect(() => {
     const parent = navigation.getParent();
     parent?.setOptions({ tabBarStyle: { display: 'none' } });
-    return () => parent?.setOptions({ tabBarStyle: undefined });
-  }, [navigation]);
+    return () => parent?.setOptions({ tabBarStyle: getTabBarStyle(insets) });
+  }, [navigation, insets]);
 
   return (
     <ScreenShell
