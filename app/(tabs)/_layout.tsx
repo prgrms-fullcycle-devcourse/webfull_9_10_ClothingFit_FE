@@ -4,6 +4,7 @@ import { View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { colors, fonts } from '@/constants/theme';
+import { getTabBarStyle } from '@/constants/tab-bar';
 import { useNotificationsStream } from '@/features/notifications/use-notifications-stream';
 
 export default function TabLayout() {
@@ -18,11 +19,7 @@ export default function TabLayout() {
         tabBarInactiveTintColor: '#9ca3af',
         tabBarLabelStyle: { fontFamily: fonts.medium, fontSize: 10, marginBottom: 2 },
         // 아이콘+라벨이 안 잘리게 탭바 높이를 충분히 확보 (하단 safe-area 반영)
-        tabBarStyle: {
-          height: 66 + insets.bottom,
-          paddingBottom: insets.bottom + 10,
-          paddingTop: 8,
-        },
+        tabBarStyle: getTabBarStyle(insets),
         headerShown: false,
       }}
     >
