@@ -34,6 +34,7 @@ import type {
   GetProfileNicknameCheckParams,
   GetProfileRecentPostsParams,
   PatchProfileBodyBody,
+  PatchProfileGenderBody,
   PatchProfileImageBody,
   PatchProfileNicknameBody,
   ProfileResponse
@@ -446,6 +447,69 @@ export const usePatchProfileBody = <TError = ErrorResponse,
         TContext
       > => {
       return useMutation(getPatchProfileBodyMutationOptions(options), queryClient);
+    }
+    /**
+ * @summary 성별 변경
+ */
+export const patchProfileGender = (
+    patchProfileGenderBody?: PatchProfileGenderBody,
+ signal?: AbortSignal
+) => {
+
+
+      return apiClient<void>(
+      {url: `/profile/gender`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: patchProfileGenderBody, signal
+    },
+      );
+    }
+
+
+
+export const getPatchProfileGenderMutationOptions = <TError = ErrorResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof patchProfileGender>>, TError,{data?: PatchProfileGenderBody}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof patchProfileGender>>, TError,{data?: PatchProfileGenderBody}, TContext> => {
+
+const mutationKey = ['patchProfileGender'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof patchProfileGender>>, {data?: PatchProfileGenderBody}> = (props) => {
+          const {data} = props ?? {};
+
+          return  patchProfileGender(data,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PatchProfileGenderMutationResult = NonNullable<Awaited<ReturnType<typeof patchProfileGender>>>
+    export type PatchProfileGenderMutationBody = PatchProfileGenderBody | undefined
+    export type PatchProfileGenderMutationError = ErrorResponse
+
+    /**
+ * @summary 성별 변경
+ */
+export const usePatchProfileGender = <TError = ErrorResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof patchProfileGender>>, TError,{data?: PatchProfileGenderBody}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof patchProfileGender>>,
+        TError,
+        {data?: PatchProfileGenderBody},
+        TContext
+      > => {
+      return useMutation(getPatchProfileGenderMutationOptions(options), queryClient);
     }
     /**
  * @summary 최근 조회한 커뮤니티 목록

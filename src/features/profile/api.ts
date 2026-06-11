@@ -11,6 +11,7 @@ export {
   useGetProfile as useProfile, // GET /profile (닉네임·이미지·성별)
   useGetProfileBody as useBodyInfo,
   usePatchProfileBody as useUpdateBodyInfo,
+  usePatchProfileGender as useUpdateGender, // PATCH /profile/gender (MALE/FEMALE)
   usePatchProfileNickname as useUpdateNickname, // PATCH /profile/nickname
 } from '@/api/generated/endpoints/profile/profile';
 export type {

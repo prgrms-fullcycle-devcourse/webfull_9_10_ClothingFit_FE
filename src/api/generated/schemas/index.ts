@@ -71,6 +71,8 @@ export * from './patchAvatarImageBody';
 export * from './patchNotificationsSettings200';
 export * from './patchNotificationsSettingsBody';
 export * from './patchProfileBodyBody';
+export * from './patchProfileGenderBody';
+export * from './patchProfileGenderBodyGender';
 export * from './patchProfileImageBody';
 export * from './patchProfileNicknameBody';
 export * from './postAuthGoogleBody';

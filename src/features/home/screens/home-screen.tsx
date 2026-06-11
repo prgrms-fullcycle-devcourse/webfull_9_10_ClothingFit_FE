@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import type { UseQueryResult } from '@tanstack/react-query';
-import type { ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, View } from 'react-native';
 
 import { ScreenShell } from '@/components/blocks/screen-shell';
@@ -10,6 +10,7 @@ import { usePopularPosts, useRecommendedInfluencers } from '@/features/home/api'
 import { HotUserCard } from '@/features/home/components/hot-user-card';
 import { useUnreadNotificationCount } from '@/features/notifications/api';
 import { PopularCarousel } from '@/features/home/components/popular-carousel';
+import { getUserId } from '@/lib/auth-storage';
 
 // HOT 카드 배경 placeholder 색 (이미지 로딩 전/없을 때 자리)
 const HOT_BG = ['#fca5a5', '#bfdbfe', '#99f6e4'];
@@ -55,6 +56,12 @@ export function HomeScreen() {
   const influencers = useRecommendedInfluencers();
   const { data: unreadCount = 0 } = useUnreadNotificationCount();
 
+  // 내 userId — HOT 카드에 내가 뜨면 팔로우 버튼을 숨기기 위해 한 번만 읽는다.
+  const [myUserId, setMyUserId] = useState<string | null>(null);
+  useEffect(() => {
+    getUserId().then(setMyUserId);
+  }, []);
+
   return (
     <ScreenShell noHeader>
       {/* 헤더 */}
@@ -95,7 +102,13 @@ export function HomeScreen() {
               contentContainerClassName="gap-3 px-4 pb-8"
             >
               {data.map((user, i) => (
-                <HotUserCard key={i} user={user} bgColor={HOT_BG[i % HOT_BG.length]} index={i} />
+                <HotUserCard
+                  key={i}
+                  user={user}
+                  bgColor={HOT_BG[i % HOT_BG.length]}
+                  index={i}
+                  myUserId={myUserId}
+                />
               ))}
             </ScrollView>
           )}

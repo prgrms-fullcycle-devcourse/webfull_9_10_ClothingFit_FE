@@ -16,16 +16,21 @@ export function HotUserCard({
   user,
   bgColor,
   index = 0,
+  myUserId,
 }: {
   user: RecommendedInfluencer;
   bgColor: string;
   index?: number;
+  myUserId?: string | null;
 }) {
   // useUserFollow가 optimistic 상태를 반영하므로 isFollowing/toggle을 그대로 사용한다.
   const { isFollowing, toggle } = useUserFollow({
     userId: user.userId,
     isFollowing: user.isFollowing,
   });
+
+  // HOT에 내가 노출될 경우 나 자신은 팔로우할 수 없으니 버튼을 숨긴다.
+  const isMe = myUserId != null && myUserId === user.userId;
 
   // API 이미지가 없으면 로컬 인물 이미지로 폴백
   const fallback = personImageAt(index);
@@ -96,24 +101,27 @@ export function HotUserCard({
           </Text>
         </View>
 
-        <Pressable
-          onPress={toggle}
-          style={{
-            alignSelf: 'stretch',
-            alignItems: 'center',
-            borderRadius: 999,
-            paddingVertical: 7,
-          }}
-          className={cn(isFollowing ? 'bg-accent' : 'bg-primary')}
-        >
-          <Text
-            className="font-sans-medium text-white"
-            // 작은 pill 안에서 한글이 안 잘리도록 lineHeight·padding 보정
-            style={{ fontSize: 12, lineHeight: 16, includeFontPadding: false }}
+        {/* 내가 HOT에 떴을 땐 나를 팔로우할 수 없으니 버튼을 숨긴다. */}
+        {!isMe && (
+          <Pressable
+            onPress={toggle}
+            style={{
+              alignSelf: 'stretch',
+              alignItems: 'center',
+              borderRadius: 999,
+              paddingVertical: 7,
+            }}
+            className={cn(isFollowing ? 'bg-accent' : 'bg-primary')}
           >
-            {isFollowing ? '팔로잉' : '팔로우'}
-          </Text>
-        </Pressable>
+            <Text
+              className="font-sans-medium text-white"
+              // 작은 pill 안에서 한글이 안 잘리도록 lineHeight·padding 보정
+              style={{ fontSize: 12, lineHeight: 16, includeFontPadding: false }}
+            >
+              {isFollowing ? '팔로잉' : '팔로우'}
+            </Text>
+          </Pressable>
+        )}
       </View>
     </Pressable>
   );

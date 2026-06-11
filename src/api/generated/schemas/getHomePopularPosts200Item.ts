@@ -9,7 +9,8 @@
 export type GetHomePopularPosts200Item = {
   postId: string;
   userId: string;
-  image: string;
+  /** @nullable */
+  image: string | null;
   nickname: string;
   createdAt: string;
   /** @minimum 0 */
