@@ -30,6 +30,7 @@ function FollowListItem({
   item: FollowItem;
   myUserId: string | null | undefined;
 }) {
+  // useUserFollow가 optimistic 상태를 반영하므로 isFollowing/toggle을 그대로 사용한다.
   const { isFollowing, toggle } = useUserFollow({ userId: item.id, isFollowing: item.isFollowing });
   const isMe = !!myUserId && myUserId === item.id;
 

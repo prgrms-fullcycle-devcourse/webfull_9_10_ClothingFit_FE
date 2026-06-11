@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
-import { View } from 'react-native';
+import { router } from 'expo-router';
+import { Pressable, View } from 'react-native';
 
 import { Image } from '@/components/ui/image';
 import { Text } from '@/components/ui/text';
@@ -17,7 +18,12 @@ function formatDate(iso: string) {
 
 export function PopularPostCard({ post }: { post: PopularPost }) {
   return (
-    <View className="overflow-hidden rounded-2xl border border-border bg-white">
+    <Pressable
+      onPress={() =>
+        router.push({ pathname: '/(tabs)/home/[postId]', params: { postId: post.postId } })
+      }
+      className="overflow-hidden rounded-2xl border border-border bg-white"
+    >
       {/* 인물 이미지 (모바일 세로 4:5) + 오버레이 */}
       <View className="w-full justify-end" style={{ aspectRatio: 0.9 }}>
         <Image source={post.image} contentFit="cover" className="absolute inset-0 h-full w-full" />
@@ -46,6 +52,6 @@ export function PopularPostCard({ post }: { post: PopularPost }) {
           ))}
         </View>
       )}
-    </View>
+    </Pressable>
   );
 }
