@@ -16,13 +16,21 @@ import { SizeSelectSheet } from '@/features/webview/components/size-select-sheet
 import { CATEGORIES } from '@/features/webview/constants/categories';
 import type { CategoryId } from '@/features/webview/constants/categories';
 import { useCopySession } from '@/features/webview/hooks/use-copy-session';
-import { MOCK_USER } from '@/mocks/data';
+import { useBodyInfo, useProfile, useUpdateBodyInfo } from '@/features/profile/api';
+import { getGetProfileBodyQueryKey } from '@/api/generated/endpoints/profile/profile';
+import { adjustCircumferences } from '@/features/fitting/utils/estimate-body';
+import { useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/utils/cn';
 
 export function FittingConfirmScreen() {
   const { session, setSlotSize, clearCategory } = useCopySession();
   const insets = useSafeAreaInsets();
   const body = useBodyMeasurements();
+  // 실제 신체 정보(키/몸무게 빠른 수정용) — 읽기 + 갱신 + 성별(둘레 자동보정용)
+  const { data: bodyInfo } = useBodyInfo();
+  const { data: profile } = useProfile();
+  const updateBody = useUpdateBodyInfo();
+  const queryClient = useQueryClient();
   // 어떤 슬롯의 사이즈 시트가 열려있는지 (null=닫힘)
   const [sizeSheetCat, setSizeSheetCat] = useState<CategoryId | null>(null);
   const [bodySheetOpen, setBodySheetOpen] = useState(false);
@@ -41,7 +49,7 @@ export function FittingConfirmScreen() {
     slot: session.slots[c.id],
   }));
 
-  // 슬롯의 선택 사이즈 ↔ 체형 핏 판정 (체형은 mock — body_info API 연동 전)
+  // 슬롯의 선택 사이즈 ↔ 체형 핏 판정 (체형은 실제 body_info, 미등록 시 mock 폴백)
   const slotFit = (d: (typeof done)[number]) =>
     d.slot.selectedSize
       ? checkFit({
@@ -96,6 +104,38 @@ export function FittingConfirmScreen() {
 
     // 3) 둘 다 통과 → 생성
     doGenerate();
+  };
+
+  // 바텀시트 키/몸무게 빠른 수정 → 실제 DB 저장.
+  // 몸무게 변화량 × 성별 계수로 가슴/허리/엉덩이를 자동 보정(추정). 나머지 치수는 보존.
+  const handleBodyQuickSave = (height: number, weight: number) => {
+    const b = bodyInfo;
+    const weightDelta = weight - (b?.weight ?? weight);
+    const adj = adjustCircumferences(
+      { chest: b?.chest, waist: b?.waist, hip: b?.hip },
+      weightDelta,
+      profile?.gender,
+    );
+    const data = {
+      height,
+      weight,
+      ...(adj.chest != null && { chest: adj.chest }),
+      ...(adj.waist != null && { waist: adj.waist }),
+      ...(adj.hip != null && { hip: adj.hip }),
+      ...(b?.shoulder != null && { shoulder: b.shoulder }),
+      ...(b?.head != null && { head: b.head }),
+      ...(b?.footSize != null && { footSize: b.footSize }),
+    };
+    updateBody.mutate(
+      { data },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: getGetProfileBodyQueryKey() });
+          setBodySheetOpen(false);
+        },
+        onError: () => Alert.alert('저장 실패', '잠시 후 다시 시도해 주세요.'),
+      },
+    );
   };
 
   // 카드에서 의상 빼기 (확인 후 슬롯 비움)
@@ -238,10 +278,10 @@ export function FittingConfirmScreen() {
       {/* 신체 치수 수정 바텀시트 (실제 저장은 프로필 담당 — 지금은 상세 이동만 연결) */}
       <BodyMeasureSheet
         visible={bodySheetOpen}
-        initialHeight={MOCK_USER.height}
-        initialWeight={MOCK_USER.weight}
+        initialHeight={bodyInfo?.height ?? undefined}
+        initialWeight={bodyInfo?.weight ?? undefined}
         onClose={() => setBodySheetOpen(false)}
-        onSave={() => setBodySheetOpen(false)}
+        onSave={handleBodyQuickSave}
         onGoDetail={() => {
           setBodySheetOpen(false);
           router.push('/(tabs)/profile/body');

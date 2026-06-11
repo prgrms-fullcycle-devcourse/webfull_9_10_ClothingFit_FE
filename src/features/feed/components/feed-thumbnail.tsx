@@ -1,5 +1,6 @@
 import { router } from 'expo-router';
-import { ActivityIndicator, FlatList, View, useWindowDimensions } from 'react-native';
+import { ActivityIndicator, View, useWindowDimensions } from 'react-native';
+import Animated from 'react-native-reanimated';
 
 import { PostListItem } from '@/api/generated/schemas';
 import { FeedThumbnailItem } from './feed-thumbnail-item';
@@ -15,6 +16,10 @@ type Props = {
   ListEmptyComponent?: React.ReactElement | null;
   onRefresh?: () => void;
   refreshing?: boolean;
+  /** 탭바 스크롤 숨김 핸들러 (reanimated) */
+  onScroll?: React.ComponentProps<typeof Animated.FlatList>['onScroll'];
+  /** 콘텐츠 하단 패딩 (floating 탭바 높이) */
+  bottomInset?: number;
 };
 
 export function FeedThumbnail({
@@ -25,20 +30,24 @@ export function FeedThumbnail({
   ListEmptyComponent,
   onRefresh,
   refreshing,
+  onScroll,
+  bottomInset = 0,
 }: Props) {
   const { width: screenWidth } = useWindowDimensions();
   const itemWidth = (screenWidth - GAP * (NUM_COLUMNS - 1)) / NUM_COLUMNS;
 
   return (
-    <FlatList
+    <Animated.FlatList
       data={posts}
       keyExtractor={(item) => item.id}
       numColumns={NUM_COLUMNS}
       className="flex-1"
       columnWrapperStyle={{ gap: GAP }}
-      contentContainerStyle={{ gap: GAP }}
+      contentContainerStyle={{ gap: GAP, paddingBottom: bottomInset }}
       ListHeaderComponent={ListHeaderComponent}
       ListEmptyComponent={ListEmptyComponent}
+      onScroll={onScroll}
+      scrollEventThrottle={16}
       onEndReached={onEndReached}
       onEndReachedThreshold={0.3}
       onRefresh={onRefresh}

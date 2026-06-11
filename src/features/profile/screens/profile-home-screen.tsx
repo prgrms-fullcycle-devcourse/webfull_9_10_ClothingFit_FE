@@ -2,6 +2,11 @@ import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Image, Pressable, RefreshControl, ScrollView, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Animated from 'react-native-reanimated';
+
+import { TAB_BAR_BASE_HEIGHT } from '@/constants/tab-bar';
+import { useTabBarScroll } from '@/features/navigation/use-tab-bar-scroll';
 
 import { useGetCloset } from '@/api/generated/endpoints/closet/closet';
 import {
@@ -71,6 +76,9 @@ export function ProfileHomeScreen() {
   const bookmarkItems = bookmarks?.data?.slice(0, 10) ?? [];
   const closetItems = closetData?.data?.slice(0, 10) ?? [];
 
+  const insets = useSafeAreaInsets();
+  const scrollHandler = useTabBarScroll();
+
   return (
     <ScreenShell title="마이페이지" showBack={false} noHeader>
       <View className="flex-row items-center justify-between px-4 py-3 border-b border-border">
@@ -87,9 +95,12 @@ export function ProfileHomeScreen() {
           </Pressable>
         </View>
       </View>
-      <ScrollView
+      <Animated.ScrollView
         className="flex-1"
         refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} />}
+        onScroll={scrollHandler}
+        scrollEventThrottle={16}
+        contentContainerStyle={{ paddingBottom: TAB_BAR_BASE_HEIGHT + insets.bottom }}
       >
         <View className="px-4 py-4 flex-row gap-4">
           <View className="w-16 h-16 rounded-full bg-surface overflow-hidden">
@@ -208,7 +219,7 @@ export function ProfileHomeScreen() {
             ))}
           </ScrollView>
         )}
-      </ScrollView>
+      </Animated.ScrollView>
     </ScreenShell>
   );
 }

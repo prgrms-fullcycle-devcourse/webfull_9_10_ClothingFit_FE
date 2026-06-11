@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Pressable, View } from 'react-native';
 
 import { Button } from '@/components/ui/button';
@@ -31,6 +31,14 @@ export function BodyMeasureSheet({
   const [height, setHeight] = useState(initialHeight ? String(initialHeight) : '');
   const [weight, setWeight] = useState(initialWeight ? String(initialWeight) : '');
 
+  // 시트가 열릴 때마다 최신 신체값으로 입력칸 동기화 (API 비동기 로드 반영)
+  useEffect(() => {
+    if (visible) {
+      setHeight(initialHeight ? String(initialHeight) : '');
+      setWeight(initialWeight ? String(initialWeight) : '');
+    }
+  }, [visible, initialHeight, initialWeight]);
+
   return (
     <BottomSheet visible={visible} title="신체 치수 수정" onClose={onClose}>
       <View className="flex-row gap-3">
@@ -60,7 +68,12 @@ export function BodyMeasureSheet({
         </View>
       </View>
 
-      <Pressable onPress={onGoDetail} className="mt-4 items-center py-2">
+      <Text variant="caption" className="mt-3 text-muted">
+        몸무게를 바꾸면 가슴·허리·엉덩이가 자동으로 보정돼요(추정). 정확한 수치는 상세에서
+        수정하세요.
+      </Text>
+
+      <Pressable onPress={onGoDetail} className="mt-3 items-center py-2">
         <Text className="text-primary font-sans-medium">상세 수정 페이지로 이동</Text>
       </Pressable>
 
