@@ -14,5 +14,7 @@ export interface ClosetDetail {
   /** @nullable */
   modelUrl: string | null;
   isPublished: boolean;
+  /** @nullable */
+  postId: string | null;
   closetItems: ClosetItemDetail[];
 }

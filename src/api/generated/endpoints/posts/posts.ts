@@ -224,6 +224,67 @@ export function useGetPostsId<TData = Awaited<ReturnType<typeof getPostsId>>, TE
 
 
 /**
+ * @summary 게시글 삭제
+ */
+export const deletePostsId = (
+    id: string,
+ signal?: AbortSignal
+) => {
+
+
+      return apiClient<void>(
+      {url: `/posts/${id}`, method: 'DELETE', signal
+    },
+      );
+    }
+
+
+
+export const getDeletePostsIdMutationOptions = <TError = ErrorResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deletePostsId>>, TError,{id: string}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof deletePostsId>>, TError,{id: string}, TContext> => {
+
+const mutationKey = ['deletePostsId'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deletePostsId>>, {id: string}> = (props) => {
+          const {id} = props ?? {};
+
+          return  deletePostsId(id,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeletePostsIdMutationResult = NonNullable<Awaited<ReturnType<typeof deletePostsId>>>
+
+    export type DeletePostsIdMutationError = ErrorResponse
+
+    /**
+ * @summary 게시글 삭제
+ */
+export const useDeletePostsId = <TError = ErrorResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deletePostsId>>, TError,{id: string}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof deletePostsId>>,
+        TError,
+        {id: string},
+        TContext
+      > => {
+      return useMutation(getDeletePostsIdMutationOptions(options), queryClient);
+    }
+    /**
  * @summary 좋아요
  */
 export const postPostsIdLike = (
