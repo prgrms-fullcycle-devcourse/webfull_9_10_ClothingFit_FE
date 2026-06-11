@@ -34,7 +34,9 @@ export function HotUserCard({
 
   return (
     <Pressable
-      onPress={() => router.push(`/(tabs)/profile/user/${user.userId}`)}
+      onPress={() =>
+        router.push({ pathname: '/(tabs)/home/user/[userId]', params: { userId: user.userId } })
+      }
       className="w-40 overflow-hidden rounded-2xl border border-border bg-white"
       style={{ height: 220 }}
     >
