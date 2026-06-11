@@ -14,6 +14,7 @@ import { useEffect, useState } from 'react';
 import 'react-native-reanimated';
 
 import { Platform, View, useColorScheme } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { initializeKakaoSDK } from '@react-native-kakao/core'; // 카카오 SDK 초기화
 import { GoogleSignin } from '@react-native-google-signin/google-signin'; // 구글 SDK 설정
 import Constants, { ExecutionEnvironment } from 'expo-constants';
@@ -95,12 +96,14 @@ export default function RootLayout() {
   }
 
   return (
-    <AppProviders>
-      <View style={{ flex: 1 }}>
-        <RootLayoutNav authed={authed} />
-        <AppBanner />
-      </View>
-    </AppProviders>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <AppProviders>
+        <View style={{ flex: 1 }}>
+          <RootLayoutNav authed={authed} />
+          <AppBanner />
+        </View>
+      </AppProviders>
+    </GestureHandlerRootView>
   );
 }
 

@@ -3,8 +3,12 @@ import { router } from 'expo-router';
 import type { UseQueryResult } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Animated from 'react-native-reanimated';
 
 import { ScreenShell } from '@/components/blocks/screen-shell';
+import { TAB_BAR_BASE_HEIGHT } from '@/constants/tab-bar';
+import { useTabBarScroll } from '@/features/navigation/use-tab-bar-scroll';
 import { Text } from '@/components/ui/text';
 import { usePopularPosts, useRecommendedInfluencers } from '@/features/home/api';
 import { HotUserCard } from '@/features/home/components/hot-user-card';
@@ -54,6 +58,8 @@ export function HomeScreen() {
   const posts = usePopularPosts();
   const influencers = useRecommendedInfluencers();
   const { data: unreadCount = 0 } = useUnreadNotificationCount();
+  const insets = useSafeAreaInsets();
+  const scrollHandler = useTabBarScroll();
 
   return (
     <ScreenShell noHeader>
@@ -76,7 +82,13 @@ export function HomeScreen() {
         </Pressable>
       </View>
 
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+      <Animated.ScrollView
+        className="flex-1"
+        showsVerticalScrollIndicator={false}
+        onScroll={scrollHandler}
+        scrollEventThrottle={16}
+        contentContainerStyle={{ paddingBottom: TAB_BAR_BASE_HEIGHT + insets.bottom }}
+      >
         {/* 인기글 */}
         <Text variant="subtitle" className="px-4 pb-2 pt-4">
           인기글
@@ -100,7 +112,7 @@ export function HomeScreen() {
             </ScrollView>
           )}
         </QuerySection>
-      </ScrollView>
+      </Animated.ScrollView>
     </ScreenShell>
   );
 }

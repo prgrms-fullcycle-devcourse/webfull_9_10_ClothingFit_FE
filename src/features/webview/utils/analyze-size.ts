@@ -103,6 +103,12 @@ export async function analyzeSize(
     sizeTableSource = 'html';
   }
 
+  // 구매 옵션 API(sizeOptions)가 비었는데 사이즈표(OCR/HTML 등)는 있으면,
+  // 표의 사이즈 키를 선택지로 사용한다. (예: 무신사 옵션 API가 빈손인 아디다스 상품)
+  if (sizeOptions.length === 0 && sizeTable) {
+    sizeOptions = Object.keys(sizeTable).map((label) => ({ label, soldOut: false }));
+  }
+
   logCopySizeData({
     title: data.title,
     categoryId,
