@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 import { ActivityIndicator, Alert, FlatList, Pressable, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
 import { useQueryClient } from '@tanstack/react-query';
 import Feather from '@expo/vector-icons/Feather';
 
@@ -8,7 +9,6 @@ import { ScreenShell } from '@/components/blocks/screen-shell';
 import { Image } from '@/components/ui/image';
 import { Tag } from '@/components/ui/tag';
 import { Text } from '@/components/ui/text';
-import COLORS from '@/constants/colors';
 import {
   getGetClosetQueryKey,
   useDeleteClosetId,
@@ -24,6 +24,22 @@ function formatDate(raw: string): string {
   const m = String(d.getMonth() + 1).padStart(2, '0');
   const day = String(d.getDate()).padStart(2, '0');
   return `${y}.${m}.${day}`;
+}
+
+/** 스와이프 시 우측에 드러나는 삭제 버튼 */
+function RightDeleteAction({ onPress }: { onPress: () => void }) {
+  return (
+    <Pressable
+      onPress={onPress}
+      className="w-20 items-center justify-center"
+      style={{ backgroundColor: '#E24B4A' }}
+    >
+      <Feather name="trash-2" size={22} color="#fff" />
+      <Text className="text-xs mt-1" style={{ color: '#fff' }}>
+        삭제
+      </Text>
+    </Pressable>
+  );
 }
 
 export function ClosetListScreen() {
@@ -84,54 +100,69 @@ export function ClosetListScreen() {
           contentContainerStyle={{ paddingTop: 8, paddingBottom: insets.bottom + 80 }}
           ItemSeparatorComponent={() => <View className="h-px bg-border mx-4 my-5" />}
           renderItem={({ item }) => (
-            <Pressable
-              className="flex-row gap-4 px-4"
-              onPress={() => router.push(`/(tabs)/closet/${item.id}`)}
+            <ReanimatedSwipeable
+              friction={2}
+              rightThreshold={40}
+              overshootRight={false}
+              renderRightActions={(_progress, _translation, methods) => (
+                <RightDeleteAction
+                  onPress={() => {
+                    methods.close();
+                    handleDelete(item);
+                  }}
+                />
+              )}
             >
-              {/* 좌측 메인 이미지 */}
-              <View className="w-40" style={{ aspectRatio: 3 / 5 }}>
-                <Image source={{ uri: item.imageUrl }} className="w-full h-full rounded-xl" />
-              </View>
-
-              {/* 우측 정보 영역 */}
-              <View className="flex-1 justify-between py-0.5">
-                <View>
-                  {/* 상단: 3D 태그 + 삭제 버튼 */}
-                  <View className="flex-row items-center justify-between mb-2">
-                    {item.modelUrl ? <Tag text="3D" /> : <View />}
-                    <Pressable onPress={() => handleDelete(item)} hitSlop={8}>
-                      <Feather name="trash-2" size={20} color={COLORS.accent} />
-                    </Pressable>
-                  </View>
-
-                  {/* 제목 */}
-                  <Text className="font-sans-bold text-base mb-3" numberOfLines={1}>
-                    {item.title}
-                  </Text>
-
-                  {/* 착용 제품 썸네일 그리드 */}
-                  <View className="flex-row flex-wrap -m-0.5">
-                    {item.closetItems.map((ci) => (
-                      <View key={ci.id} className="w-1/3 p-0.5">
-                        {ci.imageUrl ? (
-                          <Image
-                            source={{ uri: ci.imageUrl }}
-                            className="w-full aspect-square rounded-md bg-surface"
-                          />
-                        ) : (
-                          <View className="w-full aspect-square rounded-md bg-surface" />
-                        )}
-                      </View>
-                    ))}
-                  </View>
+              <Pressable
+                className="flex-row gap-4 px-4 bg-white"
+                onPress={() => router.push(`/(tabs)/closet/${item.id}`)}
+              >
+                {/* 좌측 메인 이미지 */}
+                <View className="w-40" style={{ aspectRatio: 3 / 5 }}>
+                  <Image source={{ uri: item.imageUrl }} className="w-full h-full rounded-xl" />
                 </View>
 
-                {/* 날짜 */}
-                <Text variant="caption" className="text-right text-muted mt-3">
-                  {formatDate(item.createdAt)}
-                </Text>
-              </View>
-            </Pressable>
+                {/* 우측 정보 영역 */}
+                <View className="flex-1 justify-between py-0.5">
+                  <View>
+                    {/* 상단: 3D 태그 */}
+                    {item.modelUrl ? (
+                      <View className="flex-row mb-2">
+                        <Tag text="3D" />
+                      </View>
+                    ) : (
+                      <View className="mb-2" />
+                    )}
+
+                    {/* 제목 */}
+                    <Text className="font-sans-bold text-base mb-3" numberOfLines={1}>
+                      {item.title}
+                    </Text>
+
+                    {/* 착용 제품 썸네일 그리드 */}
+                    <View className="flex-row flex-wrap -m-0.5">
+                      {item.closetItems.map((ci) => (
+                        <View key={ci.id} className="w-1/3 p-0.5">
+                          {ci.imageUrl ? (
+                            <Image
+                              source={{ uri: ci.imageUrl }}
+                              className="w-full aspect-square rounded-md bg-surface"
+                            />
+                          ) : (
+                            <View className="w-full aspect-square rounded-md bg-surface" />
+                          )}
+                        </View>
+                      ))}
+                    </View>
+                  </View>
+
+                  {/* 날짜 */}
+                  <Text variant="caption" className="text-right text-muted mt-3">
+                    {formatDate(item.createdAt)}
+                  </Text>
+                </View>
+              </Pressable>
+            </ReanimatedSwipeable>
           )}
         />
       )}
