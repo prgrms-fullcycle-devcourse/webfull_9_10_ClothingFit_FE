@@ -7,6 +7,6 @@
  */
 
 export type PatchAvatarImageBody = {
-  /** 업로드할 이미지 파일 (최대 5MB) */
+  /** 업로드할 이미지 파일 (png/jpeg/webp, 최대 5MB) */
   image: Blob;
 };

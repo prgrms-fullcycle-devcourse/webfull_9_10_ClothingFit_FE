@@ -25,6 +25,7 @@ import {
   type Notification,
   type NotificationsPage,
 } from '@/features/notifications/api';
+import { SwipeableRow } from '@/features/notifications/components/swipeable-row';
 import {
   notificationIcon,
   notificationRoute,
@@ -84,13 +85,6 @@ export function NotificationsScreen() {
     if (route) router.push(route);
   };
 
-  const confirmDeleteOne = (item: Notification) => {
-    Alert.alert('알림 삭제', '이 알림을 삭제할까요?', [
-      { text: '취소', style: 'cancel' },
-      { text: '삭제', style: 'destructive', onPress: () => deleteOne.mutate({ id: item.id }) },
-    ]);
-  };
-
   const confirmClearAll = () => {
     Alert.alert('전체 삭제', '모든 알림을 삭제할까요?', [
       { text: '취소', style: 'cancel' },
@@ -138,10 +132,10 @@ export function NotificationsScreen() {
             </View>
           }
           renderItem={({ item }) => (
-            <Pressable
+            <SwipeableRow
               onPress={() => handlePress(item)}
-              onLongPress={() => confirmDeleteOne(item)}
-              className={`mb-2 flex-row items-center gap-3 rounded-xl p-4 ${
+              onDelete={() => deleteOne.mutate({ id: item.id })}
+              className={`flex-row items-center gap-3 rounded-xl p-4 ${
                 item.isRead ? 'bg-surface' : 'border border-border bg-white'
               }`}
             >
@@ -153,7 +147,7 @@ export function NotificationsScreen() {
                 <Text variant="caption">{relativeTime(item.createdAt)}</Text>
               </View>
               {!item.isRead && <View className="h-2 w-2 rounded-full bg-red-500" />}
-            </Pressable>
+            </SwipeableRow>
           )}
           ListEmptyComponent={
             <View className="flex-1 items-center justify-center gap-2 py-20">

@@ -7,5 +7,8 @@
  */
 
 export type DeleteAuthLogoutBody = {
+  /** @minLength 1 */
   refreshToken: string;
+  /** @minLength 1 */
+  deviceToken?: string;
 };
