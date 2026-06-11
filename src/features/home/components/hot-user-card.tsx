@@ -1,5 +1,4 @@
 import { router } from 'expo-router';
-import { useState } from 'react';
 import { Pressable, View } from 'react-native';
 
 import { Image } from '@/components/ui/image';
@@ -22,13 +21,11 @@ export function HotUserCard({
   bgColor: string;
   index?: number;
 }) {
-  // 버튼 즉시 반영용 로컬 상태 + 실제 팔로우/언팔로우 API(useUserFollow: 낙관적 캐시 갱신)
-  const [following, setFollowing] = useState(user.isFollowing);
-  const { toggle } = useUserFollow({ userId: user.userId, isFollowing: following });
-  const onFollowPress = () => {
-    toggle(); // 현재 following 기준으로 follow/unfollow 호출
-    setFollowing((v) => !v); // 버튼 시각 즉시 토글
-  };
+  // useUserFollow가 optimistic 상태를 반영하므로 isFollowing/toggle을 그대로 사용한다.
+  const { isFollowing, toggle } = useUserFollow({
+    userId: user.userId,
+    isFollowing: user.isFollowing,
+  });
 
   // API 이미지가 없으면 로컬 인물 이미지로 폴백
   const fallback = personImageAt(index);
@@ -98,21 +95,21 @@ export function HotUserCard({
         </View>
 
         <Pressable
-          onPress={onFollowPress}
+          onPress={toggle}
           style={{
             alignSelf: 'stretch',
             alignItems: 'center',
             borderRadius: 999,
             paddingVertical: 7,
           }}
-          className={cn(following ? 'bg-accent' : 'bg-primary')}
+          className={cn(isFollowing ? 'bg-accent' : 'bg-primary')}
         >
           <Text
             className="font-sans-medium text-white"
             // 작은 pill 안에서 한글이 안 잘리도록 lineHeight·padding 보정
             style={{ fontSize: 12, lineHeight: 16, includeFontPadding: false }}
           >
-            {following ? '팔로잉' : '팔로우'}
+            {isFollowing ? '팔로잉' : '팔로우'}
           </Text>
         </Pressable>
       </View>

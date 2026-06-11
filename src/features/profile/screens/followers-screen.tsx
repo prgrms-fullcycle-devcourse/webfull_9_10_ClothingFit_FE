@@ -30,16 +30,9 @@ function FollowListItem({
   item: FollowItem;
   myUserId: string | null | undefined;
 }) {
-  // useUserFollow의 isFollowing은 입력값 그대로(비반응형)이고 팔로워 목록 쿼리는 무효화 대상이
-  // 아니라 버튼이 안 바뀐다 → 즉시 반영용 로컬 상태로 토글한다.
-  const [following, setFollowing] = useState(item.isFollowing);
-  const { toggle } = useUserFollow({ userId: item.id, isFollowing: following });
+  // useUserFollow가 optimistic 상태를 반영하므로 isFollowing/toggle을 그대로 사용한다.
+  const { isFollowing, toggle } = useUserFollow({ userId: item.id, isFollowing: item.isFollowing });
   const isMe = !!myUserId && myUserId === item.id;
-
-  const onFollowPress = () => {
-    toggle(); // 현재 following 기준으로 follow/unfollow 호출
-    setFollowing((v) => !v); // 버튼 즉시 토글
-  };
 
   return (
     <View className="flex-row items-center mb-4">
@@ -58,7 +51,7 @@ function FollowListItem({
         <Text className="font-sans-medium">{item.nickname}</Text>
       </Pressable>
       {myUserId !== undefined && !isMe && (
-        <FollowButton isFollowing={following} onPress={onFollowPress} />
+        <FollowButton isFollowing={isFollowing} onPress={toggle} />
       )}
     </View>
   );
