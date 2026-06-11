@@ -89,6 +89,12 @@ export default function TabLayout() {
             <Ionicons name="chatbubble-outline" size={size} color={color} />
           ),
         }}
+        listeners={{
+          tabPress: (e) => {
+            e.preventDefault();
+            router.navigate('/(tabs)/feed');
+          },
+        }}
       />
       <Tabs.Screen
         name="profile"

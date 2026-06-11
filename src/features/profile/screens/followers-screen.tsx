@@ -9,6 +9,7 @@ import {
 import { ScreenShell } from '@/components/blocks/screen-shell';
 import { TabButton } from '@/components/ui/tab-button';
 import { Text } from '@/components/ui/text';
+import { useHideTabBar } from '@/hooks/use-hide-tab-bar';
 import { FollowButton } from '@/features/feed/components/follow-button';
 import { useUserFollow } from '@/features/feed/hooks/use-user-follow';
 import { getUserId } from '@/lib/auth-storage';
@@ -61,15 +62,21 @@ function FollowListItem({
 function FollowList({
   items,
   myUserId,
+  onRefresh,
+  refreshing,
 }: {
   items: FollowItem[];
   myUserId: string | null | undefined;
+  onRefresh: () => void;
+  refreshing: boolean;
 }) {
   return (
     <FlatList
       data={items}
       keyExtractor={(item) => item.id}
       contentContainerStyle={{ padding: 16 }}
+      onRefresh={onRefresh}
+      refreshing={refreshing}
       renderItem={({ item }) => <FollowListItem item={item} myUserId={myUserId} />}
     />
   );
@@ -80,6 +87,7 @@ export function FollowersScreen() {
   const { userId, tab: initialTab } = useLocalSearchParams<{ userId?: string; tab?: Tab }>();
   const [tab, setTab] = useState<Tab>(initialTab ?? 'followers');
   const [myUserId, setMyUserId] = useState<string | null | undefined>(undefined);
+  useHideTabBar();
 
   useEffect(() => {
     getUserId().then(setMyUserId);
@@ -88,20 +96,22 @@ export function FollowersScreen() {
   // userId 없이 진입하면(예: 설정 > 팔로잉&팔로워) 내 팔로워/팔로잉을 본다.
   const targetId = userId ?? myUserId ?? undefined;
 
-  const { data: followersData, isLoading: followersLoading } = useGetUsersIdFollowers(
-    targetId ?? '',
-    undefined,
-    {
-      query: { enabled: !!targetId },
-    },
-  );
-  const { data: followingsData, isLoading: followingsLoading } = useGetUsersIdFollowings(
-    targetId ?? '',
-    undefined,
-    {
-      query: { enabled: !!targetId },
-    },
-  );
+  const {
+    data: followersData,
+    isLoading: followersLoading,
+    refetch: refetchFollowers,
+    isRefetching: isRefetchingFollowers,
+  } = useGetUsersIdFollowers(targetId ?? '', undefined, {
+    query: { enabled: !!targetId },
+  });
+  const {
+    data: followingsData,
+    isLoading: followingsLoading,
+    refetch: refetchFollowings,
+    isRefetching: isRefetchingFollowings,
+  } = useGetUsersIdFollowings(targetId ?? '', undefined, {
+    query: { enabled: !!targetId },
+  });
 
   // 내 id를 아직 읽는 중이면(설정 진입) 로딩으로 처리해 빈 화면 깜빡임 방지
   const resolvingMe = !userId && myUserId === undefined;
@@ -136,14 +146,24 @@ export function FollowersScreen() {
             <Text variant="caption">회원님을 팔로우 하는 모든 사용자가 여기에 표시됩니다.</Text>
           </View>
         ) : (
-          <FollowList items={followerItems} myUserId={myUserId} />
+          <FollowList
+            items={followerItems}
+            myUserId={myUserId}
+            onRefresh={refetchFollowers}
+            refreshing={isRefetchingFollowers}
+          />
         )
       ) : followingItems.length === 0 ? (
         <View className="flex-1 items-center justify-center">
           <Text variant="caption">마음에 드는 회원님을 팔로우 해보세요.</Text>
         </View>
       ) : (
-        <FollowList items={followingItems} myUserId={myUserId} />
+        <FollowList
+          items={followingItems}
+          myUserId={myUserId}
+          onRefresh={refetchFollowings}
+          refreshing={isRefetchingFollowings}
+        />
       )}
     </ScreenShell>
   );
