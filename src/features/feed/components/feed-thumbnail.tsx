@@ -14,6 +14,8 @@ type Props = {
   isLoadingMore?: boolean;
   ListHeaderComponent?: React.ReactElement | null;
   ListEmptyComponent?: React.ReactElement | null;
+  onRefresh?: () => void;
+  refreshing?: boolean;
   /** 탭바 스크롤 숨김 핸들러 (reanimated) */
   onScroll?: React.ComponentProps<typeof Animated.FlatList>['onScroll'];
   /** 콘텐츠 하단 패딩 (floating 탭바 높이) */
@@ -26,6 +28,8 @@ export function FeedThumbnail({
   isLoadingMore,
   ListHeaderComponent,
   ListEmptyComponent,
+  onRefresh,
+  refreshing,
   onScroll,
   bottomInset = 0,
 }: Props) {
@@ -46,6 +50,8 @@ export function FeedThumbnail({
       scrollEventThrottle={16}
       onEndReached={onEndReached}
       onEndReachedThreshold={0.3}
+      onRefresh={onRefresh}
+      refreshing={refreshing ?? false}
       ListFooterComponent={
         isLoadingMore ? (
           <View className="py-4 items-center">

@@ -1,7 +1,7 @@
 import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Image, Pressable, ScrollView, View } from 'react-native';
+import { Image, Pressable, RefreshControl, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated from 'react-native-reanimated';
 
@@ -41,10 +41,35 @@ export function ProfileHomeScreen() {
     getUserId().then(setMyUserId);
   }, []);
 
-  const { data: profile } = useGetProfile();
-  const { data: recentPosts } = useGetProfileRecentPosts();
-  const { data: bookmarks } = useGetProfileBookmarks();
-  const { data: closetData } = useGetCloset();
+  const {
+    data: profile,
+    refetch: refetchProfile,
+    isRefetching: isRefetchingProfile,
+  } = useGetProfile();
+  const {
+    data: recentPosts,
+    refetch: refetchPosts,
+    isRefetching: isRefetchingPosts,
+  } = useGetProfileRecentPosts();
+  const {
+    data: bookmarks,
+    refetch: refetchBookmarks,
+    isRefetching: isRefetchingBookmarks,
+  } = useGetProfileBookmarks();
+  const {
+    data: closetData,
+    refetch: refetchCloset,
+    isRefetching: isRefetchingCloset,
+  } = useGetCloset();
+
+  const isRefreshing =
+    isRefetchingProfile || isRefetchingPosts || isRefetchingBookmarks || isRefetchingCloset;
+  const handleRefresh = () => {
+    refetchProfile();
+    refetchPosts();
+    refetchBookmarks();
+    refetchCloset();
+  };
   const { data: unreadCount = 0 } = useUnreadNotificationCount();
 
   const recentPostItems = recentPosts?.data?.slice(0, 10) ?? [];
@@ -72,6 +97,7 @@ export function ProfileHomeScreen() {
       </View>
       <Animated.ScrollView
         className="flex-1"
+        refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} />}
         onScroll={scrollHandler}
         scrollEventThrottle={16}
         contentContainerStyle={{ paddingBottom: TAB_BAR_BASE_HEIGHT + insets.bottom }}
