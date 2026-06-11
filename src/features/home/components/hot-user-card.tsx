@@ -8,10 +8,16 @@ import type { RecommendedInfluencer } from '@/features/home/api';
 import { personImageAt } from '@/features/home/constants/person-images';
 import { cn } from '@/utils/cn';
 
+/** 팔로워 수를 1,000 단위로 축약(예: 1500 → "1.5K"). */
 function formatFollowers(n: number) {
   return n >= 1000 ? `${(n / 1000).toFixed(1)}K` : `${n}`;
 }
 
+/**
+ * 메인 HOT 섹션의 인플루언서 카드. 게시글 이미지·원형 아바타·닉네임·팔로워 수와
+ * 팔로우 토글을 보여주며, 카드를 누르면 해당 사용자 프로필로 이동한다.
+ * `myUserId`와 일치(본인)하면 팔로우 버튼은 숨긴다.
+ */
 export function HotUserCard({
   user,
   bgColor,

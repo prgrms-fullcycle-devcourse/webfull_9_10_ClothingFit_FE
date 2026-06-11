@@ -46,6 +46,10 @@ if (Platform.OS !== 'web' && !isExpoGo) {
   }
 }
 
+/**
+ * 앱 루트 레이아웃. 폰트·소셜 SDK 초기화, 스플래시 표시, SecureStore 토큰 복원으로
+ * 인증 상태를 부트스트랩한 뒤 RootLayoutNav(인증 게이트)를 렌더링한다.
+ */
 export default function RootLayout() {
   const [loaded, error] = useFonts({
     NotoSansKR_100Thin,
@@ -105,6 +109,10 @@ export default function RootLayout() {
   );
 }
 
+/**
+ * 인증 게이트. 로그인 여부(authed)와 현재 경로(segments)에 따라
+ * 미로그인이면 로그인 화면, 로그인됨인데 탭 밖이면 메인으로 리다이렉트한다.
+ */
 function RootLayoutNav({ authed }: { authed: boolean }) {
   const colorScheme = useColorScheme();
   // 네비게이터가 마운트된 뒤에만 이동해야 "navigate before mounting"으로 빈 화면이 뜨지 않는다.

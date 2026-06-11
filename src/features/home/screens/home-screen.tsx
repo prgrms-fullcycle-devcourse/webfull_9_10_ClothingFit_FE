@@ -15,6 +15,7 @@ import { getUserId } from '@/lib/auth-storage';
 // HOT 카드 배경 placeholder 색 (이미지 로딩 전/없을 때 자리)
 const HOT_BG = ['#fca5a5', '#bfdbfe', '#99f6e4'];
 
+/** 섹션의 로딩/에러/빈 상태 메시지를 가운데 정렬로 감싸는 래퍼. */
 function StateMessage({ children }: { children: ReactNode }) {
   return <View className="items-center py-10">{children}</View>;
 }
@@ -51,6 +52,7 @@ function QuerySection<T>({
   return <>{children(query.data)}</>;
 }
 
+/** 메인(홈) 화면. 알림 뱃지 헤더 + 인기글 캐러셀 + HOT 인플루언서 목록을 렌더링한다. */
 export function HomeScreen() {
   const posts = usePopularPosts();
   const influencers = useRecommendedInfluencers();
