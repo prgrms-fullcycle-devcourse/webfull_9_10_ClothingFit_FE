@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ScreenShell } from '@/components/blocks/screen-shell';
 import { Text } from '@/components/ui/text';
+import { getTabBarStyle } from '@/constants/tab-bar';
 import { useBodyMeasurements } from '@/features/fitting/hooks/use-body-measurements';
 import { startFittingJob } from '@/features/fitting/store/fitting-job-store';
 import { checkFit } from '@/features/fitting/utils/fit-check';
@@ -31,8 +32,8 @@ export function FittingConfirmScreen() {
   useLayoutEffect(() => {
     const parent = navigation.getParent();
     parent?.setOptions({ tabBarStyle: { display: 'none' } });
-    return () => parent?.setOptions({ tabBarStyle: undefined });
-  }, [navigation]);
+    return () => parent?.setOptions({ tabBarStyle: getTabBarStyle(insets) });
+  }, [navigation, insets]);
 
   const done = CATEGORIES.filter((c) => session.slots[c.id].status === 'done').map((c) => ({
     category: c.id,

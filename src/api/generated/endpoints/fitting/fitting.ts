@@ -30,7 +30,9 @@ import type {
   Fitting3DStartResponse,
   Fitting3DStatusResponse,
   FittingTitleBody,
-  FittingTitleResponse
+  GenerateCoordiRequest,
+  GenerateCoordiResponse,
+  UpdateFittingModelResponse
 } from '../../schemas';
 
 import { apiClient } from '../../../../lib/api-client';
@@ -39,6 +41,87 @@ import { apiClient } from '../../../../lib/api-client';
 
 
 /**
+ * multipart/form-data로 의류 이미지(최대 5개)와 `meta` JSON을 함께 보냅니다. `meta`는 `{ "items": [...] }` 형태이며, 각 item의 `imageField`가 함께 보낸 multipart 파일 필드명을 가리킵니다(예: image_top). 각 item은 category(소문자 가능), selectedMeasurements(선택 사이즈 기준 납작한 치수), selectedSize, title(상품명), sourceUrl(제품 링크), sizeTable/sizeTableSource를 가집니다. 체형은 보내지 않습니다. 신체 치수·성별은 토큰의 user_id로 DB(body_info, profiles)에서, 아바타는 user_character에서 조회합니다. Gemini 호출은 타임아웃(60초)과 1회 재시도를 적용하며, 생성된 코디 이미지와 코디명은 closet_archive(+의류별 closet_items)에 저장됩니다.
+ * @summary 2D 코디 생성
+ */
+export const postFitting2d = (
+    generateCoordiRequest: GenerateCoordiRequest,
+ signal?: AbortSignal
+) => {
+
+      const formData = new FormData();
+formData.append(`meta`, generateCoordiRequest.meta);
+if(generateCoordiRequest.image_top !== undefined) {
+ formData.append(`image_top`, generateCoordiRequest.image_top);
+ }
+if(generateCoordiRequest.image_outer !== undefined) {
+ formData.append(`image_outer`, generateCoordiRequest.image_outer);
+ }
+if(generateCoordiRequest.image_bottom !== undefined) {
+ formData.append(`image_bottom`, generateCoordiRequest.image_bottom);
+ }
+if(generateCoordiRequest.image_hat !== undefined) {
+ formData.append(`image_hat`, generateCoordiRequest.image_hat);
+ }
+if(generateCoordiRequest.image_shoes !== undefined) {
+ formData.append(`image_shoes`, generateCoordiRequest.image_shoes);
+ }
+
+      return apiClient<GenerateCoordiResponse>(
+      {url: `/fitting/2d`, method: 'POST',
+      headers: {'Content-Type': 'multipart/form-data', },
+       data: formData, signal
+    },
+      );
+    }
+
+
+
+export const getPostFitting2dMutationOptions = <TError = ErrorResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postFitting2d>>, TError,{data: GenerateCoordiRequest}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof postFitting2d>>, TError,{data: GenerateCoordiRequest}, TContext> => {
+
+const mutationKey = ['postFitting2d'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postFitting2d>>, {data: GenerateCoordiRequest}> = (props) => {
+          const {data} = props ?? {};
+
+          return  postFitting2d(data,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PostFitting2dMutationResult = NonNullable<Awaited<ReturnType<typeof postFitting2d>>>
+    export type PostFitting2dMutationBody = GenerateCoordiRequest
+    export type PostFitting2dMutationError = ErrorResponse
+
+    /**
+ * @summary 2D 코디 생성
+ */
+export const usePostFitting2d = <TError = ErrorResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postFitting2d>>, TError,{data: GenerateCoordiRequest}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof postFitting2d>>,
+        TError,
+        {data: GenerateCoordiRequest},
+        TContext
+      > => {
+      return useMutation(getPostFitting2dMutationOptions(options), queryClient);
+    }
+    /**
  * closet_archive에 저장된 이미지를 Mesh AI로 전달해 3D 모델 변환을 시작합니다. 사용자당 동시에 1개의 요청만 허용되며, 이미 진행 중인 작업이 있으면 409를 반환합니다. 동시 작업이 10개를 초과하면 즉시 QUEUED 상태의 sessionId를 반환하며, 슬롯이 생기면 자동으로 처리됩니다. 클라이언트는 반환된 sessionId로 GET /fitting/:sessionId를 폴링해 진행 상태를 확인하면 됩니다. 세션은 24시간 유효합니다.
  * @summary 3D 피팅 생성 시작
  */
@@ -114,14 +197,14 @@ export const usePostFitting3d = <TError = ErrorResponse,
  * 세션 만료(24시간) 또는 서버 재시작 시 404가 반환됩니다.
  * @summary 3D 피팅 상태 조회
  */
-export const getFittingSessionId = (
+export const getFitting3dSessionId = (
     sessionId: string,
  signal?: AbortSignal
 ) => {
 
 
       return apiClient<Fitting3DStatusResponse>(
-      {url: `/fitting/${sessionId}`, method: 'GET', signal
+      {url: `/fitting/3d/${sessionId}`, method: 'GET', signal
     },
       );
     }
@@ -129,69 +212,69 @@ export const getFittingSessionId = (
 
 
 
-export const getGetFittingSessionIdQueryKey = (sessionId: string,) => {
+export const getGetFitting3dSessionIdQueryKey = (sessionId: string,) => {
     return [
-    `/fitting/${sessionId}`
+    `/fitting/3d/${sessionId}`
     ] as const;
     }
 
 
-export const getGetFittingSessionIdQueryOptions = <TData = Awaited<ReturnType<typeof getFittingSessionId>>, TError = ErrorResponse>(sessionId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getFittingSessionId>>, TError, TData>>, }
+export const getGetFitting3dSessionIdQueryOptions = <TData = Awaited<ReturnType<typeof getFitting3dSessionId>>, TError = ErrorResponse>(sessionId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getFitting3dSessionId>>, TError, TData>>, }
 ) => {
 
 const {query: queryOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetFittingSessionIdQueryKey(sessionId);
+  const queryKey =  queryOptions?.queryKey ?? getGetFitting3dSessionIdQueryKey(sessionId);
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getFittingSessionId>>> = ({ signal }) => getFittingSessionId(sessionId, signal);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getFitting3dSessionId>>> = ({ signal }) => getFitting3dSessionId(sessionId, signal);
 
 
 
 
 
-   return  { queryKey, queryFn, enabled: sessionId !== null && sessionId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getFittingSessionId>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+   return  { queryKey, queryFn, enabled: sessionId !== null && sessionId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getFitting3dSessionId>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
 
-export type GetFittingSessionIdQueryResult = NonNullable<Awaited<ReturnType<typeof getFittingSessionId>>>
-export type GetFittingSessionIdQueryError = ErrorResponse
+export type GetFitting3dSessionIdQueryResult = NonNullable<Awaited<ReturnType<typeof getFitting3dSessionId>>>
+export type GetFitting3dSessionIdQueryError = ErrorResponse
 
 
-export function useGetFittingSessionId<TData = Awaited<ReturnType<typeof getFittingSessionId>>, TError = ErrorResponse>(
- sessionId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getFittingSessionId>>, TError, TData>> & Pick<
+export function useGetFitting3dSessionId<TData = Awaited<ReturnType<typeof getFitting3dSessionId>>, TError = ErrorResponse>(
+ sessionId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getFitting3dSessionId>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getFittingSessionId>>,
+          Awaited<ReturnType<typeof getFitting3dSessionId>>,
           TError,
-          Awaited<ReturnType<typeof getFittingSessionId>>
+          Awaited<ReturnType<typeof getFitting3dSessionId>>
         > , 'initialData'
       >, }
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetFittingSessionId<TData = Awaited<ReturnType<typeof getFittingSessionId>>, TError = ErrorResponse>(
- sessionId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getFittingSessionId>>, TError, TData>> & Pick<
+export function useGetFitting3dSessionId<TData = Awaited<ReturnType<typeof getFitting3dSessionId>>, TError = ErrorResponse>(
+ sessionId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getFitting3dSessionId>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getFittingSessionId>>,
+          Awaited<ReturnType<typeof getFitting3dSessionId>>,
           TError,
-          Awaited<ReturnType<typeof getFittingSessionId>>
+          Awaited<ReturnType<typeof getFitting3dSessionId>>
         > , 'initialData'
       >, }
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetFittingSessionId<TData = Awaited<ReturnType<typeof getFittingSessionId>>, TError = ErrorResponse>(
- sessionId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getFittingSessionId>>, TError, TData>>, }
+export function useGetFitting3dSessionId<TData = Awaited<ReturnType<typeof getFitting3dSessionId>>, TError = ErrorResponse>(
+ sessionId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getFitting3dSessionId>>, TError, TData>>, }
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary 3D 피팅 상태 조회
  */
 
-export function useGetFittingSessionId<TData = Awaited<ReturnType<typeof getFittingSessionId>>, TError = ErrorResponse>(
- sessionId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getFittingSessionId>>, TError, TData>>, }
+export function useGetFitting3dSessionId<TData = Awaited<ReturnType<typeof getFitting3dSessionId>>, TError = ErrorResponse>(
+ sessionId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getFitting3dSessionId>>, TError, TData>>, }
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getGetFittingSessionIdQueryOptions(sessionId,options)
+  const queryOptions = getGetFitting3dSessionIdQueryOptions(sessionId,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
@@ -214,7 +297,7 @@ export const patchFittingClosetArchiveIdTitle = (
 ) => {
 
 
-      return apiClient<FittingTitleResponse>(
+      return apiClient<void>(
       {url: `/fitting/${closetArchiveId}/title`, method: 'PATCH',
       headers: {'Content-Type': 'application/json', },
       data: fittingTitleBody, signal
@@ -267,4 +350,66 @@ export const usePatchFittingClosetArchiveIdTitle = <TError = ErrorResponse,
         TContext
       > => {
       return useMutation(getPatchFittingClosetArchiveIdTitleMutationOptions(options), queryClient);
+    }
+    /**
+ * 완료(SUCCEEDED)된 3D 피팅 결과를 영속화합니다. Meshy가 생성한 glb를 우리 S3에 업로드하고, 그 링크를 closet_archive.model_url에 저장합니다. 세션 소유자만 호출할 수 있으며, 아직 완료되지 않았으면 409를 반환합니다. (Meshy URL은 만료성이므로 완료 후 24시간 내 저장 권장)
+ * @summary 3D 피팅 결과(glb) 저장
+ */
+export const postFitting3dSessionIdModel = (
+    sessionId: string,
+ signal?: AbortSignal
+) => {
+
+
+      return apiClient<UpdateFittingModelResponse>(
+      {url: `/fitting/3d/${sessionId}/model`, method: 'POST', signal
+    },
+      );
+    }
+
+
+
+export const getPostFitting3dSessionIdModelMutationOptions = <TError = ErrorResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postFitting3dSessionIdModel>>, TError,{sessionId: string}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof postFitting3dSessionIdModel>>, TError,{sessionId: string}, TContext> => {
+
+const mutationKey = ['postFitting3dSessionIdModel'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postFitting3dSessionIdModel>>, {sessionId: string}> = (props) => {
+          const {sessionId} = props ?? {};
+
+          return  postFitting3dSessionIdModel(sessionId,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PostFitting3dSessionIdModelMutationResult = NonNullable<Awaited<ReturnType<typeof postFitting3dSessionIdModel>>>
+
+    export type PostFitting3dSessionIdModelMutationError = ErrorResponse
+
+    /**
+ * @summary 3D 피팅 결과(glb) 저장
+ */
+export const usePostFitting3dSessionIdModel = <TError = ErrorResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postFitting3dSessionIdModel>>, TError,{sessionId: string}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof postFitting3dSessionIdModel>>,
+        TError,
+        {sessionId: string},
+        TContext
+      > => {
+      return useMutation(getPostFitting3dSessionIdModelMutationOptions(options), queryClient);
     }

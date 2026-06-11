@@ -30,7 +30,8 @@ import type {
   NotificationEvent,
   NotificationSettingsResponse,
   PatchNotificationsSettings200,
-  PatchNotificationsSettingsBody
+  PatchNotificationsSettingsBody,
+  PostNotificationsDeviceTokensBody
 } from '../../schemas';
 
 import { apiClient } from '../../../../lib/api-client';
@@ -39,6 +40,70 @@ import { apiClient } from '../../../../lib/api-client';
 
 
 /**
+ * 푸시 알림 수신을 위한 Expo push token을 등록합니다. 같은 토큰 재등록 시 멱등하게 갱신되며, 한 유저가 여러 기기를 등록할 수 있습니다.
+ * @summary 기기 푸시 토큰 등록
+ */
+export const postNotificationsDeviceTokens = (
+    postNotificationsDeviceTokensBody?: PostNotificationsDeviceTokensBody,
+ signal?: AbortSignal
+) => {
+
+
+      return apiClient<void>(
+      {url: `/notifications/device-tokens`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: postNotificationsDeviceTokensBody, signal
+    },
+      );
+    }
+
+
+
+export const getPostNotificationsDeviceTokensMutationOptions = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postNotificationsDeviceTokens>>, TError,{data?: PostNotificationsDeviceTokensBody}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof postNotificationsDeviceTokens>>, TError,{data?: PostNotificationsDeviceTokensBody}, TContext> => {
+
+const mutationKey = ['postNotificationsDeviceTokens'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postNotificationsDeviceTokens>>, {data?: PostNotificationsDeviceTokensBody}> = (props) => {
+          const {data} = props ?? {};
+
+          return  postNotificationsDeviceTokens(data,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PostNotificationsDeviceTokensMutationResult = NonNullable<Awaited<ReturnType<typeof postNotificationsDeviceTokens>>>
+    export type PostNotificationsDeviceTokensMutationBody = PostNotificationsDeviceTokensBody | undefined
+    export type PostNotificationsDeviceTokensMutationError = void
+
+    /**
+ * @summary 기기 푸시 토큰 등록
+ */
+export const usePostNotificationsDeviceTokens = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postNotificationsDeviceTokens>>, TError,{data?: PostNotificationsDeviceTokensBody}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof postNotificationsDeviceTokens>>,
+        TError,
+        {data?: PostNotificationsDeviceTokensBody},
+        TContext
+      > => {
+      return useMutation(getPostNotificationsDeviceTokensMutationOptions(options), queryClient);
+    }
+    /**
  * 실시간 알림을 받기 위한 SSE(text/event-stream) 연결을 엽니다. 새 알림이 생기면 단일 알림 객체가 `data:` 이벤트로 전송됩니다.
  * @summary 알림 SSE 구독
  */

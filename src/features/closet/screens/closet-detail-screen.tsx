@@ -1,5 +1,5 @@
-import { router, useLocalSearchParams } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { router, useLocalSearchParams, useNavigation } from 'expo-router';
+import { useEffect, useLayoutEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -7,18 +7,19 @@ import {
   FlatList,
   Image,
   Pressable,
-  ScrollView,
   View,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { ScreenShell } from '@/components/blocks/screen-shell';
-import { Button } from '@/components/ui/button';
 import { ScreenHeader } from '@/components/ui/screen-header';
 import { Text } from '@/components/ui/text';
 import { Toggle } from '@/components/ui/toggle';
 import COLORS from '@/constants/colors';
+import { getTabBarStyle } from '@/constants/tab-bar';
 import { ClosetViewer3D } from '@/features/closet/components/closet-viewer-3d';
+import { useFitting3D } from '@/features/closet/hooks/use-fitting-3d';
 import {
   getGetClosetQueryKey,
   useDeleteClosetId,
@@ -32,6 +33,7 @@ const CARD_WIDTH = Dimensions.get('window').width - 32;
 export function ClosetDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const queryClient = useQueryClient();
+  const insets = useSafeAreaInsets();
 
   const { data, isLoading, isError, refetch } = useGetClosetId(id);
   const item = data?.data;
@@ -40,6 +42,14 @@ export function ClosetDetailScreen() {
   const [view3d, setView3d] = useState(false);
   const [isPublished, setIsPublished] = useState(false);
 
+  // 상세 코디 화면에서는 하단 탭 바를 숨긴다 (떠날 때 복원).
+  const navigation = useNavigation();
+  useLayoutEffect(() => {
+    const parent = navigation.getParent();
+    parent?.setOptions({ tabBarStyle: { display: 'none' } });
+    return () => parent?.setOptions({ tabBarStyle: getTabBarStyle(insets) });
+  }, [navigation, insets]);
+
   // 서버의 게시 상태로 토글 초기화
   useEffect(() => {
     if (item) setIsPublished(item.isPublished);
@@ -47,6 +57,17 @@ export function ClosetDetailScreen() {
 
   const deleteMut = useDeleteClosetId();
   const publishMut = usePostClosetIdPublish();
+
+  // 3D 모델 생성 (Mesh AI) — 시작 + 폴링
+  const gen = useFitting3D(id);
+  useEffect(() => {
+    if (gen.status === 'SUCCEEDED') setView3d(true); // 완료되면 3D 뷰로 전환
+    if (gen.status === 'FAILED') Alert.alert('3D 생성 실패', '잠시 후 다시 시도해 주세요.');
+  }, [gen.status]);
+  useEffect(() => {
+    if (gen.startError)
+      Alert.alert('3D 생성 시작 실패', '이미 진행 중이거나 잠시 후 다시 시도해 주세요.');
+  }, [gen.startError]);
 
   // 삭제 (휴지통) — 확인 후 삭제 → 목록 갱신 → 뒤로
   const handleDelete = () => {
@@ -83,6 +104,24 @@ export function ClosetDetailScreen() {
         },
       },
     );
+  };
+
+  // 2D/3D 토글 — 3D로 전환 시 모델 없으면 생성 확인창
+  const handleToggle3D = (next: boolean) => {
+    if (!next) {
+      setView3d(false);
+      return;
+    }
+    // 3D 요청
+    if (item?.modelUrl) {
+      setView3d(true); // 이미 모델 있으면 바로 전환
+      return;
+    }
+    if (gen.isGenerating) return; // 생성 중이면 무시
+    Alert.alert('3D 아바타 생성', '3D 아바타를 생성하시겠습니까?\n완료까지 수 분 정도 걸려요.', [
+      { text: '아니요', style: 'cancel' },
+      { text: '네', onPress: () => gen.start() },
+    ]);
   };
 
   if (isLoading) {
@@ -127,74 +166,70 @@ export function ClosetDetailScreen() {
           </View>
         }
       />
-      {/* 콘텐츠가 화면을 넘겨 하단(착용제품·버튼)이 잘리던 문제 → 스크롤 처리 */}
-      <ScrollView
-        className="flex-1"
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 24 }}
-        scrollEnabled={!view3d} // 3D 뷰어 조작 시엔 부모 스크롤 비활성(제스처 충돌 방지)
-      >
-        {/* 뷰어 영역 */}
-        <View style={{ height: 440 }}>
-          {view3d && item.modelUrl ? (
-            <ClosetViewer3D modelUrl={item.modelUrl} />
-          ) : (
-            <Image
-              className="flex-1 bg-surface items-center justify-center"
-              source={{ uri: item.imageUrl }}
-            />
-          )}
-        </View>
-        {/* 2D / 3D 토글 */}
-        <View className="flex-row justify-end px-4 py-2 border-b border-border">
-          <Toggle
-            labelLeft="2D"
-            labelRight="3D"
-            value={view3d}
-            onValueChange={setView3d}
-            disabled={!item.modelUrl}
+      {/* 뷰어 영역 — 남는 공간을 채우도록 유연하게 (작은 화면에서 하단 잘림 방지) */}
+      <View className="flex-1" style={{ minHeight: 240 }}>
+        {view3d && item.modelUrl ? (
+          <ClosetViewer3D modelUrl={item.modelUrl} />
+        ) : (
+          <Image
+            className="flex-1 bg-surface items-center justify-center"
+            source={{ uri: item.imageUrl }}
           />
-        </View>
+        )}
+      </View>
+      {/* 진행률(생성 중) + 2D/3D 토글 (토글이 3D 생성 트리거) */}
+      <View className="flex-row items-center justify-between px-4 py-2 border-b border-border">
+        {gen.isGenerating ? (
+          <View className="flex-row items-center gap-2">
+            <ActivityIndicator size="small" color={COLORS.accent} />
+            <Text variant="caption" className="text-muted">
+              {gen.status === 'QUEUED'
+                ? '대기 중...'
+                : gen.isSaving
+                  ? '저장 중...'
+                  : `3D 생성 중 ${gen.progress ? `${gen.progress}%` : ''}`}
+            </Text>
+          </View>
+        ) : (
+          <View />
+        )}
+        <Toggle labelLeft="2D" labelRight="3D" value={view3d} onValueChange={handleToggle3D} />
+      </View>
 
-        <View className="py-4">
-          <Text variant="subtitle" className="mb-3 px-4">
-            착용 제품
-          </Text>
-          <FlatList
-            data={wornItems}
-            keyExtractor={(p) => p.id}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            snapToInterval={CARD_WIDTH + 12}
-            decelerationRate="normal"
-            disableIntervalMomentum
-            contentContainerStyle={{ paddingHorizontal: 16, gap: 12 }}
-            renderItem={({ item: p }) => (
-              <View
-                style={{ width: CARD_WIDTH }}
-                className="flex-row items-center p-3 rounded-xl border border-border"
-              >
-                {p.imageUrl ? (
-                  <Image
-                    source={{ uri: p.imageUrl }}
-                    className="w-16 h-16 rounded-lg bg-surface mr-3"
-                  />
-                ) : (
-                  <View className="w-16 h-16 rounded-lg bg-surface mr-3" />
-                )}
-                <View className="flex-1">
-                  <Text className="font-sans-medium">{p.brand ?? '브랜드 정보 없음'}</Text>
-                  <Text variant="caption">{p.name}</Text>
-                  {p.size ? <Text variant="caption">착용사이즈 {p.size}</Text> : null}
-                </View>
+      <View className="pt-4" style={{ paddingBottom: insets.bottom + 16 }}>
+        <Text variant="subtitle" className="mb-3 px-4">
+          착용 제품
+        </Text>
+        <FlatList
+          data={wornItems}
+          keyExtractor={(p) => p.id}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          snapToInterval={CARD_WIDTH + 12}
+          decelerationRate="normal"
+          disableIntervalMomentum
+          contentContainerStyle={{ paddingHorizontal: 16, gap: 12 }}
+          renderItem={({ item: p }) => (
+            <View
+              style={{ width: CARD_WIDTH }}
+              className="flex-row items-center p-3 rounded-xl border border-border"
+            >
+              {p.imageUrl ? (
+                <Image
+                  source={{ uri: p.imageUrl }}
+                  className="w-16 h-16 rounded-lg bg-surface mr-3"
+                />
+              ) : (
+                <View className="w-16 h-16 rounded-lg bg-surface mr-3" />
+              )}
+              <View className="flex-1">
+                <Text className="font-sans-medium">{p.brand ?? '브랜드 정보 없음'}</Text>
+                <Text variant="caption">{p.name}</Text>
+                {p.size ? <Text variant="caption">착용사이즈 {p.size}</Text> : null}
               </View>
-            )}
-          />
-        </View>
-      </ScrollView>
-      {/* 버튼은 스크롤 밖에 고정 → 항상 보임(하단 잘림 방지) */}
-      <View className="border-t border-border px-4 pb-1 pt-3">
-        <Button label="아바타 재생성" />
+            </View>
+          )}
+        />
       </View>
     </ScreenShell>
   );
