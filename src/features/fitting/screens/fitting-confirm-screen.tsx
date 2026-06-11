@@ -16,13 +16,19 @@ import { SizeSelectSheet } from '@/features/webview/components/size-select-sheet
 import { CATEGORIES } from '@/features/webview/constants/categories';
 import type { CategoryId } from '@/features/webview/constants/categories';
 import { useCopySession } from '@/features/webview/hooks/use-copy-session';
-import { MOCK_USER } from '@/mocks/data';
+import { useBodyInfo, useUpdateBodyInfo } from '@/features/profile/api';
+import { getGetProfileBodyQueryKey } from '@/api/generated/endpoints/profile/profile';
+import { useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/utils/cn';
 
 export function FittingConfirmScreen() {
   const { session, setSlotSize, clearCategory } = useCopySession();
   const insets = useSafeAreaInsets();
   const body = useBodyMeasurements();
+  // 실제 신체 정보(키/몸무게 빠른 수정용) — 읽기 + 갱신
+  const { data: bodyInfo } = useBodyInfo();
+  const updateBody = useUpdateBodyInfo();
+  const queryClient = useQueryClient();
   // 어떤 슬롯의 사이즈 시트가 열려있는지 (null=닫힘)
   const [sizeSheetCat, setSizeSheetCat] = useState<CategoryId | null>(null);
   const [bodySheetOpen, setBodySheetOpen] = useState(false);
@@ -96,6 +102,31 @@ export function FittingConfirmScreen() {
 
     // 3) 둘 다 통과 → 생성
     doGenerate();
+  };
+
+  // 바텀시트 키/몸무게 빠른 수정 → 실제 DB 저장 (기존 체형 치수는 보존하며 병합)
+  const handleBodyQuickSave = (height: number, weight: number) => {
+    const b = bodyInfo;
+    const data = {
+      height,
+      weight,
+      ...(b?.chest != null && { chest: b.chest }),
+      ...(b?.waist != null && { waist: b.waist }),
+      ...(b?.hip != null && { hip: b.hip }),
+      ...(b?.shoulder != null && { shoulder: b.shoulder }),
+      ...(b?.head != null && { head: b.head }),
+      ...(b?.footSize != null && { footSize: b.footSize }),
+    };
+    updateBody.mutate(
+      { data },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: getGetProfileBodyQueryKey() });
+          setBodySheetOpen(false);
+        },
+        onError: () => Alert.alert('저장 실패', '잠시 후 다시 시도해 주세요.'),
+      },
+    );
   };
 
   // 카드에서 의상 빼기 (확인 후 슬롯 비움)
@@ -238,10 +269,10 @@ export function FittingConfirmScreen() {
       {/* 신체 치수 수정 바텀시트 (실제 저장은 프로필 담당 — 지금은 상세 이동만 연결) */}
       <BodyMeasureSheet
         visible={bodySheetOpen}
-        initialHeight={MOCK_USER.height}
-        initialWeight={MOCK_USER.weight}
+        initialHeight={bodyInfo?.height ?? undefined}
+        initialWeight={bodyInfo?.weight ?? undefined}
         onClose={() => setBodySheetOpen(false)}
-        onSave={() => setBodySheetOpen(false)}
+        onSave={handleBodyQuickSave}
         onGoDetail={() => {
           setBodySheetOpen(false);
           router.push('/(tabs)/profile/body');

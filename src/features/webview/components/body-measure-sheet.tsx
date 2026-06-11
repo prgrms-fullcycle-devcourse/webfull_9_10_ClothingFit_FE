@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Pressable, View } from 'react-native';
 
 import { Button } from '@/components/ui/button';
@@ -30,6 +30,14 @@ export function BodyMeasureSheet({
 }: BodyMeasureSheetProps) {
   const [height, setHeight] = useState(initialHeight ? String(initialHeight) : '');
   const [weight, setWeight] = useState(initialWeight ? String(initialWeight) : '');
+
+  // 시트가 열릴 때마다 최신 신체값으로 입력칸 동기화 (API 비동기 로드 반영)
+  useEffect(() => {
+    if (visible) {
+      setHeight(initialHeight ? String(initialHeight) : '');
+      setWeight(initialWeight ? String(initialWeight) : '');
+    }
+  }, [visible, initialHeight, initialWeight]);
 
   return (
     <BottomSheet visible={visible} title="신체 치수 수정" onClose={onClose}>

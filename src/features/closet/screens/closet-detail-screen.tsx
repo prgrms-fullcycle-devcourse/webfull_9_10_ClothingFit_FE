@@ -10,7 +10,7 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQueryClient, useMutation } from '@tanstack/react-query';
 
 import { ScreenShell } from '@/components/blocks/screen-shell';
 import { ScreenHeader } from '@/components/ui/screen-header';
@@ -19,8 +19,10 @@ import { Toggle } from '@/components/ui/toggle';
 import COLORS from '@/constants/colors';
 import { getTabBarStyle } from '@/constants/tab-bar';
 import { ClosetViewer3D } from '@/features/closet/components/closet-viewer-3d';
-import { useFitting3D } from '@/features/closet/hooks/use-fitting-3d';
+import { useFitting3D } from '@/features/closet/store/fitting-3d-store';
+import { unpublishPost } from '@/features/closet/api/community-publish-api';
 import {
+  getGetClosetIdQueryKey,
   getGetClosetQueryKey,
   useDeleteClosetId,
   useGetClosetId,
@@ -38,6 +40,8 @@ export function ClosetDetailScreen() {
   const { data, isLoading, isError, refetch } = useGetClosetId(id);
   const item = data?.data;
   const wornItems = item?.closetItems ?? [];
+  // 생성된 ClosetDetail 타입엔 아직 없지만 백엔드는 postId를 내려줌 (내리기에 필요)
+  const postId = (item as { postId?: string | null } | undefined)?.postId ?? null;
 
   const [view3d, setView3d] = useState(false);
   const [isPublished, setIsPublished] = useState(false);
@@ -57,17 +61,13 @@ export function ClosetDetailScreen() {
 
   const deleteMut = useDeleteClosetId();
   const publishMut = usePostClosetIdPublish();
+  const unpublishMut = useMutation({ mutationFn: (pid: string) => unpublishPost(pid) });
 
-  // 3D 모델 생성 (Mesh AI) — 시작 + 폴링
+  // 3D 모델 생성 (Mesh AI) — 전역 스토어 (화면 나가도 진행 유지). 실패 알림은 전역 배너가 처리.
   const gen = useFitting3D(id);
   useEffect(() => {
     if (gen.status === 'SUCCEEDED') setView3d(true); // 완료되면 3D 뷰로 전환
-    if (gen.status === 'FAILED') Alert.alert('3D 생성 실패', '잠시 후 다시 시도해 주세요.');
   }, [gen.status]);
-  useEffect(() => {
-    if (gen.startError)
-      Alert.alert('3D 생성 시작 실패', '이미 진행 중이거나 잠시 후 다시 시도해 주세요.');
-  }, [gen.startError]);
 
   // 삭제 (휴지통) — 확인 후 삭제 → 목록 갱신 → 뒤로
   const handleDelete = () => {
@@ -91,19 +91,33 @@ export function ClosetDetailScreen() {
     ]);
   };
 
-  // 게시 토글 — 켤 때만 게시 API 호출 (해제 API는 없음)
+  // 게시 토글 — on=공개(게시), off=내리기(연결 게시글 삭제)
   const handlePublishChange = (next: boolean) => {
-    if (!next) return; // 게시 해제는 백엔드 미지원
-    setIsPublished(true);
-    publishMut.mutate(
-      { id },
-      {
-        onError: () => {
-          setIsPublished(false);
-          Alert.alert('게시 실패', '잠시 후 다시 시도해 주세요.');
+    if (next) {
+      // 공개
+      setIsPublished(true);
+      publishMut.mutate(
+        { id },
+        {
+          onSuccess: () => queryClient.invalidateQueries({ queryKey: getGetClosetIdQueryKey(id) }),
+          onError: () => {
+            setIsPublished(false);
+            Alert.alert('게시 실패', '잠시 후 다시 시도해 주세요.');
+          },
         },
-      },
-    );
+      );
+    } else {
+      // 내리기 — 연결된 게시글 삭제
+      if (!postId) return;
+      setIsPublished(false);
+      unpublishMut.mutate(postId, {
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: getGetClosetIdQueryKey(id) }),
+        onError: () => {
+          setIsPublished(true);
+          Alert.alert('내리기 실패', '잠시 후 다시 시도해 주세요.');
+        },
+      });
+    }
   };
 
   // 2D/3D 토글 — 3D로 전환 시 모델 없으면 생성 확인창
@@ -157,7 +171,7 @@ export function ClosetDetailScreen() {
               labelLeft="off"
               labelRight="on"
               value={isPublished}
-              disabled={isPublished || publishMut.isPending}
+              disabled={publishMut.isPending || unpublishMut.isPending}
               onValueChange={handlePublishChange}
             />
             <Pressable onPress={handleDelete} hitSlop={8} disabled={deleteMut.isPending}>
