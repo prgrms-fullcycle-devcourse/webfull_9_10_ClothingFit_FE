@@ -34,5 +34,9 @@ export type FittingJob = {
   items: FittingItem[];
   /** 생성된 2D 아바타 이미지 (mock 단계에선 null일 수 있음) */
   resultImageUri?: string | null;
+  /** 생성된 코디(옷장 아카이브) id — 이름변경 등에 사용 */
+  archiveId?: string;
+  /** 백엔드가 자동 생성한 코디 이름 */
+  outfitName?: string;
   error?: string;
 };

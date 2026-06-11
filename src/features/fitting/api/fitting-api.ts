@@ -71,38 +71,19 @@ export function buildFittingFormData(items: FittingItem[]): FormData {
  * 전제: ① 로그인(토큰) ② 아바타(체형) 등록 — 없으면 401/404.
  */
 export async function generateFitting(items: FittingItem[]): Promise<FittingResult> {
-  const USE_BACKEND = true; // 백엔드 연동됨 (mock 끔)
-
-  if (USE_BACKEND) {
-    try {
-      const res = await apiClient<GenerateCoordiResponse>({
-        url: GENERATE_ENDPOINT,
-        method: 'POST',
-        data: buildFittingFormData(items),
-      });
-      return { imageUri: res.imageUrl, archiveId: res.archiveId, outfitName: res.outfitName };
-    } catch (e: unknown) {
-      const err = e as { response?: { status?: number; data?: unknown }; message?: string };
-      // 진단 로그 (원인 파악용 — 추후 제거)
-      console.log(
-        '[fitting:2d 실패]',
-        'status=',
-        err?.response?.status,
-        'data=',
-        JSON.stringify(err?.response?.data)?.slice(0, 300),
-        'msg=',
-        err?.message,
-      );
-      const status = err?.response?.status;
-      if (status === 401) throw new Error('로그인이 필요해요');
-      if (status === 404) throw new Error('아바타(체형) 정보가 없어요. 체형을 먼저 등록해 주세요');
-      if (status === 504) throw new Error('생성이 오래 걸려요. 잠시 후 다시 시도해 주세요');
-      throw e instanceof Error ? e : new Error('2D 생성 실패');
-    }
+  try {
+    const res = await apiClient<GenerateCoordiResponse>({
+      url: GENERATE_ENDPOINT,
+      method: 'POST',
+      data: buildFittingFormData(items),
+    });
+    return { imageUri: res.imageUrl, archiveId: res.archiveId, outfitName: res.outfitName };
+  } catch (e: unknown) {
+    const err = e as { response?: { status?: number }; message?: string };
+    const status = err?.response?.status;
+    if (status === 401) throw new Error('로그인이 필요해요');
+    if (status === 404) throw new Error('아바타(체형) 정보가 없어요. 체형을 먼저 등록해 주세요');
+    if (status === 504) throw new Error('생성이 오래 걸려요. 잠시 후 다시 시도해 주세요');
+    throw e instanceof Error ? e : new Error('2D 생성 실패');
   }
-
-  // --- 임시 mock (백엔드 미연동 시) ---
-  await new Promise((resolve) => setTimeout(resolve, 3500));
-  const firstImage = items.find((i) => i.imageUri)?.imageUri ?? null;
-  return { imageUri: firstImage };
 }

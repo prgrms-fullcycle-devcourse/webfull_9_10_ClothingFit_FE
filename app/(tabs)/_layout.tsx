@@ -2,10 +2,27 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { router, Tabs } from 'expo-router';
 import { View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { BottomTabBar, type BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import Animated, { useAnimatedStyle } from 'react-native-reanimated';
 
-import { getTabBarStyle } from '@/constants/tab-bar';
 import { colors, fonts } from '@/constants/theme';
+import { getTabBarStyle, TAB_BAR_BASE_HEIGHT } from '@/constants/tab-bar';
+import { tabBarHidden } from '@/features/navigation/tab-bar-store';
 import { useNotificationsStream } from '@/features/notifications/use-notifications-stream';
+
+/** 스크롤에 따라 아래로 슬라이드되는 커스텀 탭 바 (floating). */
+function AnimatedTabBar(props: BottomTabBarProps) {
+  const insets = useSafeAreaInsets();
+  const height = TAB_BAR_BASE_HEIGHT + insets.bottom;
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: tabBarHidden.value * height }],
+  }));
+  return (
+    <Animated.View style={[{ position: 'absolute', left: 0, right: 0, bottom: 0 }, animatedStyle]}>
+      <BottomTabBar {...props} />
+    </Animated.View>
+  );
+}
 
 export default function TabLayout() {
   const insets = useSafeAreaInsets();
@@ -14,6 +31,7 @@ export default function TabLayout() {
 
   return (
     <Tabs
+      tabBar={(props) => <AnimatedTabBar {...props} />}
       screenOptions={{
         tabBarActiveTintColor: colors.accent,
         tabBarInactiveTintColor: '#9ca3af',
