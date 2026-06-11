@@ -1,4 +1,4 @@
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { Pressable, View } from 'react-native';
 
@@ -10,9 +10,17 @@ type ScreenHeaderProps = {
   right?: React.ReactNode;
   /** 뒤로가기 동작 커스텀 (없으면 router.back()) */
   onBack?: () => void;
+  /** 제목을 누르면 호출 (제목 옆 ✏️ 표시 — 이름 편집 등) */
+  onTitlePress?: () => void;
 };
 
-export function ScreenHeader({ title, showBack = true, right, onBack }: ScreenHeaderProps) {
+export function ScreenHeader({
+  title,
+  showBack = true,
+  right,
+  onBack,
+  onTitlePress,
+}: ScreenHeaderProps) {
   return (
     <View className="flex-row items-center justify-between px-4 py-3 border-b border-border bg-white">
       <View className="flex-row items-center gap-2 flex-1">
@@ -29,9 +37,22 @@ export function ScreenHeader({ title, showBack = true, right, onBack }: ScreenHe
         ) : (
           <View className="w-6" />
         )}
-        <Text variant="subtitle" numberOfLines={1}>
-          {title}
-        </Text>
+        {onTitlePress ? (
+          <Pressable
+            onPress={onTitlePress}
+            hitSlop={6}
+            className="flex-row items-center gap-1.5 flex-1"
+          >
+            <Text variant="subtitle" numberOfLines={1} className="flex-shrink">
+              {title}
+            </Text>
+            <Feather name="edit-2" size={15} color="#6b7280" />
+          </Pressable>
+        ) : (
+          <Text variant="subtitle" numberOfLines={1}>
+            {title}
+          </Text>
+        )}
       </View>
       {right ?? <View className="w-6" />}
     </View>

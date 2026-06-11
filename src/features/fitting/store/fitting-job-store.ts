@@ -49,7 +49,13 @@ export function startFittingJob(items: FittingItem[]): string {
     .then((res) => {
       const prev = jobs[id];
       if (!prev) return;
-      setJob({ ...prev, status: 'done', resultImageUri: res.imageUri });
+      setJob({
+        ...prev,
+        status: 'done',
+        resultImageUri: res.imageUri,
+        archiveId: res.archiveId,
+        outfitName: res.outfitName,
+      });
       const route = { pathname: '/(tabs)/fitting/result', params: { jobId: id } } as const;
       // 알림은 서버(SSE/알림 목록)가 단일 소스. 로컬 2D 피팅 완료는 즉시성 위해 배너만 띄운다.
       showBanner({
