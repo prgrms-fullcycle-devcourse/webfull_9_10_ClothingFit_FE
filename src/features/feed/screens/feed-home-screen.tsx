@@ -38,8 +38,16 @@ export function FeedHomeScreen() {
     ...filters,
   };
 
-  const { data, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    usePostsInfinite(params);
+  const {
+    data,
+    isLoading,
+    isError,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    refetch,
+    isRefetching,
+  } = usePostsInfinite(params);
 
   const posts = data?.pages.flatMap((page) => page.data ?? []) ?? [];
 
@@ -66,6 +74,8 @@ export function FeedHomeScreen() {
           if (hasNextPage) fetchNextPage();
         }}
         isLoadingMore={isFetchingNextPage}
+        onRefresh={refetch}
+        refreshing={isRefetching}
       />
     );
   };

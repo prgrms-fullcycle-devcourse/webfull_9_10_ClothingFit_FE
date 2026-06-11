@@ -3,8 +3,8 @@ import { router, Tabs } from 'expo-router';
 import { View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { colors, fonts } from '@/constants/theme';
 import { getTabBarStyle } from '@/constants/tab-bar';
+import { colors, fonts } from '@/constants/theme';
 import { useNotificationsStream } from '@/features/notifications/use-notifications-stream';
 
 export default function TabLayout() {
@@ -70,6 +70,12 @@ export default function TabLayout() {
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="chatbubble-outline" size={size} color={color} />
           ),
+        }}
+        listeners={{
+          tabPress: (e) => {
+            e.preventDefault();
+            router.navigate('/(tabs)/feed');
+          },
         }}
       />
       <Tabs.Screen

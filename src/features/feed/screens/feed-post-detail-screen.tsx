@@ -6,6 +6,7 @@ import {
   Image,
   Modal,
   Pressable,
+  RefreshControl,
   ScrollView,
   View,
   useWindowDimensions,
@@ -14,9 +15,12 @@ import {
 import { useGetPostsId } from '@/api/generated/endpoints/posts/posts';
 import { GetPostByIdResponse } from '@/api/generated/schemas';
 import { ScreenShell } from '@/components/blocks/screen-shell';
+import { useHideTabBar } from '@/hooks/use-hide-tab-bar';
 import { BookmarkIcon } from '@/components/ui/bookmark-icon';
 import { HeartIcon } from '@/components/ui/heart-icon';
 import { Text } from '@/components/ui/text';
+import { Toggle } from '@/components/ui/toggle';
+import { ClosetViewer3D } from '@/features/closet/components/closet-viewer-3d';
 import { ProfileHeader } from '@/features/profile/components/profile-header';
 import { getUserId } from '@/lib/auth-storage';
 import { formatDate } from '@/lib/format';
@@ -27,11 +31,21 @@ import { usePostBookmark } from '../hooks/use-post-bookmark';
 import { usePostLike } from '../hooks/use-post-like';
 import { useUserFollow } from '../hooks/use-user-follow';
 
-function FeedPostDetailContent({ post }: { post: GetPostByIdResponse }) {
+function FeedPostDetailContent({
+  post,
+  refetch,
+  isRefetching,
+}: {
+  post: GetPostByIdResponse;
+  refetch: () => void;
+  isRefetching: boolean;
+}) {
   const userId = post.user.id;
   const [imageVisible, setImageVisible] = useState(false);
   const [is3d, setIs3d] = useState(false);
+  const [scrollEnabled, setScrollEnabled] = useState(true);
   const [myUserId, setMyUserId] = useState<string | null | undefined>(undefined);
+  useHideTabBar();
   const { width, height } = useWindowDimensions();
   const has3d = !!post.model3dUrl;
 
@@ -60,6 +74,7 @@ function FeedPostDetailContent({ post }: { post: GetPostByIdResponse }) {
     id: post.id,
     isBookmarked: post.isBookmarked,
   });
+  console.log(post.otherPosts);
 
   return (
     <ScreenShell title="게시물">
@@ -85,7 +100,11 @@ function FeedPostDetailContent({ post }: { post: GetPostByIdResponse }) {
           </Pressable>
         </Pressable>
       </Modal>
-      <ScrollView className="flex-1">
+      <ScrollView
+        className="flex-1"
+        scrollEnabled={scrollEnabled}
+        refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} />}
+      >
         <ProfileHeader
           nickname={post.user.nickname ?? ''}
           imageUrl={post.user.imageUrl}
@@ -102,10 +121,13 @@ function FeedPostDetailContent({ post }: { post: GetPostByIdResponse }) {
           }
         />
         {is3d && has3d ? (
-          <View style={{ height: 400 }} className="bg-surface items-center justify-center">
-            <Text variant="caption" className="text-muted">
-              3D 뷰어 준비 중
-            </Text>
+          <View
+            style={{ height: 400 }}
+            onTouchStart={() => setScrollEnabled(false)}
+            onTouchEnd={() => setScrollEnabled(true)}
+            onTouchCancel={() => setScrollEnabled(true)}
+          >
+            <ClosetViewer3D modelUrl={post.model3dUrl!} />
           </View>
         ) : (
           <Pressable onPress={() => setImageVisible(true)}>
@@ -116,14 +138,7 @@ function FeedPostDetailContent({ post }: { post: GetPostByIdResponse }) {
           <Text>{formatDate(post.createdAt)}</Text>
           <View className="flex-row gap-4 items-center">
             {has3d && (
-              <Pressable
-                onPress={() => setIs3d((v) => !v)}
-                className="px-2 py-1 rounded border border-border"
-              >
-                <Text variant="caption" className="font-sans-bold">
-                  {is3d ? '2D' : '3D'}
-                </Text>
-              </Pressable>
+              <Toggle labelLeft="2D" labelRight="3D" value={is3d} onValueChange={setIs3d} />
             )}
             <HeartIcon
               isLiked={isLiked}
@@ -160,7 +175,7 @@ function FeedPostDetailContent({ post }: { post: GetPostByIdResponse }) {
 
 export function FeedPostDetailScreen() {
   const { postId } = useLocalSearchParams<{ postId: string }>();
-  const { data, isLoading, isError } = useGetPostsId(postId, {
+  const { data, isLoading, isError, refetch, isRefetching } = useGetPostsId(postId, {
     query: { enabled: !!postId },
   });
 
@@ -185,5 +200,5 @@ export function FeedPostDetailScreen() {
     );
   }
 
-  return <FeedPostDetailContent post={data} />;
+  return <FeedPostDetailContent post={data} refetch={refetch} isRefetching={isRefetching} />;
 }

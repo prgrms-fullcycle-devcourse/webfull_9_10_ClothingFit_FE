@@ -1,7 +1,7 @@
 import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Image, Pressable, ScrollView, View } from 'react-native';
+import { Image, Pressable, RefreshControl, ScrollView, View } from 'react-native';
 
 import { useGetCloset } from '@/api/generated/endpoints/closet/closet';
 import {
@@ -36,10 +36,35 @@ export function ProfileHomeScreen() {
     getUserId().then(setMyUserId);
   }, []);
 
-  const { data: profile } = useGetProfile();
-  const { data: recentPosts } = useGetProfileRecentPosts();
-  const { data: bookmarks } = useGetProfileBookmarks();
-  const { data: closetData } = useGetCloset();
+  const {
+    data: profile,
+    refetch: refetchProfile,
+    isRefetching: isRefetchingProfile,
+  } = useGetProfile();
+  const {
+    data: recentPosts,
+    refetch: refetchPosts,
+    isRefetching: isRefetchingPosts,
+  } = useGetProfileRecentPosts();
+  const {
+    data: bookmarks,
+    refetch: refetchBookmarks,
+    isRefetching: isRefetchingBookmarks,
+  } = useGetProfileBookmarks();
+  const {
+    data: closetData,
+    refetch: refetchCloset,
+    isRefetching: isRefetchingCloset,
+  } = useGetCloset();
+
+  const isRefreshing =
+    isRefetchingProfile || isRefetchingPosts || isRefetchingBookmarks || isRefetchingCloset;
+  const handleRefresh = () => {
+    refetchProfile();
+    refetchPosts();
+    refetchBookmarks();
+    refetchCloset();
+  };
   const { data: unreadCount = 0 } = useUnreadNotificationCount();
 
   const recentPostItems = recentPosts?.data?.slice(0, 10) ?? [];
@@ -62,7 +87,10 @@ export function ProfileHomeScreen() {
           </Pressable>
         </View>
       </View>
-      <ScrollView className="flex-1">
+      <ScrollView
+        className="flex-1"
+        refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} />}
+      >
         <View className="px-4 py-4 flex-row gap-4">
           <View className="w-16 h-16 rounded-full bg-surface overflow-hidden">
             {profile?.imageUrl ? (

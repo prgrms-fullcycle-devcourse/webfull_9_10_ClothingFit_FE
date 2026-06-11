@@ -13,6 +13,8 @@ type Props = {
   isLoadingMore?: boolean;
   ListHeaderComponent?: React.ReactElement | null;
   ListEmptyComponent?: React.ReactElement | null;
+  onRefresh?: () => void;
+  refreshing?: boolean;
 };
 
 export function FeedThumbnail({
@@ -21,6 +23,8 @@ export function FeedThumbnail({
   isLoadingMore,
   ListHeaderComponent,
   ListEmptyComponent,
+  onRefresh,
+  refreshing,
 }: Props) {
   const { width: screenWidth } = useWindowDimensions();
   const itemWidth = (screenWidth - GAP * (NUM_COLUMNS - 1)) / NUM_COLUMNS;
@@ -37,6 +41,8 @@ export function FeedThumbnail({
       ListEmptyComponent={ListEmptyComponent}
       onEndReached={onEndReached}
       onEndReachedThreshold={0.3}
+      onRefresh={onRefresh}
+      refreshing={refreshing ?? false}
       ListFooterComponent={
         isLoadingMore ? (
           <View className="py-4 items-center">
