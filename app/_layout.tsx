@@ -10,7 +10,7 @@ import { useFonts } from 'expo-font';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { Stack, router, useRootNavigationState, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useSyncExternalStore } from 'react';
 import 'react-native-reanimated';
 
 import { Platform, View, useColorScheme } from 'react-native';
@@ -22,7 +22,7 @@ import Constants, { ExecutionEnvironment } from 'expo-constants';
 import { AppBanner } from '@/components/blocks/app-banner';
 import { Splash } from '@/components/blocks/splash';
 import { GOOGLE_WEB_CLIENT_ID } from '@/features/auth/constants/google';
-import { setAuthToken } from '@/lib/api-client';
+import { getIsAuthenticated, setAuthToken, subscribeAuthChange } from '@/lib/api-client';
 import { getAccessToken } from '@/lib/auth-storage';
 import { AppProviders } from '@/providers/app-providers';
 
@@ -47,6 +47,10 @@ if (Platform.OS !== 'web' && !isExpoGo) {
   }
 }
 
+/**
+ * 앱 루트 레이아웃. 폰트·소셜 SDK 초기화, 스플래시 표시, SecureStore 토큰 복원으로
+ * 인증 상태를 부트스트랩한 뒤 RootLayoutNav(인증 게이트)를 렌더링한다.
+ */
 export default function RootLayout() {
   const [loaded, error] = useFonts({
     NotoSansKR_100Thin,
@@ -58,7 +62,9 @@ export default function RootLayout() {
   const [splashDone, setSplashDone] = useState(false);
   // 시작 시 SecureStore의 access token을 axios 헤더로 복원하고 로그인 여부를 판단한다.
   const [authChecked, setAuthChecked] = useState(false);
-  const [authed, setAuthed] = useState(false);
+  // 인증 여부는 setAuthToken(로그인/로그아웃) 변화를 구독해 실시간 반영한다.
+  // (one-time state로 두면 로그아웃 후에도 stale하게 남아 메인으로 되돌아가는 문제 발생)
+  const authed = useSyncExternalStore(subscribeAuthChange, getIsAuthenticated, getIsAuthenticated);
 
   useEffect(() => {
     if (error) throw error;
@@ -68,11 +74,10 @@ export default function RootLayout() {
     (async () => {
       try {
         const token = await getAccessToken();
-        if (token) setAuthToken(token); // 재시작 후에도 로그인 유지(axios 헤더 복원)
-        setAuthed(!!token);
+        setAuthToken(token); // 재시작 후에도 로그인 유지(axios 헤더 복원) + 인증 상태 동기화
       } catch {
         // SecureStore 미지원(웹) 등 → 미로그인으로 처리(로그인 화면으로 이동)
-        setAuthed(false);
+        setAuthToken(null);
       } finally {
         setAuthChecked(true);
       }
@@ -107,6 +112,10 @@ export default function RootLayout() {
   );
 }
 
+/**
+ * 인증 게이트. 로그인 여부(authed)와 현재 경로(segments)에 따라
+ * 미로그인이면 로그인 화면, 로그인됨인데 탭 밖이면 메인으로 리다이렉트한다.
+ */
 function RootLayoutNav({ authed }: { authed: boolean }) {
   const colorScheme = useColorScheme();
   // 네비게이터가 마운트된 뒤에만 이동해야 "navigate before mounting"으로 빈 화면이 뜨지 않는다.

@@ -21,7 +21,7 @@ import {
   useSelectCharacter,
   type GroupedCharacters,
 } from '@/features/characters/api';
-import { useBodyInfo, useUpdateBodyInfo } from '@/features/profile/api';
+import { useBodyInfo, useUpdateBodyInfo, useUpdateGender } from '@/features/profile/api';
 import { cn } from '@/utils/cn';
 
 type Tab = 'body' | 'avatar';
@@ -31,6 +31,7 @@ export function ProfileBodyScreen() {
   const bodyInfo = useBodyInfo();
   const updateBodyInfo = useUpdateBodyInfo();
   const selectCharacter = useSelectCharacter();
+  const updateGender = useUpdateGender();
   const avatarImage = useAvatarImage();
 
   // "나의 AI 모델" 진입 시 ?tab=avatar 로 아바타 탭을 바로 연다 (없으면 체형 정보 탭).
@@ -66,7 +67,7 @@ export function ProfileBodyScreen() {
   };
 
   const canSave = form.height.trim() !== '' && form.weight.trim() !== '';
-  const saving = updateBodyInfo.isPending || selectCharacter.isPending;
+  const saving = updateBodyInfo.isPending || selectCharacter.isPending || updateGender.isPending;
 
   const handleSave = async () => {
     const error = validateBody(form);
@@ -80,6 +81,8 @@ export function ProfileBodyScreen() {
       // 명시적으로 골랐을 때만 적용해 기존 아바타를 보존한다.
       if (!usePhoto && characterId) {
         await selectCharacter.mutateAsync({ data: { characterId } });
+        // 성별은 어느 쪽(남/여) 캐릭터를 골랐는지로 결정 → 선택한 탭 기준으로 함께 갱신.
+        await updateGender.mutateAsync({ data: { gender: toApiGender[gender] } });
       }
       Alert.alert('저장 완료', '체형 정보가 수정되었어요.');
       router.back();

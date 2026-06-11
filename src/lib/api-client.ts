@@ -119,11 +119,17 @@ export const apiClient = <T = unknown>(config: AxiosRequestConfig): Promise<T> =
 // ── Auth 변경 구독 (SSE 등 토큰 의존 연결 재설정용) ──────────────────────────
 
 let authVersion = 0;
+let isAuthed = false; // 현재 인증 여부(인메모리) — 로그인/로그아웃 시 즉시 반영
 const authListeners = new Set<() => void>();
 
 /** setAuthToken 호출(로그인/로그아웃) 때마다 바뀌는 버전. useSyncExternalStore용 */
 export function getAuthVersion() {
   return authVersion;
+}
+
+/** 현재 인증 여부(동기 스냅샷). 인증 게이트의 useSyncExternalStore용 */
+export function getIsAuthenticated() {
+  return isAuthed;
 }
 
 export function subscribeAuthChange(listener: () => void) {
@@ -138,6 +144,7 @@ export function setAuthToken(token: string | null) {
   } else {
     delete axiosInstance.defaults.headers.common.Authorization;
   }
+  isAuthed = token !== null;
   authVersion += 1;
   authListeners.forEach((l) => l());
 }
