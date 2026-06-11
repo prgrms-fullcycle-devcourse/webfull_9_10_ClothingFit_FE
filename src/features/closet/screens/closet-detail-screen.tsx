@@ -6,6 +6,7 @@ import {
   Dimensions,
   FlatList,
   Image,
+  Linking,
   Pressable,
   View,
 } from 'react-native';
@@ -19,8 +20,10 @@ import { Toggle } from '@/components/ui/toggle';
 import COLORS from '@/constants/colors';
 import { getTabBarStyle } from '@/constants/tab-bar';
 import { ClosetViewer3D } from '@/features/closet/components/closet-viewer-3d';
+import { RenameCoordiSheet } from '@/features/closet/components/rename-coordi-sheet';
 import { useFitting3D } from '@/features/closet/store/fitting-3d-store';
 import { unpublishPost } from '@/features/closet/api/community-publish-api';
+import { usePatchFittingClosetArchiveIdTitle } from '@/api/generated/endpoints/fitting/fitting';
 import {
   getGetClosetIdQueryKey,
   getGetClosetQueryKey,
@@ -45,6 +48,7 @@ export function ClosetDetailScreen() {
 
   const [view3d, setView3d] = useState(false);
   const [isPublished, setIsPublished] = useState(false);
+  const [renameOpen, setRenameOpen] = useState(false);
 
   // 상세 코디 화면에서는 하단 탭 바를 숨긴다 (떠날 때 복원).
   const navigation = useNavigation();
@@ -62,6 +66,22 @@ export function ClosetDetailScreen() {
   const deleteMut = useDeleteClosetId();
   const publishMut = usePostClosetIdPublish();
   const unpublishMut = useMutation({ mutationFn: (pid: string) => unpublishPost(pid) });
+  const renameMut = usePatchFittingClosetArchiveIdTitle();
+
+  // 코디 이름 변경 → 옷장 상세·목록 갱신
+  const handleRename = (title: string) => {
+    renameMut.mutate(
+      { closetArchiveId: id, data: { title } },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: getGetClosetIdQueryKey(id) });
+          queryClient.invalidateQueries({ queryKey: getGetClosetQueryKey() });
+          setRenameOpen(false);
+        },
+        onError: () => Alert.alert('이름 변경 실패', '잠시 후 다시 시도해 주세요.'),
+      },
+    );
+  };
 
   // 3D 모델 생성 (Mesh AI) — 전역 스토어 (화면 나가도 진행 유지). 실패 알림은 전역 배너가 처리.
   const gen = useFitting3D(id);
@@ -165,6 +185,7 @@ export function ClosetDetailScreen() {
     <ScreenShell title={item.title} noHeader>
       <ScreenHeader
         title={item.title}
+        onTitlePress={() => setRenameOpen(true)}
         right={
           <View className="flex flex-row gap-4 items-center">
             <Toggle
@@ -224,9 +245,11 @@ export function ClosetDetailScreen() {
           disableIntervalMomentum
           contentContainerStyle={{ paddingHorizontal: 16, gap: 12 }}
           renderItem={({ item: p }) => (
-            <View
+            <Pressable
               style={{ width: CARD_WIDTH }}
               className="flex-row items-center p-3 rounded-xl border border-border"
+              disabled={!p.externalLink}
+              onPress={() => p.externalLink && Linking.openURL(p.externalLink)}
             >
               {p.imageUrl ? (
                 <Image
@@ -241,10 +264,26 @@ export function ClosetDetailScreen() {
                 <Text variant="caption">{p.name}</Text>
                 {p.size ? <Text variant="caption">착용사이즈 {p.size}</Text> : null}
               </View>
-            </View>
+              {p.externalLink ? (
+                <View className="flex-row items-center gap-1 ml-2">
+                  <Text variant="caption" className="text-primary">
+                    보기
+                  </Text>
+                  <Feather name="external-link" size={15} color={COLORS.accent} />
+                </View>
+              ) : null}
+            </Pressable>
           )}
         />
       </View>
+
+      <RenameCoordiSheet
+        visible={renameOpen}
+        initialName={item.title}
+        saving={renameMut.isPending}
+        onClose={() => setRenameOpen(false)}
+        onSubmit={handleRename}
+      />
     </ScreenShell>
   );
 }

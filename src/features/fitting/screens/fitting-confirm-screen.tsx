@@ -16,8 +16,9 @@ import { SizeSelectSheet } from '@/features/webview/components/size-select-sheet
 import { CATEGORIES } from '@/features/webview/constants/categories';
 import type { CategoryId } from '@/features/webview/constants/categories';
 import { useCopySession } from '@/features/webview/hooks/use-copy-session';
-import { useBodyInfo, useUpdateBodyInfo } from '@/features/profile/api';
+import { useBodyInfo, useProfile, useUpdateBodyInfo } from '@/features/profile/api';
 import { getGetProfileBodyQueryKey } from '@/api/generated/endpoints/profile/profile';
+import { adjustCircumferences } from '@/features/fitting/utils/estimate-body';
 import { useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/utils/cn';
 
@@ -25,8 +26,9 @@ export function FittingConfirmScreen() {
   const { session, setSlotSize, clearCategory } = useCopySession();
   const insets = useSafeAreaInsets();
   const body = useBodyMeasurements();
-  // 실제 신체 정보(키/몸무게 빠른 수정용) — 읽기 + 갱신
+  // 실제 신체 정보(키/몸무게 빠른 수정용) — 읽기 + 갱신 + 성별(둘레 자동보정용)
   const { data: bodyInfo } = useBodyInfo();
+  const { data: profile } = useProfile();
   const updateBody = useUpdateBodyInfo();
   const queryClient = useQueryClient();
   // 어떤 슬롯의 사이즈 시트가 열려있는지 (null=닫힘)
@@ -47,7 +49,7 @@ export function FittingConfirmScreen() {
     slot: session.slots[c.id],
   }));
 
-  // 슬롯의 선택 사이즈 ↔ 체형 핏 판정 (체형은 mock — body_info API 연동 전)
+  // 슬롯의 선택 사이즈 ↔ 체형 핏 판정 (체형은 실제 body_info, 미등록 시 mock 폴백)
   const slotFit = (d: (typeof done)[number]) =>
     d.slot.selectedSize
       ? checkFit({
@@ -104,15 +106,22 @@ export function FittingConfirmScreen() {
     doGenerate();
   };
 
-  // 바텀시트 키/몸무게 빠른 수정 → 실제 DB 저장 (기존 체형 치수는 보존하며 병합)
+  // 바텀시트 키/몸무게 빠른 수정 → 실제 DB 저장.
+  // 몸무게 변화량 × 성별 계수로 가슴/허리/엉덩이를 자동 보정(추정). 나머지 치수는 보존.
   const handleBodyQuickSave = (height: number, weight: number) => {
     const b = bodyInfo;
+    const weightDelta = weight - (b?.weight ?? weight);
+    const adj = adjustCircumferences(
+      { chest: b?.chest, waist: b?.waist, hip: b?.hip },
+      weightDelta,
+      profile?.gender,
+    );
     const data = {
       height,
       weight,
-      ...(b?.chest != null && { chest: b.chest }),
-      ...(b?.waist != null && { waist: b.waist }),
-      ...(b?.hip != null && { hip: b.hip }),
+      ...(adj.chest != null && { chest: adj.chest }),
+      ...(adj.waist != null && { waist: adj.waist }),
+      ...(adj.hip != null && { hip: adj.hip }),
       ...(b?.shoulder != null && { shoulder: b.shoulder }),
       ...(b?.head != null && { head: b.head }),
       ...(b?.footSize != null && { footSize: b.footSize }),

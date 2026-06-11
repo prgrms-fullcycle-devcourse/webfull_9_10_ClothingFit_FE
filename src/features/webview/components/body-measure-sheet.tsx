@@ -68,7 +68,12 @@ export function BodyMeasureSheet({
         </View>
       </View>
 
-      <Pressable onPress={onGoDetail} className="mt-4 items-center py-2">
+      <Text variant="caption" className="mt-3 text-muted">
+        몸무게를 바꾸면 가슴·허리·엉덩이가 자동으로 보정돼요(추정). 정확한 수치는 상세에서
+        수정하세요.
+      </Text>
+
+      <Pressable onPress={onGoDetail} className="mt-3 items-center py-2">
         <Text className="text-primary font-sans-medium">상세 수정 페이지로 이동</Text>
       </Pressable>
 
