@@ -1,6 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, KeyboardAvoidingView, Pressable, TextInput, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import { TAB_BAR_BASE_HEIGHT } from '@/constants/tab-bar';
+import { useTabBarScroll } from '@/features/navigation/use-tab-bar-scroll';
 
 import { GetPostsFollow, GetPostsParams, GetPostsSort } from '@/api/generated/schemas';
 import { ScreenShell } from '@/components/blocks/screen-shell';
@@ -26,6 +30,8 @@ export function FeedHomeScreen() {
   const [filters, setFilters] = useState<FilterState>({ sort: GetPostsSort.LATEST });
   const [keyword, setKeyword] = useState('');
   const [debouncedKeyword, setDebouncedKeyword] = useState('');
+  const insets = useSafeAreaInsets();
+  const scrollHandler = useTabBarScroll();
 
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedKeyword(keyword), 400);
@@ -66,6 +72,8 @@ export function FeedHomeScreen() {
           if (hasNextPage) fetchNextPage();
         }}
         isLoadingMore={isFetchingNextPage}
+        onScroll={scrollHandler}
+        bottomInset={TAB_BAR_BASE_HEIGHT + insets.bottom}
       />
     );
   };

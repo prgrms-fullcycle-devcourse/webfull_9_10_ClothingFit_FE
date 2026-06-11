@@ -1,9 +1,12 @@
 import { router } from 'expo-router';
-import { ActivityIndicator, Alert, FlatList, Pressable, View } from 'react-native';
+import { ActivityIndicator, Alert, Pressable, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
+import Animated from 'react-native-reanimated';
 import { useQueryClient } from '@tanstack/react-query';
 import Feather from '@expo/vector-icons/Feather';
+
+import { useTabBarScroll } from '@/features/navigation/use-tab-bar-scroll';
 
 import { ScreenShell } from '@/components/blocks/screen-shell';
 import { Image } from '@/components/ui/image';
@@ -48,6 +51,7 @@ export function ClosetListScreen() {
   const insets = useSafeAreaInsets();
   const queryClient = useQueryClient();
   const deleteMut = useDeleteClosetId();
+  const scrollHandler = useTabBarScroll();
 
   // 코디 삭제 — 확인 후 삭제 → 목록 갱신
   const handleDelete = (item: ClosetListItem) => {
@@ -92,11 +96,13 @@ export function ClosetListScreen() {
           </Pressable>
         </View>
       ) : (
-        <FlatList
+        <Animated.FlatList
           data={archives}
           keyExtractor={(item) => item.id}
           onRefresh={refetch}
           refreshing={isRefetching}
+          onScroll={scrollHandler}
+          scrollEventThrottle={16}
           contentContainerStyle={{ paddingTop: 8, paddingBottom: insets.bottom + 80 }}
           ItemSeparatorComponent={() => <View className="h-px bg-border mx-4 my-5" />}
           renderItem={({ item }) => (
