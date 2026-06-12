@@ -7,16 +7,19 @@ import Animated, { useAnimatedStyle } from 'react-native-reanimated';
 
 import { colors, fonts } from '@/constants/theme';
 import { getTabBarStyle, TAB_BAR_BASE_HEIGHT } from '@/constants/tab-bar';
-import { tabBarHidden } from '@/features/navigation/tab-bar-store';
+import { tabBarHidden, useTabBarVisible } from '@/features/navigation/tab-bar-store';
 import { useNotificationsStream } from '@/features/notifications/use-notifications-stream';
 
-/** 스크롤에 따라 아래로 슬라이드되는 커스텀 탭 바 (floating). */
+/** 스크롤에 따라 아래로 슬라이드되는 커스텀 탭 바 (floating). 하위 화면에선 아예 숨김. */
 function AnimatedTabBar(props: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
-  const height = TAB_BAR_BASE_HEIGHT + insets.bottom;
+  const visible = useTabBarVisible();
+  // 가운데 버튼이 바 위로 튀어나와 있어, 숨길 땐 그 돌출분(약 80)까지 더 내려야 완전히 사라진다.
+  const hideDistance = TAB_BAR_BASE_HEIGHT + insets.bottom + 80;
   const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: tabBarHidden.value * height }],
+    transform: [{ translateY: tabBarHidden.value * hideDistance }],
   }));
+  if (!visible) return null;
   return (
     <Animated.View style={[{ position: 'absolute', left: 0, right: 0, bottom: 0 }, animatedStyle]}>
       <BottomTabBar {...props} />
@@ -67,9 +70,9 @@ export default function TabLayout() {
           tabBarIcon: () => (
             <View
               style={{
-                width: 76,
-                height: 76,
-                borderRadius: 38,
+                width: 72,
+                height: 72,
+                borderRadius: 36,
                 backgroundColor: '#1f2937',
                 alignItems: 'center',
                 justifyContent: 'center',

@@ -148,3 +148,33 @@ export function setAuthToken(token: string | null) {
   authVersion += 1;
   authListeners.forEach((l) => l());
 }
+
+// ── 토큰 갱신 (SSE 등 axios 밖에서도 쓸 수 있게) ──────────────────────────────
+let refreshPromise: Promise<string | null> | null = null;
+
+/**
+ * accessToken 갱신. 동시 호출은 하나의 요청으로 합친다(single-flight).
+ * 성공 시 새 accessToken을 반환하고 저장한다. 실패하면 null.
+ */
+export function refreshAccessToken(): Promise<string | null> {
+  if (refreshPromise) return refreshPromise;
+  refreshPromise = (async () => {
+    try {
+      const refreshToken = await getRefreshToken();
+      if (!refreshToken) return null;
+      const { data } = await axios.post(
+        `${env.apiUrl}/auth/refresh`,
+        { refreshToken },
+        { headers: { 'Content-Type': 'application/json' } },
+      );
+      await setTokens(data.accessToken, data.refreshToken);
+      setAuthToken(data.accessToken);
+      return data.accessToken as string;
+    } catch {
+      return null;
+    } finally {
+      refreshPromise = null;
+    }
+  })();
+  return refreshPromise;
+}

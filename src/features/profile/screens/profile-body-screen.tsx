@@ -1,10 +1,8 @@
-import { router, useLocalSearchParams, useNavigation } from 'expo-router';
-import { useEffect, useLayoutEffect, useState } from 'react';
+import { router, useLocalSearchParams } from 'expo-router';
+import { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, ScrollView, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ScreenShell } from '@/components/blocks/screen-shell';
-import { getTabBarStyle } from '@/constants/tab-bar';
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
 import { AvatarStep } from '@/features/auth/components/avatar-step';
@@ -35,15 +33,6 @@ export function ProfileBodyScreen() {
   const selectCharacter = useSelectCharacter();
   const updateGender = useUpdateGender();
   const avatarImage = useAvatarImage();
-
-  // 체형 수정 화면에서는 하단 탭 바를 숨긴다 (저장 버튼이 탭바에 안 가리게). 떠날 때 복원.
-  const navigation = useNavigation();
-  const insets = useSafeAreaInsets();
-  useLayoutEffect(() => {
-    const parent = navigation.getParent();
-    parent?.setOptions({ tabBarStyle: { display: 'none' } });
-    return () => parent?.setOptions({ tabBarStyle: getTabBarStyle(insets) });
-  }, [navigation, insets]);
 
   // "나의 AI 모델" 진입 시 ?tab=avatar 로 아바타 탭을 바로 연다 (없으면 체형 정보 탭).
   const params = useLocalSearchParams<{ tab?: string }>();
