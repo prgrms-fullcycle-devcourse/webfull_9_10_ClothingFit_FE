@@ -19,9 +19,7 @@ function formatDate(iso: string) {
 export function PopularPostCard({ post }: { post: PopularPost }) {
   return (
     <Pressable
-      onPress={() =>
-        router.push({ pathname: '/(tabs)/home/[postId]', params: { postId: post.postId } })
-      }
+      onPress={() => router.push({ pathname: '/post/[postId]', params: { postId: post.postId } })}
       className="overflow-hidden rounded-2xl border border-border bg-white"
     >
       {/* 인물 이미지 (모바일 세로 4:5) + 오버레이 */}

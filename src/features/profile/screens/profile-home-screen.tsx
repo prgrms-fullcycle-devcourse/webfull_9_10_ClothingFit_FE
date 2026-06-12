@@ -123,7 +123,9 @@ export function ProfileHomeScreen() {
             </Text>
             <Pressable
               disabled={!myUserId}
-              onPress={() => router.push(`/(tabs)/profile/followers?userId=${myUserId}`)}
+              onPress={() =>
+                router.push({ pathname: '/followers', params: { userId: myUserId ?? '' } })
+              }
             >
               <View className="flex-row items-baseline gap-1 mt-1">
                 <Text className="font-sans-bold text-base">{profile?.followerCount ?? '-'}</Text>
@@ -155,7 +157,9 @@ export function ProfileHomeScreen() {
                   nickname={p.nickname ?? undefined}
                   width={ITEM_WIDTH}
                   aspectRatio={POST_ASPECT}
-                  onPress={() => router.push(`/(tabs)/feed/${p.id}`)}
+                  onPress={() =>
+                    router.push({ pathname: '/post/[postId]', params: { postId: p.id } })
+                  }
                 />
               </View>
             ))}
@@ -185,7 +189,9 @@ export function ProfileHomeScreen() {
                   width={ITEM_WIDTH}
                   aspectRatio={POST_ASPECT}
                   icon="none"
-                  onPress={() => router.push(`/(tabs)/feed/${p.id}`)}
+                  onPress={() =>
+                    router.push({ pathname: '/post/[postId]', params: { postId: p.id } })
+                  }
                 />
               </View>
             ))}

@@ -15,7 +15,6 @@ import {
 import { useGetPostsId } from '@/api/generated/endpoints/posts/posts';
 import { GetPostByIdResponse } from '@/api/generated/schemas';
 import { ScreenShell } from '@/components/blocks/screen-shell';
-import { useHideTabBar } from '@/hooks/use-hide-tab-bar';
 import { BookmarkIcon } from '@/components/ui/bookmark-icon';
 import { HeartIcon } from '@/components/ui/heart-icon';
 import { Text } from '@/components/ui/text';
@@ -45,7 +44,6 @@ function FeedPostDetailContent({
   const [is3d, setIs3d] = useState(false);
   const [scrollEnabled, setScrollEnabled] = useState(true);
   const [myUserId, setMyUserId] = useState<string | null | undefined>(undefined);
-  useHideTabBar();
   const { width, height } = useWindowDimensions();
   const has3d = !!post.model3dUrl;
 
@@ -74,10 +72,8 @@ function FeedPostDetailContent({
     id: post.id,
     isBookmarked: post.isBookmarked,
   });
-  console.log(post.otherPosts);
-
   return (
-    <ScreenShell title="게시물">
+    <ScreenShell title="게시물" edges={['top', 'bottom']}>
       <Modal
         visible={imageVisible}
         transparent
@@ -116,13 +112,13 @@ function FeedPostDetailContent({
           imgSize="md"
           onPress={
             myUserId !== undefined && !isMe
-              ? () => router.push(`/(tabs)/profile/user/${userId}`)
+              ? () => router.push({ pathname: '/user/[userId]', params: { userId } })
               : undefined
           }
         />
         {is3d && has3d ? (
           <View
-            style={{ height: 400 }}
+            style={{ height: 500 }}
             onTouchStart={() => setScrollEnabled(false)}
             onTouchEnd={() => setScrollEnabled(true)}
             onTouchCancel={() => setScrollEnabled(true)}
@@ -130,8 +126,8 @@ function FeedPostDetailContent({
             <ClosetViewer3D modelUrl={post.model3dUrl!} />
           </View>
         ) : (
-          <Pressable onPress={() => setImageVisible(true)}>
-            <Image source={{ uri: post.image2dUrl }} style={{ height: 400 }} resizeMode="contain" />
+          <Pressable onPress={() => setImageVisible(true)} className="bg-border">
+            <Image source={{ uri: post.image2dUrl }} style={{ height: 500 }} resizeMode="contain" />
           </Pressable>
         )}
         <View className="flex-row justify-between px-4 py-4 gap-4">
@@ -181,7 +177,7 @@ export function FeedPostDetailScreen() {
 
   if (isLoading) {
     return (
-      <ScreenShell title="게시물">
+      <ScreenShell title="게시물" edges={['top', 'bottom']}>
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator />
         </View>
@@ -191,7 +187,7 @@ export function FeedPostDetailScreen() {
 
   if (isError || !data) {
     return (
-      <ScreenShell title="게시물">
+      <ScreenShell title="게시물" edges={['top', 'bottom']}>
         <View className="flex-1 items-center justify-center gap-2">
           <Ionicons name="alert-circle-outline" size={48} color="#888" />
           <Text variant="caption">불러오지 못했습니다. 잠시 후 다시 시도해 주세요.</Text>

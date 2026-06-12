@@ -127,9 +127,10 @@ function RootLayoutNav({ authed }: { authed: boolean }) {
     if (!navState?.key) return; // 네비게이션 준비 전
     const inAuthGroup = segments[0] === '(auth)';
     const inTabsGroup = segments[0] === '(tabs)';
+    const inSharedScreen = ['post', 'user', 'followers'].includes(segments[0] ?? '');
     if (!authed && !inAuthGroup) {
       router.replace('/(auth)/login'); // 미로그인 → 로그인 화면
-    } else if (authed && !inTabsGroup) {
+    } else if (authed && !inTabsGroup && !inSharedScreen) {
       // 로그인됨인데 탭(메인) 밖이면(인증 화면·잘못된 경로/+not-found 등) → 메인으로
       router.replace('/(tabs)/home');
     }
@@ -140,6 +141,9 @@ function RootLayoutNav({ authed }: { authed: boolean }) {
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+        <Stack.Screen name="post/[postId]" options={{ headerShown: false }} />
+        <Stack.Screen name="user/[userId]" options={{ headerShown: false }} />
+        <Stack.Screen name="followers" options={{ headerShown: false }} />
       </Stack>
     </ThemeProvider>
   );
