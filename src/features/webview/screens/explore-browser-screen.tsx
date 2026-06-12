@@ -127,7 +127,7 @@ export function ExploreBrowserScreen() {
       setToast('모자·아우터·상의·하의·신발 중 최소 1개를 채워주세요.');
       return;
     }
-    router.push('/(tabs)/fitting/confirm');
+    router.push('/(tabs)/explore/confirm');
   };
 
   return (
