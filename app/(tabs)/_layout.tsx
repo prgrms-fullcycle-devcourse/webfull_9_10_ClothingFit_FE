@@ -1,6 +1,6 @@
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { router, Tabs } from 'expo-router';
-import { View } from 'react-native';
+import { Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomTabBar, type BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import Animated, { useAnimatedStyle } from 'react-native-reanimated';
@@ -63,15 +63,35 @@ export default function TabLayout() {
         name="fitting"
         options={{
           title: 'AI 피팅',
-          tabBarIcon: ({ focused }) => (
+          // 가운데 버튼: 크게 + 위로 띄워(floating) 바 위로 튀어나오게 + 흰 링
+          tabBarIcon: () => (
             <View
-              className={`items-center justify-center rounded-full ${focused ? 'bg-primary' : 'bg-gray-900'}`}
-              style={{ width: 52, height: 52, marginBottom: 8 }}
+              style={{
+                width: 76,
+                height: 76,
+                borderRadius: 38,
+                backgroundColor: '#1f2937',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginTop: -64,
+                borderWidth: 3,
+                borderColor: '#fff',
+                shadowColor: '#000',
+                shadowOpacity: 0.15,
+                shadowRadius: 6,
+                shadowOffset: { width: 0, height: 3 },
+                elevation: 6,
+              }}
             >
-              <MaterialCommunityIcons name="hanger" size={28} color="#fff" />
+              <MaterialCommunityIcons name="hanger" size={38} color="#fff" />
             </View>
           ),
-          tabBarLabel: () => null,
+          // 라벨은 떠있는 버튼 아래로 내려 다른 라벨과 같은 높이로
+          tabBarLabel: ({ color }) => (
+            <Text style={{ color, fontFamily: fonts.medium, fontSize: 10, marginTop: -8 }}>
+              AI 피팅
+            </Text>
+          ),
         }}
         listeners={{
           // AI 피팅 탭을 누르면 중간 메뉴 대신 바로 쇼핑몰 COPY(웹뷰)로 이동
