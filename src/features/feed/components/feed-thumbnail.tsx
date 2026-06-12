@@ -67,7 +67,7 @@ export function FeedThumbnail({
           likeCount={item.likeCount}
           nickname={item.nickname ?? undefined}
           width={itemWidth}
-          onPress={() => router.push(`/feed/${item.id}`)}
+          onPress={() => router.push({ pathname: '/post/[postId]', params: { postId: item.id } })}
         />
       )}
     />

@@ -4,8 +4,6 @@ export default function HomeLayout() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="index" />
-      <Stack.Screen name="[postId]" />
-      <Stack.Screen name="user/[userId]" />
     </Stack>
   );
 }

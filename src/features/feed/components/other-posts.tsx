@@ -43,7 +43,7 @@ export function OtherPosts({ posts }: Props) {
           isLiked={item.isLiked}
           likeCount={item.likeCount}
           width={itemWidth}
-          onPress={() => router.push(`/(tabs)/feed/${item.id}`)}
+          onPress={() => router.push({ pathname: '/post/[postId]', params: { postId: item.id } })}
         />
       )}
     />

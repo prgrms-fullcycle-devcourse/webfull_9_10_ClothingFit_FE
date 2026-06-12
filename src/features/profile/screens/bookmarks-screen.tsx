@@ -34,7 +34,9 @@ export function BookmarksScreen() {
           renderItem={({ item }) => (
             <Pressable
               className="m-1 flex-1 overflow-hidden rounded-lg"
-              onPress={() => router.push(`/(tabs)/feed/${item.id}`)}
+              onPress={() =>
+                router.push({ pathname: '/post/[postId]', params: { postId: item.id } })
+              }
             >
               <Image source={{ uri: item.imageUrl }} style={{ aspectRatio: 1 }} />
             </Pressable>
