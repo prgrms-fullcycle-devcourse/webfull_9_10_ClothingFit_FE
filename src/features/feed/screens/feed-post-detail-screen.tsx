@@ -15,7 +15,6 @@ import {
 import { useGetPostsId } from '@/api/generated/endpoints/posts/posts';
 import { GetPostByIdResponse } from '@/api/generated/schemas';
 import { ScreenShell } from '@/components/blocks/screen-shell';
-import { useHideTabBar } from '@/hooks/use-hide-tab-bar';
 import { BookmarkIcon } from '@/components/ui/bookmark-icon';
 import { HeartIcon } from '@/components/ui/heart-icon';
 import { Text } from '@/components/ui/text';
@@ -45,7 +44,6 @@ function FeedPostDetailContent({
   const [is3d, setIs3d] = useState(false);
   const [scrollEnabled, setScrollEnabled] = useState(true);
   const [myUserId, setMyUserId] = useState<string | null | undefined>(undefined);
-  useHideTabBar();
   const { width, height } = useWindowDimensions();
   const has3d = !!post.model3dUrl;
 
@@ -74,8 +72,6 @@ function FeedPostDetailContent({
     id: post.id,
     isBookmarked: post.isBookmarked,
   });
-  console.log(post.otherPosts);
-
   return (
     <ScreenShell title="게시물" edges={['top', 'bottom']}>
       <Modal
