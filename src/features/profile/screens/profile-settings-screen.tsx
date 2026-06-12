@@ -78,7 +78,7 @@ export function ProfileSettingsScreen() {
                   if (item === '나의 AI 모델')
                     router.push({ pathname: '/(tabs)/profile/body', params: { tab: 'avatar' } });
                   if (item === '관심글 목록') router.push('/(tabs)/profile/bookmarks');
-                  if (item === '팔로잉 & 팔로워') router.push('/(tabs)/profile/followers');
+                  if (item === '팔로잉 & 팔로워') router.push('/followers');
                   if (item === '개인정보 이용 약관') router.push('/(tabs)/profile/privacy-terms');
                   if (item === '오픈 라이선스') router.push('/(tabs)/profile/open-licenses');
                 }}

@@ -49,7 +49,7 @@ export function UserProfileScreen() {
 
   if (profileLoading) {
     return (
-      <ScreenShell title="프로필">
+      <ScreenShell title="프로필" edges={['top', 'bottom']}>
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator />
         </View>
@@ -59,7 +59,7 @@ export function UserProfileScreen() {
 
   if (profileError || !profile) {
     return (
-      <ScreenShell title="프로필">
+      <ScreenShell title="프로필" edges={['top', 'bottom']}>
         <View className="flex-1 items-center justify-center gap-2">
           <Ionicons name="alert-circle-outline" size={48} color="#888" />
           <Text variant="caption">불러오지 못했습니다. 잠시 후 다시 시도해 주세요.</Text>
@@ -95,12 +95,16 @@ export function UserProfileScreen() {
       <View className="flex-row gap-4 mt-1">
         <Text variant="caption">게시물 {profile.postCount ?? 0}</Text>
         <Pressable
-          onPress={() => router.push(`/(tabs)/profile/followers?userId=${userId}&tab=followers`)}
+          onPress={() =>
+            router.push({ pathname: '/followers', params: { userId, tab: 'followers' } })
+          }
         >
           <Text variant="caption">팔로워 {profile.followerCount ?? 0}</Text>
         </Pressable>
         <Pressable
-          onPress={() => router.push(`/(tabs)/profile/followers?userId=${userId}&tab=following`)}
+          onPress={() =>
+            router.push({ pathname: '/followers', params: { userId, tab: 'following' } })
+          }
         >
           <Text variant="caption">팔로잉 {profile.followingCount ?? 0}</Text>
         </Pressable>
@@ -109,7 +113,7 @@ export function UserProfileScreen() {
   );
 
   return (
-    <ScreenShell title={profile.nickname ?? '프로필'}>
+    <ScreenShell title={profile.nickname ?? '프로필'} edges={['top', 'bottom']}>
       <FeedThumbnail
         posts={posts?.data ?? []}
         ListHeaderComponent={profileHeader}
