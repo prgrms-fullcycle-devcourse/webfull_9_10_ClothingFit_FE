@@ -9,6 +9,7 @@ import {
 import { ScreenShell } from '@/components/blocks/screen-shell';
 import { TabButton } from '@/components/ui/tab-button';
 import { Text } from '@/components/ui/text';
+import { useHideTabBar } from '@/hooks/use-hide-tab-bar';
 import { FollowButton } from '@/features/feed/components/follow-button';
 import { useUserFollow } from '@/features/feed/hooks/use-user-follow';
 import { getUserId } from '@/lib/auth-storage';
@@ -85,6 +86,7 @@ export function FollowersScreen() {
   const { userId, tab: initialTab } = useLocalSearchParams<{ userId?: string; tab?: Tab }>();
   const [tab, setTab] = useState<Tab>(initialTab ?? 'followers');
   const [myUserId, setMyUserId] = useState<string | null | undefined>(undefined);
+  useHideTabBar();
 
   useEffect(() => {
     getUserId().then(setMyUserId);

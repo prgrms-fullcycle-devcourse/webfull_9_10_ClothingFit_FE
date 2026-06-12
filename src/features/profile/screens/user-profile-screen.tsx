@@ -6,6 +6,7 @@ import { ActivityIndicator, Pressable, View } from 'react-native';
 import { useGetUsersId, useGetUsersIdPosts } from '@/api/generated/endpoints/users/users';
 import { ScreenShell } from '@/components/blocks/screen-shell';
 import { Text } from '@/components/ui/text';
+import { useHideTabBar } from '@/hooks/use-hide-tab-bar';
 import { FeedThumbnail } from '@/features/feed/components/feed-thumbnail';
 import { FollowButton } from '@/features/feed/components/follow-button';
 import { useUserFollow } from '@/features/feed/hooks/use-user-follow';
@@ -15,6 +16,7 @@ import { ProfileHeader } from '../components/profile-header';
 export function UserProfileScreen() {
   const { userId } = useLocalSearchParams<{ userId: string }>();
   const [myUserId, setMyUserId] = useState<string | null | undefined>(undefined);
+  useHideTabBar();
 
   useEffect(() => {
     getUserId().then(setMyUserId);
