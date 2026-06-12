@@ -46,16 +46,20 @@ export function HotUserCard({
   return (
     <Pressable
       onPress={() => router.push({ pathname: '/user/[userId]', params: { userId: user.userId } })}
-      className="w-40 overflow-hidden rounded-2xl border border-border bg-white"
-      style={{ height: 220 }}
+      className="w-[141px] overflow-hidden rounded-[10px] bg-surface"
+      style={{ height: 250 }}
     >
-      {/* 게시글 이미지 (60%) + 가운데 겹치는 원형 아바타 */}
-      <View style={{ flex: 6, backgroundColor: bgColor }}>
-        <Image source={postSource} contentFit="cover" className="absolute inset-0 h-full w-full" />
+      {/* 게시글 이미지 (4 비율) — 영역을 꽉 채우게 cover + 경계에 걸친 원형 아바타 */}
+      <View style={{ height: 149, backgroundColor: bgColor }}>
+        <Image
+          source={postSource}
+          contentFit="cover"
+          className="absolute inset-0 h-full w-full rounded-none"
+        />
         <View
           style={{
             position: 'absolute',
-            bottom: -14,
+            bottom: -28,
             left: 0,
             right: 0,
             alignItems: 'center',
@@ -63,10 +67,10 @@ export function HotUserCard({
         >
           <View
             style={{
-              width: 36,
-              height: 36,
-              borderRadius: 18,
-              borderWidth: 2,
+              width: 77,
+              height: 77,
+              borderRadius: 40,
+              borderWidth: 3,
               borderColor: '#ffffff',
               backgroundColor: '#f6f6f6',
               overflow: 'hidden',
@@ -77,29 +81,30 @@ export function HotUserCard({
         </View>
       </View>
 
-      {/* 텍스트 영역 (40%) */}
+      {/* 텍스트 영역 (4 비율) — 버튼을 바닥에 붙이지 않고 텍스트 바로 아래에 배치 */}
       <View
         style={{
-          flex: 4,
-          paddingHorizontal: 12,
-          paddingTop: 16,
-          paddingBottom: 6,
+          paddingHorizontal: 10,
+          paddingTop: 30,
+          paddingBottom: 9,
           alignItems: 'center',
-          justifyContent: 'space-between',
+          justifyContent: 'flex-start',
+          gap: 0,
         }}
       >
-        <View style={{ alignItems: 'center', gap: 2 }}>
+        <View style={{ alignItems: 'center', gap: 0 }}>
           <Text
             className="font-sans-bold"
             numberOfLines={1}
             // NotoSansKR 세로 클리핑 방지(글자 잘림) + 작은 카드에 맞춰 축소
-            style={{ fontSize: 13, lineHeight: 18, includeFontPadding: false }}
+            style={{ fontSize: 14, lineHeight: 18, marginTop: -2, includeFontPadding: false }}
           >
             {user.nickname}
           </Text>
           <Text
             variant="caption"
-            style={{ fontSize: 11, lineHeight: 15, includeFontPadding: false }}
+            className="text-slate mt-[1px]"
+            style={{ fontSize: 12, lineHeight: 15, includeFontPadding: false }}
           >
             {formatFollowers(user.followerCount)} followers
           </Text>
@@ -110,16 +115,17 @@ export function HotUserCard({
           <Pressable
             onPress={toggle}
             style={{
-              alignSelf: 'stretch',
+              width: 80,
+              height: 23,
               alignItems: 'center',
-              borderRadius: 999,
-              paddingVertical: 7,
+              justifyContent: 'center',
+              borderRadius: 10,
             }}
-            className={cn(isFollowing ? 'bg-accent' : 'bg-primary')}
+            className={cn('mt-[5px]', isFollowing ? 'bg-accent' : 'bg-primary')}
           >
             <Text
-              className="font-sans-medium text-white"
-              // 작은 pill 안에서 한글이 안 잘리도록 lineHeight·padding 보정
+              className="font-sans-bold text-white"
+              // 작은 pill 안에서 한글이 안 잘리도록 lineHeight는 fontSize보다 크게
               style={{ fontSize: 12, lineHeight: 16, includeFontPadding: false }}
             >
               {isFollowing ? '팔로잉' : '팔로우'}
