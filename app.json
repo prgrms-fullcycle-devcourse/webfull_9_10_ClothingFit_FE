@@ -13,13 +13,15 @@
     },
     "android": {
       "package": "com.decode.clothingfit",
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": ["android.permission.RECORD_AUDIO"]
     },
     "web": {
       "bundler": "metro",
@@ -69,9 +71,9 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "0b4dc7e4-4e8b-496a-9f19-0f809d53605c"
+        "projectId": "cfe04e92-2f91-4007-835a-2c6e5a45324d"
       }
     },
-    "owner": "decode-cf"
+    "owner": "iccas"
   }
 }

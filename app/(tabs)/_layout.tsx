@@ -1,14 +1,15 @@
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { BottomTabBar, type BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { router, Tabs } from 'expo-router';
 import { View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { BottomTabBar, type BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import Animated, { useAnimatedStyle } from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { colors, fonts } from '@/constants/theme';
 import { getTabBarStyle, TAB_BAR_BASE_HEIGHT } from '@/constants/tab-bar';
+import { colors, fonts } from '@/constants/theme';
 import { tabBarHidden } from '@/features/navigation/tab-bar-store';
 import { useNotificationsStream } from '@/features/notifications/use-notifications-stream';
+import { usePushNotifications } from '@/features/notifications/use-push-notifications';
 
 /** 스크롤에 따라 아래로 슬라이드되는 커스텀 탭 바 (floating). */
 function AnimatedTabBar(props: BottomTabBarProps) {
@@ -28,6 +29,8 @@ export default function TabLayout() {
   const insets = useSafeAreaInsets();
   // 앱 전역에서 1개 SSE 연결 유지 → 새 알림 도착 시 홈/마이 뱃지가 실시간 갱신됨
   useNotificationsStream();
+  // 백그라운드 알림
+  usePushNotifications();
 
   return (
     <Tabs
