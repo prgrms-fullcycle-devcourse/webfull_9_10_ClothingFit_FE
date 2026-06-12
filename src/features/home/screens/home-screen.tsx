@@ -74,7 +74,7 @@ export function HomeScreen() {
     <ScreenShell noHeader>
       {/* 헤더 */}
       <View className="flex-row items-center justify-between border-b border-border px-4 py-3">
-        <Text variant="title">CLOTHING-FIT</Text>
+        <Text variant="title">CLOTHING - FIT</Text>
         <Pressable onPress={() => router.push('/(tabs)/profile/notifications')} hitSlop={8}>
           <Ionicons name="notifications-outline" size={24} color="#111827" />
           {unreadCount > 0 && (
@@ -99,13 +99,13 @@ export function HomeScreen() {
         contentContainerStyle={{ paddingBottom: TAB_BAR_BASE_HEIGHT + insets.bottom }}
       >
         {/* 인기글 */}
-        <Text variant="subtitle" className="px-4 pb-2 pt-4">
+        <Text variant="subtitle" className="px-4 pb-2 pt-4 text-xl">
           인기글
         </Text>
         <QuerySection query={posts}>{(data) => <PopularCarousel posts={data} />}</QuerySection>
 
         {/* HOT */}
-        <Text variant="subtitle" className="px-4 pb-2 pt-6">
+        <Text variant="subtitle" className="px-4 pb-2 pt-6 text-xl">
           HOT
         </Text>
         <QuerySection query={influencers}>
