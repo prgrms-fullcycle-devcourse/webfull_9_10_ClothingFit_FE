@@ -23,7 +23,7 @@ function buildHtml(modelUrl: string): string {
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
 <script type="module" src="https://cdn.jsdelivr.net/npm/@google/model-viewer@3.5.0/dist/model-viewer.min.js"></script>
 <style>
-  html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: #ffffff; overflow: hidden; }
+  html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: #e6e6e6; overflow: hidden; }
   model-viewer { width: 100%; height: 100%; --poster-color: #ffffff; }
 </style>
 </head>

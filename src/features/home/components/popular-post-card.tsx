@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { Pressable, View } from 'react-native';
 
@@ -19,36 +20,65 @@ function formatDate(iso: string) {
 export function PopularPostCard({ post }: { post: PopularPost }) {
   return (
     <Pressable
-      onPress={() =>
-        router.push({ pathname: '/(tabs)/home/[postId]', params: { postId: post.postId } })
-      }
-      className="overflow-hidden rounded-2xl border border-border bg-white"
+      onPress={() => router.push({ pathname: '/post/[postId]', params: { postId: post.postId } })}
+      className="overflow-hidden bg-white"
     >
-      {/* 인물 이미지 (모바일 세로 4:5) + 오버레이 */}
-      <View className="w-full justify-end" style={{ aspectRatio: 0.9 }}>
-        <Image source={post.image} contentFit="cover" className="absolute inset-0 h-full w-full" />
-        <View className="gap-1 bg-black/25 p-3">
-          <Text className="font-sans-bold text-white">{post.nickname}</Text>
+      {/* 인물 이미지 (세로 0.9) — 영역을 꽉 채우게 cover + 하단 그라데이션 오버레이 */}
+      <View className="w-full justify-end bg-white" style={{ aspectRatio: 0.9 }}>
+        <Image
+          source={post.image}
+          contentFit="cover"
+          className="absolute inset-0 h-full w-full rounded-none"
+        />
+        <LinearGradient
+          colors={['transparent', 'rgba(0,0,0,0.5)']}
+          className="gap-1"
+          style={{
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            bottom: 0,
+            paddingHorizontal: 14,
+            paddingBottom: 14,
+            paddingTop: 40,
+          }}
+        >
+          <Text
+            className="font-sans-bold text-sm text-white"
+            numberOfLines={1}
+            style={{ includeFontPadding: false }}
+          >
+            {post.nickname}
+          </Text>
           <View className="flex-row items-center gap-3">
-            <Text className="text-xs text-white">{formatDate(post.createdAt)}</Text>
+            <Text
+              className="font-sans-bold text-xs text-white"
+              style={{ includeFontPadding: false }}
+            >
+              {formatDate(post.createdAt)}
+            </Text>
             <View className="flex-row items-center gap-1">
               <Ionicons name={post.isLiked ? 'heart' : 'heart-outline'} size={13} color="#fff" />
-              <Text className="text-xs text-white">{post.likeCount}</Text>
+              <Text
+                className="font-sans-bold text-xs text-white"
+                style={{ includeFontPadding: false }}
+              >
+                {post.likeCount}
+              </Text>
             </View>
           </View>
-        </View>
+        </LinearGradient>
       </View>
 
-      {/* 게시글에 사용된 옷 사진들 */}
+      {/* 게시글에 사용된 옷 사진들 — 회색 띠 위에 한 줄 5개씩 꽉 차게 (개수 많으면 줄바꿈) */}
       {post.itemImages.length > 0 && (
-        <View className="flex-row flex-wrap gap-2 p-3">
+        <View className="flex-row flex-wrap bg-surface p-1">
           {post.itemImages.map((uri, i) => (
-            <Image
-              key={`${uri}-${i}`}
-              source={uri}
-              contentFit="cover"
-              className="h-14 w-14 rounded-lg border border-border bg-surface"
-            />
+            <View key={`${uri}-${i}`} style={{ width: '20%', padding: 5 }}>
+              <View className="w-full overflow-hidden rounded-lg" style={{ aspectRatio: 4 / 5 }}>
+                <Image source={uri} contentFit="cover" className="h-full w-full" />
+              </View>
+            </View>
           ))}
         </View>
       )}
