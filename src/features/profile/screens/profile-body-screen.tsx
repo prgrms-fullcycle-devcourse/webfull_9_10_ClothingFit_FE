@@ -161,13 +161,24 @@ export function ProfileBodyScreen() {
               />
             )}
 
-            <Button
-              label={saving ? '저장 중...' : '저장'}
-              variant="primary"
-              disabled={!canSave || saving || avatarImage.isUploading}
-              onPress={handleSave}
-              className="mt-auto"
-            />
+            {/* 체형 정보 탭에선 '다음'(아바타 탭으로 이동), 아바타 탭에선 '저장' */}
+            {tab === 'body' ? (
+              <Button
+                label="다음"
+                variant="primary"
+                disabled={!canSave}
+                onPress={() => setTab('avatar')}
+                className="mt-auto"
+              />
+            ) : (
+              <Button
+                label={saving ? '저장 중...' : '저장'}
+                variant="primary"
+                disabled={!canSave || saving || avatarImage.isUploading}
+                onPress={handleSave}
+                className="mt-auto"
+              />
+            )}
           </>
         )}
       </View>
