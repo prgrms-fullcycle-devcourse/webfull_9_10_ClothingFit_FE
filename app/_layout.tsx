@@ -130,8 +130,10 @@ function RootLayoutNav({ authed }: { authed: boolean }) {
     const inSharedScreen = ['post', 'user', 'followers'].includes(segments[0] ?? '');
     if (!authed && !inAuthGroup) {
       router.replace('/(auth)/login'); // 미로그인 → 로그인 화면
-    } else if (authed && !inTabsGroup && !inSharedScreen) {
-      // 로그인됨인데 탭(메인) 밖이면(인증 화면·잘못된 경로/+not-found 등) → 메인으로
+    } else if (authed && !inTabsGroup && !inSharedScreen && !inAuthGroup) {
+      // 로그인됨인데 탭·공유화면·인증 그룹 어디에도 없으면(잘못된 경로/+not-found 등) → 메인으로.
+      // (auth) 그룹은 제외: 로그인됨 직후 신규 유저를 체형 등록(register)으로 보내는 흐름과
+      // 레이스로 충돌해 메인으로 튕기던 문제 방지. 로그인/회원가입 화면은 자체 라우팅을 한다.
       router.replace('/(tabs)/home');
     }
   }, [authed, segments, navState?.key]);
