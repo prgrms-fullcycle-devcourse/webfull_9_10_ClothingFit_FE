@@ -6,7 +6,6 @@ import { Text } from './text';
 type HeartIconProps = {
   isLiked: boolean;
   count?: number;
-  size?: number;
   iconSize?: number;
   color?: string;
   onPress?: () => void;
@@ -15,16 +14,19 @@ type HeartIconProps = {
 export function HeartIcon({
   isLiked,
   count,
-  size = 13,
-  iconSize = 13,
+  iconSize = 16,
   color = '#fff',
   onPress,
 }: HeartIconProps) {
   const iconColor = isLiked ? '#dc2626' : color;
   const content = (
-    <View className="flex-row gap-1 items-center">
+    <View className="flex-row gap-2 items-center">
       <Ionicons name={isLiked ? 'heart' : 'heart-outline'} size={iconSize} color={iconColor} />
-      {count !== undefined && <Text style={{ fontSize: size, color }}>{count}</Text>}
+      {count !== undefined && (
+        <Text className="text-md" style={{ color }}>
+          {count}
+        </Text>
+      )}
     </View>
   );
 
