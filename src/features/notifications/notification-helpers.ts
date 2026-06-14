@@ -13,13 +13,9 @@ export function notificationRoute(n: Notification): Href | undefined {
   switch (n.type) {
     case NotificationType.LIKE:
     case NotificationType.FEED_FROM_FOLLOWING:
-      return n.post
-        ? { pathname: '/(tabs)/feed/[postId]', params: { postId: n.post.id } }
-        : undefined;
+      return n.post ? { pathname: '/post/[postId]', params: { postId: n.post.id } } : undefined;
     case NotificationType.FOLLOW:
-      return n.actor
-        ? { pathname: '/(tabs)/profile/user/[userId]', params: { userId: n.actor.id } }
-        : undefined;
+      return n.actor ? { pathname: '/user/[userId]', params: { userId: n.actor.id } } : undefined;
     case NotificationType.FIT_2D_COMPLETE:
     case NotificationType.FIT_3D_COMPLETE:
       return '/(tabs)/profile/fitting-history';

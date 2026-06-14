@@ -91,7 +91,16 @@ export function RegisterScreen() {
   };
 
   return (
-    <ScreenShell title="체형 등록" right={<StepDots step={step} />} edges={['top', 'bottom']}>
+    <ScreenShell
+      title="체형 등록"
+      // 온보딩이므로 첫 단계(body)에선 뒤로가기를 숨겨 메인 탈출을 막고,
+      // 두 번째 단계(avatar)에선 메인이 아니라 이전 단계(body)로 돌아가게 한다.
+      // (register는 replace로 진입해 기본 router.back()이 루트 (tabs)=메인으로 가버림)
+      showBack={step === 'avatar'}
+      onBack={step === 'avatar' ? () => setStep('body') : undefined}
+      right={<StepDots step={step} />}
+      edges={['top', 'bottom']}
+    >
       <View className="flex-1 px-6 pt-4 pb-8 gap-4">
         {step === 'body' ? (
           // 필드가 많아 화면이 짧으면 넘치므로 스크롤 처리 (하단 버튼 짤림 방지)
