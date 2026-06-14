@@ -46,7 +46,7 @@ export function FeedThumbnailItem({
   isBookmarked = false,
   nickname,
   width,
-  aspectRatio = 2 / 5,
+  aspectRatio = 2 / 3,
   icon = 'like',
   onPress,
 }: Props) {

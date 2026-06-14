@@ -82,7 +82,11 @@ function FollowList({
 
 /** 팔로워·팔로잉 화면. userId 없이 진입하면(설정) 내 팔로워/팔로잉을 탭으로 보여준다. */
 export function FollowersScreen() {
-  const { userId, tab: initialTab } = useLocalSearchParams<{ userId?: string; tab?: Tab }>();
+  const {
+    userId,
+    tab: initialTab,
+    nickname,
+  } = useLocalSearchParams<{ userId?: string; tab?: Tab; nickname?: string }>();
   const [tab, setTab] = useState<Tab>(initialTab ?? 'followers');
   const [myUserId, setMyUserId] = useState<string | null | undefined>(undefined);
 
@@ -115,7 +119,7 @@ export function FollowersScreen() {
   const followingItems = followingsData?.data ?? [];
 
   return (
-    <ScreenShell title="팔로워 · 팔로잉" edges={['top', 'bottom']}>
+    <ScreenShell title={nickname ? nickname : ''} edges={['top', 'bottom']}>
       <View className="flex-row border-b border-border px-4">
         <TabButton
           label={`팔로워 ${followersData?.totalCount ?? 0}`}

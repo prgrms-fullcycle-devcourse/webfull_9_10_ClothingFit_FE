@@ -1,4 +1,4 @@
-import { Ionicons } from '@expo/vector-icons';
+import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, KeyboardAvoidingView, Pressable, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -9,6 +9,7 @@ import { useTabBarScroll } from '@/features/navigation/use-tab-bar-scroll';
 import { GetPostsFollow, GetPostsParams, GetPostsSort } from '@/api/generated/schemas';
 import { ScreenShell } from '@/components/blocks/screen-shell';
 import { BottomSheet } from '@/components/ui/bottom-sheet';
+import { EmptyState } from '@/components/ui/empty-state';
 import { TabButton } from '@/components/ui/tab-button';
 import { Tag } from '@/components/ui/tag';
 import { Text } from '@/components/ui/text';
@@ -30,6 +31,7 @@ export function FeedHomeScreen() {
   const [filters, setFilters] = useState<FilterState>({ sort: GetPostsSort.LATEST });
   const [keyword, setKeyword] = useState('');
   const [debouncedKeyword, setDebouncedKeyword] = useState('');
+  const [searchFocused, setSearchFocused] = useState(false);
   const insets = useSafeAreaInsets();
   const scrollHandler = useTabBarScroll();
 
@@ -68,9 +70,18 @@ export function FeedHomeScreen() {
     if (isError) {
       return (
         <View className="flex-1 items-center justify-center gap-2">
-          <Ionicons name="alert-circle-outline" size={48} color="#888" />
+          <Ionicons name="alert-circle-outline" size={78} color="#e6e6e6" />
           <Text variant="caption">불러오지 못했습니다. 잠시 후 다시 시도해 주세요.</Text>
         </View>
+      );
+    }
+    if (posts.length === 0) {
+      return (
+        <EmptyState
+          icon={<FontAwesome name="inbox" size={60} color="#e6e6e6" />}
+          title="검색된 게시물이 없습니다"
+          description="필터를 변경하거나 다른 키워드로 검색해 보세요"
+        />
       );
     }
     return (
@@ -108,14 +119,21 @@ export function FeedHomeScreen() {
           <TextInput
             value={keyword}
             onChangeText={setKeyword}
-            placeholder="검색"
-            placeholderTextColor="#6a7282"
+            onFocus={() => setSearchFocused(true)}
+            onBlur={() => setSearchFocused(false)}
+            placeholder="검색어를 입력하세요"
+            placeholderTextColor="#e6e6e6"
             returnKeyType="search"
             style={{ flex: 1, paddingVertical: 10, fontSize: 14 }}
           />
           {keyword.length > 0 && (
             <Pressable onPress={() => setKeyword('')}>
-              <Ionicons name="close-circle" size={18} color="#6a7282" />
+              <Ionicons name="close-circle" size={18} color="#2563eb" />
+            </Pressable>
+          )}
+          {searchFocused && (
+            <Pressable onPress={() => setDebouncedKeyword(keyword)}>
+              <Text className="text-sm text-accent font-sans-medium">검색</Text>
             </Pressable>
           )}
         </View>

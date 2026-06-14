@@ -2,8 +2,8 @@ import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Image, Pressable, RefreshControl, ScrollView, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { TAB_BAR_BASE_HEIGHT } from '@/constants/tab-bar';
 import { useTabBarScroll } from '@/features/navigation/use-tab-bar-scroll';
@@ -15,6 +15,7 @@ import {
   useGetProfileRecentPosts,
 } from '@/api/generated/endpoints/profile/profile';
 import { ScreenShell } from '@/components/blocks/screen-shell';
+import { EmptyState } from '@/components/ui/empty-state';
 import { Text } from '@/components/ui/text';
 import { FeedThumbnailItem } from '@/features/feed/components/feed-thumbnail-item';
 import { useUnreadNotificationCount } from '@/features/notifications/api';
@@ -23,16 +24,6 @@ import { getUserId } from '@/lib/auth-storage';
 const ITEM_WIDTH = 150;
 const POST_ASPECT = 2 / 3;
 const ITEM_HEIGHT = ITEM_WIDTH / POST_ASPECT; // aspect-[2/3]
-
-function EmptySection({ text = '데이터가 존재하지 않습니다.' }: { text?: string }) {
-  return (
-    <View style={{ height: ITEM_HEIGHT }} className="w-full items-center justify-center">
-      <Text variant="caption" className="text-muted">
-        {text}
-      </Text>
-    </View>
-  );
-}
 
 export function ProfileHomeScreen() {
   const [myUserId, setMyUserId] = useState<string | null | undefined>(undefined);
@@ -119,24 +110,49 @@ export function ProfileHomeScreen() {
             <Text variant="caption">
               {profile?.height != null ? `${profile.height} cm ` : '- cm '} /{' '}
               {profile?.weight != null ? `${profile.weight} kg ` : '- kg '} /{' '}
-              {profile?.gender ?? '성별'}
+              {({ MALE: '남성', FEMALE: '여성' } as Record<string, string>)[
+                profile?.gender ?? ''
+              ] ?? '성별'}
             </Text>
-            <Pressable
-              disabled={!myUserId}
-              onPress={() =>
-                router.push({ pathname: '/followers', params: { userId: myUserId ?? '' } })
-              }
-            >
-              <View className="flex-row items-baseline gap-1 mt-1">
+            <View className="flex-row items-baseline gap-1 mt-1">
+              <Pressable
+                disabled={!myUserId}
+                className="flex-row items-baseline gap-1"
+                onPress={() =>
+                  router.push({
+                    pathname: '/followers',
+                    params: {
+                      userId: myUserId ?? '',
+                      tab: 'followers',
+                      nickname: profile?.nickname,
+                    },
+                  })
+                }
+              >
                 <Text className="font-sans-bold text-base">{profile?.followerCount ?? '-'}</Text>
                 <Text variant="caption">팔로워</Text>
-                <Text variant="caption" className="mx-1">
-                  ·
-                </Text>
+              </Pressable>
+              <Text variant="caption" className="mx-1">
+                ·
+              </Text>
+              <Pressable
+                disabled={!myUserId}
+                className="flex-row items-baseline gap-1"
+                onPress={() =>
+                  router.push({
+                    pathname: '/followers',
+                    params: {
+                      userId: myUserId ?? '',
+                      tab: 'following',
+                      nickname: profile?.nickname,
+                    },
+                  })
+                }
+              >
                 <Text className="font-sans-bold text-base">{profile?.followingCount ?? '-'}</Text>
                 <Text variant="caption">팔로잉</Text>
-              </View>
-            </Pressable>
+              </Pressable>
+            </View>
           </View>
         </View>
 
@@ -144,11 +160,15 @@ export function ProfileHomeScreen() {
           최근 본 커뮤니티
         </Text>
         {recentPostItems.length === 0 ? (
-          <EmptySection text="최근 본 게시물이 없습니다." />
+          <EmptyState
+            icon={<FontAwesome name="inbox" size={42} color="#e6e6e6" />}
+            title="최근 본 게시물이 없습니다."
+            style={{ height: ITEM_HEIGHT }}
+          />
         ) : (
           <ScrollView horizontal showsHorizontalScrollIndicator={false} className="px-4 mb-4">
             {recentPostItems.map((p) => (
-              <View key={p.id} className="mr-1">
+              <View key={p.id} className="mr-px">
                 <FeedThumbnailItem
                   id={p.id}
                   imageUrl={p.imageUrl}
@@ -175,11 +195,15 @@ export function ProfileHomeScreen() {
           </Pressable>
         </View>
         {bookmarkItems.length === 0 ? (
-          <EmptySection text="북마크한 게시물이 없습니다." />
+          <EmptyState
+            icon={<FontAwesome name="inbox" size={42} color="#e6e6e6" />}
+            title="북마크한 게시물이 없습니다."
+            style={{ height: ITEM_HEIGHT }}
+          />
         ) : (
           <ScrollView horizontal showsHorizontalScrollIndicator={false} className="px-4 mb-4">
             {bookmarkItems.map((p) => (
-              <View key={p.id} className="mr-1">
+              <View key={p.id} className="mr-px">
                 <FeedThumbnailItem
                   id={p.id}
                   imageUrl={p.imageUrl}
@@ -206,11 +230,15 @@ export function ProfileHomeScreen() {
           </Pressable>
         </View>
         {closetItems.length === 0 ? (
-          <EmptySection text="생성된 옷장이 없습니다." />
+          <EmptyState
+            icon={<FontAwesome name="inbox" size={42} color="#e6e6e6" />}
+            title="생성된 옷장이 없습니다."
+            style={{ height: ITEM_HEIGHT }}
+          />
         ) : (
           <ScrollView horizontal showsHorizontalScrollIndicator={false} className="px-4 mb-4">
             {closetItems.map((c) => (
-              <View key={c.id} className="mr-1">
+              <View key={c.id} className="mr-px">
                 <FeedThumbnailItem
                   id={c.id}
                   imageUrl={c.imageUrl}
