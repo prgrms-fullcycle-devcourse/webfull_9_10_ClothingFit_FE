@@ -15,6 +15,7 @@ import {
   useGetProfileRecentPosts,
 } from '@/api/generated/endpoints/profile/profile';
 import { ScreenShell } from '@/components/blocks/screen-shell';
+import { Divider } from '@/components/ui/divider';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Text } from '@/components/ui/text';
 import { FeedThumbnailItem } from '@/features/feed/components/feed-thumbnail-item';
@@ -105,7 +106,7 @@ export function ProfileHomeScreen() {
               onPress={() => router.push('/(tabs)/profile/settings')}
             >
               <Text variant="subtitle">{profile?.nickname ?? '-'}</Text>
-              <FontAwesome name="chevron-circle-right" size={12} color="#111827" />
+              <FontAwesome name="chevron-circle-right" size={12} color="#99a1af" />
             </Pressable>
             <Text variant="caption">
               {profile?.height != null ? `${profile.height} cm ` : '- cm '} /{' '}
@@ -156,7 +157,8 @@ export function ProfileHomeScreen() {
           </View>
         </View>
 
-        <Text variant="subtitle" className="px-4 mb-2">
+        <Divider thickness={0.5} className="bg-surface" />
+        <Text variant="subtitle" className="font-sans-bold text-xl px-4 mt-4 mb-2">
           최근 본 커뮤니티
         </Text>
         {recentPostItems.length === 0 ? (
@@ -186,10 +188,13 @@ export function ProfileHomeScreen() {
           </ScrollView>
         )}
 
-        <View className="flex-row items-center justify-between px-4 mb-2">
-          <Text variant="subtitle">북마크한 코디</Text>
+        <Divider thickness={0.5} className="bg-surface" />
+        <View className="flex-row items-end justify-between px-4 mt-4 mb-2">
+          <Text className="font-sans-bold text-xl" variant="subtitle">
+            북마크한 코디
+          </Text>
           <Pressable onPress={() => router.push('/(tabs)/profile/bookmarks')}>
-            <Text variant="caption" className="text-primary">
+            <Text variant="caption" className="font-sans-bold text-slate">
               더 보기
             </Text>
           </Pressable>
@@ -221,10 +226,13 @@ export function ProfileHomeScreen() {
             ))}
           </ScrollView>
         )}
-        <View className="flex-row items-center justify-between px-4 mb-2">
-          <Text variant="subtitle">내 옷장</Text>
+        <Divider thickness={0.5} className="bg-surface" />
+        <View className="flex-row items-end justify-between px-4 mt-4 mb-2">
+          <Text className="font-sans-bold text-xl" variant="subtitle">
+            내 옷장
+          </Text>
           <Pressable onPress={() => router.navigate('/(tabs)/closet')}>
-            <Text variant="caption" className="text-primary">
+            <Text variant="caption" className="font-sans-bold text-slate">
               더 보기
             </Text>
           </Pressable>
