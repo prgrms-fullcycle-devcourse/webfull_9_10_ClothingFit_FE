@@ -29,6 +29,7 @@ export function useDeleteAccount() {
     // 탈퇴 성공 → 로컬 세션 정리 후 이동 (로그아웃과 동일, 서버 logout 호출은 불필요)
     await clearTokens();
     setAuthToken(null);
+    // 캐시 제거는 다음 로그인 시점에 수행(여기서 비우면 마운트된 화면이 크래시).
     if (isNativeSocialAvailable) {
       void Promise.allSettled([kakaoLogout(), GoogleSignin.signOut()]);
     }

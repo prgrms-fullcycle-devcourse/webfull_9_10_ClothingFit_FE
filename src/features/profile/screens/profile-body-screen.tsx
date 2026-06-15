@@ -1,5 +1,5 @@
-import { router, useLocalSearchParams, useNavigation, type Href } from 'expo-router';
-import { useEffect, useLayoutEffect, useState } from 'react';
+import { router, useLocalSearchParams, useNavigation } from 'expo-router';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -30,6 +30,7 @@ type Tab = 'body' | 'avatar';
 
 /** 체형 정보 수정 화면. [체형 정보] 탭과 [아바타](캐릭터 선택·사진) 탭을 제공한다. */
 export function ProfileBodyScreen() {
+  const bodyScrollRef = useRef<ScrollView>(null);
   const bodyInfo = useBodyInfo();
   const updateBodyInfo = useUpdateBodyInfo();
   const selectCharacter = useSelectCharacter();
@@ -46,11 +47,11 @@ export function ProfileBodyScreen() {
   }, [navigation, insets]);
 
   // "나의 AI 모델" 진입 시 ?tab=avatar 로 아바타 탭을 바로 연다 (없으면 체형 정보 탭).
-  // returnTo: 의상 최종 확인 등 특정 화면에서 들어온 경우, 저장/뒤로 시 그 화면으로 복귀.
-  const params = useLocalSearchParams<{ tab?: string; returnTo?: string }>();
+  // from: 의상 최종 확인(fitting-confirm)에서 들어온 경우, 저장·뒤로가기 시 그 화면으로 복귀.
+  const params = useLocalSearchParams<{ tab?: string; from?: string }>();
   const [tab, setTab] = useState<Tab>(params.tab === 'avatar' ? 'avatar' : 'body');
   const goBack = () => {
-    if (params.returnTo) router.replace(params.returnTo as Href);
+    if (params.from === 'fitting-confirm') router.replace('/(tabs)/explore/confirm');
     else router.back();
   };
   const [form, setForm] = useState<Record<FieldKey, string>>(INITIAL_FORM);
@@ -143,12 +144,13 @@ export function ProfileBodyScreen() {
 
             {tab === 'body' ? (
               <ScrollView
+                ref={bodyScrollRef}
                 className="flex-1"
                 showsVerticalScrollIndicator={false}
                 contentContainerClassName="gap-4 pb-2"
                 keyboardShouldPersistTaps="handled"
               >
-                <BodyStep form={form} changeInput={changeInput} />
+                <BodyStep form={form} changeInput={changeInput} scrollRef={bodyScrollRef} />
               </ScrollView>
             ) : (
               <AvatarStep

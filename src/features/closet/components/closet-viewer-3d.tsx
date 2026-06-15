@@ -1,7 +1,12 @@
 import { useMemo } from 'react';
+import { View } from 'react-native';
 import { WebView } from 'react-native-webview';
 
-type Props = { modelUrl: string };
+type Props = {
+  modelUrl: string;
+  /** 터치 시작/끝을 부모에게 알려 부모 ScrollView/FlatList의 스크롤을 잠글 수 있게 함 */
+  onScrollLock?: (locked: boolean) => void;
+};
 
 /** modelUrl의 출처(scheme+host). WebView baseUrl로 써서 모델을 '같은 출처'로 fetch → CORS 회피. */
 function originOf(url: string): string {
@@ -24,7 +29,25 @@ function buildHtml(modelUrl: string): string {
 <script type="module" src="https://cdn.jsdelivr.net/npm/@google/model-viewer@3.5.0/dist/model-viewer.min.js"></script>
 <style>
   html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: #e6e6e6; overflow: hidden; }
-  model-viewer { width: 100%; height: 100%; --poster-color: #ffffff; }
+  model-viewer { width: 100%; height: 100%; --poster-color: #e6e6e6; }
+  #spinner {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #e6e6e6;
+    pointer-events: none;
+  }
+  .ring {
+    width: 48px;
+    height: 48px;
+    border: 4px solid #d1d5db;
+    border-top-color: #2563eb;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
@@ -36,21 +59,37 @@ function buildHtml(modelUrl: string): string {
   exposure="0.65"
   tone-mapping="neutral"
   environment-image="neutral"
-></model-viewer>
+  id="mv"
+>
+  <div slot="progress-bar"></div>
+</model-viewer>
+<div id="spinner"><div class="ring"></div></div>
+<script>
+  document.getElementById('mv').addEventListener('load', function() {
+    document.getElementById('spinner').style.display = 'none';
+  });
+</script>
 </body>
 </html>`;
 }
 
-export function ClosetViewer3D({ modelUrl }: Props) {
+export function ClosetViewer3D({ modelUrl, onScrollLock }: Props) {
   const html = useMemo(() => buildHtml(modelUrl), [modelUrl]);
   return (
-    <WebView
-      originWhitelist={['*']}
-      source={{ html, baseUrl: `${originOf(modelUrl)}/` }}
-      style={{ flex: 1, backgroundColor: '#fff' }}
-      javaScriptEnabled
-      domStorageEnabled
-      androidLayerType="hardware"
-    />
+    <View
+      style={{ flex: 1 }}
+      onTouchStart={() => onScrollLock?.(true)}
+      onTouchEnd={() => onScrollLock?.(false)}
+      onTouchCancel={() => onScrollLock?.(false)}
+    >
+      <WebView
+        originWhitelist={['*']}
+        source={{ html, baseUrl: `${originOf(modelUrl)}/` }}
+        style={{ flex: 1, backgroundColor: '#fff' }}
+        javaScriptEnabled
+        domStorageEnabled
+        androidLayerType="hardware"
+      />
+    </View>
   );
 }

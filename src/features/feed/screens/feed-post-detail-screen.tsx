@@ -72,7 +72,7 @@ function FeedPostDetailContent({
     isBookmarked: post.isBookmarked,
   });
   return (
-    <ScreenShell title="게시물" edges={['top', 'bottom']}>
+    <ScreenShell edges={['top', 'bottom']}>
       <ImageModal
         uri={post.image2dUrl}
         visible={imageVisible}
@@ -106,13 +106,11 @@ function FeedPostDetailContent({
           )}
         </ProfileHeader>
         {is3d && has3d ? (
-          <View
-            style={{ height: 500 }}
-            onTouchStart={() => setScrollEnabled(false)}
-            onTouchEnd={() => setScrollEnabled(true)}
-            onTouchCancel={() => setScrollEnabled(true)}
-          >
-            <ClosetViewer3D modelUrl={post.model3dUrl!} />
+          <View style={{ height: 500 }}>
+            <ClosetViewer3D
+              modelUrl={post.model3dUrl!}
+              onScrollLock={(locked) => setScrollEnabled(!locked)}
+            />
           </View>
         ) : (
           <Pressable onPress={() => setImageVisible(true)} className="bg-[#ECECEB]">
