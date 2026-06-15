@@ -24,7 +24,7 @@ export function PopularPostCard({ post }: { post: PopularPost }) {
       className="overflow-hidden bg-white"
     >
       {/* 인물 이미지 (세로 0.9) — 영역을 꽉 채우게 cover + 하단 그라데이션 오버레이 */}
-      <View className="w-full justify-end bg-white" style={{ aspectRatio: 0.9 }}>
+      <View className="w-full justify-end bg-white" style={{ aspectRatio: 1 }}>
         <Image
           source={post.image}
           contentFit="cover"
@@ -40,27 +40,27 @@ export function PopularPostCard({ post }: { post: PopularPost }) {
             bottom: 0,
             paddingHorizontal: 14,
             paddingBottom: 14,
-            paddingTop: 40,
+            paddingTop: 100,
           }}
         >
           <Text
-            className="font-sans-bold text-sm text-white"
+            className="font-sans-bold text-lg text-white pl-2"
             numberOfLines={1}
             style={{ includeFontPadding: false }}
           >
             {post.nickname}
           </Text>
-          <View className="flex-row items-center gap-3">
+          <View className="flex-row items-center gap-6 pl-1">
             <Text
-              className="font-sans-bold text-xs text-white"
+              className="font-sans-bold text-md text-white"
               style={{ includeFontPadding: false }}
             >
               {formatDate(post.createdAt)}
             </Text>
             <View className="flex-row items-center gap-1">
-              <Ionicons name={post.isLiked ? 'heart' : 'heart-outline'} size={13} color="#fff" />
+              <Ionicons name={post.isLiked ? 'heart' : 'heart-outline'} size={15} color="#fff" />
               <Text
-                className="font-sans-bold text-xs text-white"
+                className="font-sans-bold text-md text-white"
                 style={{ includeFontPadding: false }}
               >
                 {post.likeCount}
@@ -75,7 +75,7 @@ export function PopularPostCard({ post }: { post: PopularPost }) {
         <View className="flex-row flex-wrap bg-surface p-1">
           {post.itemImages.map((uri, i) => (
             <View key={`${uri}-${i}`} style={{ width: '20%', padding: 5 }}>
-              <View className="w-full overflow-hidden rounded-lg" style={{ aspectRatio: 4 / 5 }}>
+              <View className="w-full overflow-hidden rounded-lg" style={{ aspectRatio: 4.5 / 5 }}>
                 <Image source={uri} contentFit="cover" className="h-full w-full" />
               </View>
             </View>

@@ -7,6 +7,7 @@ import { ScreenShell } from '@/components/blocks/screen-shell';
 import { Button } from '@/components/ui/button';
 import { Image } from '@/components/ui/image';
 import { Text } from '@/components/ui/text';
+import { showBanner } from '@/features/notifications/banner-store';
 import { useProfile } from '../api';
 import { useProfileImage } from '../hooks/use-profile-image';
 
@@ -18,6 +19,7 @@ export function ProfileImageScreen() {
   const { pickFromLibrary, takePhoto, localUri, isUploading, reset } = useProfileImage(() => {
     qc.invalidateQueries({ queryKey: getGetProfileQueryKey() });
     reset();
+    showBanner({ title: '프로필 이미지 변경 완료', message: '새 이미지가 적용되었어요.' });
   });
 
   const currentImage = localUri ?? profile.data?.imageUrl;

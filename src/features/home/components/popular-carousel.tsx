@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import {
+  Pressable,
   ScrollView,
   useWindowDimensions,
   View,
@@ -96,6 +97,20 @@ export function PopularCarousel({ posts }: { posts: PopularPost[] }) {
     pausedRef.current = false; // 손을 뗐고 스크롤이 멈췄으니 자동재생 재개
   };
 
+  // 점을 누르면 해당 실제 인덱스로 부드럽게 이동. (루프 모드는 실제 i가 확장 i+1 위치)
+  const goToDot = (target: number) => {
+    if (target === dot) return;
+    cancelAnim(); // 진행 중인 자동 전환 애니메이션 중단
+    const fromX = interval * extRef.current;
+    const targetExt = loop ? target + 1 : target;
+    extRef.current = targetExt;
+    setDot(target);
+    pausedRef.current = true; // 이동하는 동안 자동재생 정지
+    animateTo(fromX, interval * targetExt, SLIDE_DURATION, () => {
+      pausedRef.current = false; // 도착 후 자동재생 재개
+    });
+  };
+
   // 자동 재생
   useEffect(() => {
     if (!loop) return;
@@ -147,10 +162,11 @@ export function PopularCarousel({ posts }: { posts: PopularPost[] }) {
       {/* 페이지 점 */}
       <View className="flex-row justify-center gap-2" style={{ marginTop: 22 }}>
         {posts.map((_, i) => (
-          <View
-            key={i}
-            className={cn('h-2 w-2 rounded-full', i === dot ? 'bg-primary' : 'bg-border')}
-          />
+          <Pressable key={i} onPress={() => goToDot(i)} hitSlop={8}>
+            <View
+              className={cn('h-2 w-2 rounded-full', i === dot ? 'bg-[#2563EB]' : 'bg-border')}
+            />
+          </Pressable>
         ))}
       </View>
     </View>
