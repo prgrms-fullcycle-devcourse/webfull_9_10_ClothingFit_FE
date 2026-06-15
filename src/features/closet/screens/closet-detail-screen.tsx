@@ -1,3 +1,4 @@
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import { useEffect, useLayoutEffect, useState } from 'react';
 import {
@@ -11,10 +12,17 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useQueryClient, useMutation } from '@tanstack/react-query';
 
 import { Ionicons } from '@expo/vector-icons';
 
+import {
+  getGetClosetIdQueryKey,
+  getGetClosetQueryKey,
+  useDeleteClosetId,
+  useGetClosetId,
+  usePostClosetIdPublish,
+} from '@/api/generated/endpoints/closet/closet';
+import { usePatchFittingClosetArchiveIdTitle } from '@/api/generated/endpoints/fitting/fitting';
 import { ScreenShell } from '@/components/blocks/screen-shell';
 import { BottomSheet } from '@/components/ui/bottom-sheet';
 import { Button } from '@/components/ui/button';
@@ -23,18 +31,10 @@ import { Text } from '@/components/ui/text';
 import { Toggle } from '@/components/ui/toggle';
 import COLORS from '@/constants/colors';
 import { getTabBarStyle } from '@/constants/tab-bar';
+import { unpublishPost } from '@/features/closet/api/community-publish-api';
 import { ClosetViewer3D } from '@/features/closet/components/closet-viewer-3d';
 import { RenameCoordiSheet } from '@/features/closet/components/rename-coordi-sheet';
 import { useFitting3D } from '@/features/closet/store/fitting-3d-store';
-import { unpublishPost } from '@/features/closet/api/community-publish-api';
-import { usePatchFittingClosetArchiveIdTitle } from '@/api/generated/endpoints/fitting/fitting';
-import {
-  getGetClosetIdQueryKey,
-  getGetClosetQueryKey,
-  useDeleteClosetId,
-  useGetClosetId,
-  usePostClosetIdPublish,
-} from '@/api/generated/endpoints/closet/closet';
 import Feather from '@expo/vector-icons/Feather';
 
 // 아바타 뷰어 높이 — 첫 화면에 아바타가 크게 보이고, 아래로 스크롤하면 착용 제품이 이어진다
@@ -52,6 +52,8 @@ export function ClosetDetailScreen() {
   const postId = (item as { postId?: string | null } | undefined)?.postId ?? null;
 
   const [view3d, setView3d] = useState(false);
+  const [scrollEnabled, setScrollEnabled] = useState(true);
+
   const [isPublished, setIsPublished] = useState(false);
   const [renameOpen, setRenameOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
@@ -212,13 +214,17 @@ export function ClosetDetailScreen() {
         data={wornItems}
         keyExtractor={(p) => p.id}
         showsVerticalScrollIndicator={false}
+        scrollEnabled={scrollEnabled}
         contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}
         ListHeaderComponent={
           <View>
             {/* 뷰어 영역 — 고정 높이. 2D는 전신이 잘리지 않게 contain */}
             <View style={{ height: VIEWER_HEIGHT }} className="bg-surface">
               {view3d && item.modelUrl ? (
-                <ClosetViewer3D modelUrl={item.modelUrl} />
+                <ClosetViewer3D
+                  modelUrl={item.modelUrl}
+                  onScrollLock={(locked) => setScrollEnabled(!locked)}
+                />
               ) : (
                 <Image className="flex-1" source={{ uri: item.imageUrl }} resizeMode="contain" />
               )}
