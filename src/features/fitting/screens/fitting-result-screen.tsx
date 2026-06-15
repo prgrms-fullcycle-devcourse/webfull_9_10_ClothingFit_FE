@@ -53,7 +53,6 @@ export function FittingResultScreen() {
   return (
     <ScreenShell
       title="2D 모델 확인"
-      titleVariant="title"
       right={
         <Pressable
           onPress={() => router.replace('/(tabs)/home')}

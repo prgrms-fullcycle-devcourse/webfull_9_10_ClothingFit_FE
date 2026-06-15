@@ -11,7 +11,7 @@ type ScreenShellProps = {
   children: React.ReactNode;
   className?: string;
   noHeader?: boolean;
-  /** 제목 텍스트 크기. 기본 'subtitle'(18px), 홈 헤더와 통일하려면 'title'(24px) */
+  /** 제목 텍스트 크기. 기본 'title'(24px, 홈 헤더와 통일). 작게 하려면 'subtitle'(18px) */
   titleVariant?: 'title' | 'subtitle';
   /** 뒤로가기 동작 커스텀 (없으면 router.back()) */
   onBack?: () => void;

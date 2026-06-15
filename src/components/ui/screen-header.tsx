@@ -12,7 +12,7 @@ type ScreenHeaderProps = {
   onBack?: () => void;
   /** 제목을 누르면 호출 (제목 옆 ✏️ 표시 — 이름 편집 등) */
   onTitlePress?: () => void;
-  /** 제목 텍스트 크기. 기본 'subtitle'(18px), 홈 헤더와 통일하려면 'title'(24px) */
+  /** 제목 텍스트 크기. 기본 'title'(24px, 홈 헤더와 통일). 작게 하려면 'subtitle'(18px) */
   titleVariant?: 'title' | 'subtitle';
 };
 
@@ -22,7 +22,7 @@ export function ScreenHeader({
   right,
   onBack,
   onTitlePress,
-  titleVariant = 'subtitle',
+  titleVariant = 'title',
 }: ScreenHeaderProps) {
   return (
     <View className="flex-row items-center justify-between px-4 py-3 border-b border-border bg-white">
