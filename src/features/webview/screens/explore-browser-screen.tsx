@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { useCallback, useRef, useState } from 'react';
-import { Alert, Pressable, View } from 'react-native';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { Alert, BackHandler, Pressable, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Text } from '@/components/ui/text';
@@ -40,6 +40,17 @@ export function ExploreBrowserScreen() {
   const [canGoBack, setCanGoBack] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    const handler = BackHandler.addEventListener('hardwareBackPress', () => {
+      if (canGoBack) {
+        webRef.current?.goBack();
+        return true;
+      }
+      return false;
+    });
+    return () => handler.remove();
+  }, [canGoBack]);
 
   const handleMallSelect = (mallId: MallId) => {
     if (mallId === session.mallId) return;
