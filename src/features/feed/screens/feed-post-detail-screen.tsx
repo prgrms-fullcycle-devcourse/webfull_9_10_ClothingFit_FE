@@ -4,13 +4,13 @@ import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Image,
-  Modal,
   Pressable,
   RefreshControl,
   ScrollView,
   View,
-  useWindowDimensions,
 } from 'react-native';
+
+import { ImageModal } from '@/components/ui/image-modal';
 
 import { useGetPostsId } from '@/api/generated/endpoints/posts/posts';
 import { GetPostByIdResponse } from '@/api/generated/schemas';
@@ -44,7 +44,6 @@ function FeedPostDetailContent({
   const [is3d, setIs3d] = useState(false);
   const [scrollEnabled, setScrollEnabled] = useState(true);
   const [myUserId, setMyUserId] = useState<string | null | undefined>(undefined);
-  const { width, height } = useWindowDimensions();
   const has3d = !!post.model3dUrl;
 
   useEffect(() => {
@@ -74,28 +73,11 @@ function FeedPostDetailContent({
   });
   return (
     <ScreenShell title="게시물" edges={['top', 'bottom']}>
-      <Modal
+      <ImageModal
+        uri={post.image2dUrl}
         visible={imageVisible}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setImageVisible(false)}
-      >
-        <Pressable
-          className="flex-1 bg-black/90 items-center justify-center"
-          onPress={() => setImageVisible(false)}
-        >
-          <Pressable onPress={() => {}} className="w-full">
-            <Image
-              source={{ uri: post.image2dUrl }}
-              style={{ width, height: height * 0.8 }}
-              resizeMode="contain"
-            />
-          </Pressable>
-          <Pressable onPress={() => setImageVisible(false)} className="absolute top-12 right-4 p-2">
-            <Ionicons name="close" size={28} color="#fff" />
-          </Pressable>
-        </Pressable>
-      </Modal>
+        onClose={() => setImageVisible(false)}
+      />
       <ScrollView
         className="flex-1"
         scrollEnabled={scrollEnabled}
@@ -110,12 +92,19 @@ function FeedPostDetailContent({
             ) : undefined
           }
           imgSize="md"
-          onPress={
-            myUserId !== undefined && !isMe
-              ? () => router.push({ pathname: '/user/[userId]', params: { userId } })
-              : undefined
-          }
-        />
+          onPress={() => router.push({ pathname: '/user/[userId]', params: { userId } })}
+        >
+          {(post.user.height != null || post.user.weight != null) && (
+            <Text variant="caption">
+              {[
+                post.user.height != null ? `${post.user.height}cm` : null,
+                post.user.weight != null ? `${post.user.weight}kg` : null,
+              ]
+                .filter(Boolean)
+                .join(' · ')}
+            </Text>
+          )}
+        </ProfileHeader>
         {is3d && has3d ? (
           <View
             style={{ height: 500 }}
@@ -126,11 +115,11 @@ function FeedPostDetailContent({
             <ClosetViewer3D modelUrl={post.model3dUrl!} />
           </View>
         ) : (
-          <Pressable onPress={() => setImageVisible(true)} className="bg-border">
+          <Pressable onPress={() => setImageVisible(true)} className="bg-[#ECECEB]">
             <Image source={{ uri: post.image2dUrl }} style={{ height: 500 }} resizeMode="contain" />
           </Pressable>
         )}
-        <View className="flex-row justify-between px-4 py-4 gap-4">
+        <View className="flex-row justify-between px-4 py-2 gap-4 items-center">
           <Text>{formatDate(post.createdAt)}</Text>
           <View className="flex-row gap-4 items-center">
             {has3d && (
@@ -139,13 +128,13 @@ function FeedPostDetailContent({
             <HeartIcon
               isLiked={isLiked}
               onPress={toggleLike}
-              size={18}
+              iconSize={26}
               color="#111827"
               count={likeCount}
             />
             <BookmarkIcon
               isBookmarked={isBookmarked}
-              size={18}
+              size={24}
               color="#111827"
               onPress={toggleBookmark}
             />
