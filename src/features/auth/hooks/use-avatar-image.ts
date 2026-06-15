@@ -4,11 +4,12 @@ import { Alert } from 'react-native';
 
 import { useUploadAvatarImage } from '@/features/characters/api';
 
-// 아바타는 정사각으로 크롭 + 적당히 압축해 업로드(백엔드 최대 5MB) 한도 안에 들도록 한다.
+// 크롭 비율을 고정하지 않는다(aspect 미지정) → 세로로 긴 전신 사진도 직사각형으로 넣을 수 있게.
+// (Android는 자유 비율 크롭. iOS 기본 편집기는 정사각만 지원하는 한계가 있음)
+// 적당히 압축해 업로드(백엔드 최대 5MB) 한도 안에 들도록 한다.
 const PICKER_OPTIONS: ImagePicker.ImagePickerOptions = {
   mediaTypes: ['images'],
   allowsEditing: true,
-  aspect: [1, 1],
   quality: 0.6,
 };
 

@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Alert, ScrollView, View } from 'react-native';
 
 import { ScreenShell } from '@/components/blocks/screen-shell';
@@ -24,6 +24,7 @@ import {
 import { useUpdateBodyInfo } from '@/features/profile/api';
 
 export function RegisterScreen() {
+  const bodyScrollRef = useRef<ScrollView>(null);
   const [step, setStep] = useState<Step>('body');
   const [form, setForm] = useState(INITIAL_FORM);
   const [gender, setGender] = useState<Gender>('male');
@@ -105,12 +106,13 @@ export function RegisterScreen() {
         {step === 'body' ? (
           // 필드가 많아 화면이 짧으면 넘치므로 스크롤 처리 (하단 버튼 짤림 방지)
           <ScrollView
+            ref={bodyScrollRef}
             className="flex-1"
             showsVerticalScrollIndicator={false}
             contentContainerClassName="gap-4 pb-2"
             keyboardShouldPersistTaps="handled"
           >
-            <BodyStep form={form} changeInput={changeInput} />
+            <BodyStep form={form} changeInput={changeInput} scrollRef={bodyScrollRef} />
           </ScrollView>
         ) : (
           <AvatarStep
