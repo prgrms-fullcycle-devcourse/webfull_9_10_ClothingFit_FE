@@ -99,13 +99,19 @@ export function HomeScreen() {
         contentContainerStyle={{ paddingBottom: TAB_BAR_BASE_HEIGHT + insets.bottom }}
       >
         {/* 인기글 */}
-        <Text variant="subtitle" className="pl-7 pt-4 pb-3 text-[1.35rem] leading-tight font-sans-bold tracking-tighter">
+        <Text
+          variant="subtitle"
+          className="pl-7 pt-4 pb-3 text-[1.35rem] leading-tight font-sans-bold tracking-tighter"
+        >
           인기글
         </Text>
         <QuerySection query={posts}>{(data) => <PopularCarousel posts={data} />}</QuerySection>
 
         {/* HOT */}
-        <Text variant="subtitle" className="pl-7 pt-10 pb-3 text-[1.35rem] leading-tight font-sans-bold tracking-tighter">
+        <Text
+          variant="subtitle"
+          className="pl-7 pt-10 pb-3 text-[1.35rem] leading-tight font-sans-bold tracking-tighter"
+        >
           요즘 인기 있는 스타일
         </Text>
         <QuerySection query={influencers}>
