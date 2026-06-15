@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { postAuthKakao, type LoginData } from '@/features/auth/api';
 import { setAuthToken } from '@/lib/api-client';
 import { saveUserIdFromToken, setTokens } from '@/lib/auth-storage';
+import { queryClient } from '@/lib/query-client';
 import { isNativeSocialAvailable } from '../lib/native-social';
 
 export function useKakaoLogin() {
@@ -21,6 +22,9 @@ export function useKakaoLogin() {
       const data = (await postAuthKakao({
         accessToken: token.accessToken,
       })) as unknown as LoginData;
+      // 이전 계정 캐시 제거 — 로그인 화면에선 데이터 의존 화면이 없어 안전하다.
+      // (계정 전환 시 옛 계정의 프로필·홈 캐시가 그대로 보이던 문제 방지)
+      queryClient.clear();
       await setTokens(data.accessToken, data.refreshToken);
       await saveUserIdFromToken(data.accessToken);
       setAuthToken(data.accessToken);

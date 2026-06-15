@@ -1,10 +1,19 @@
-import { router } from 'expo-router';
-import { Alert, Pressable, View } from 'react-native';
+import { router, useNavigation } from 'expo-router';
+import { useLayoutEffect } from 'react';
+import { Alert, Pressable, ScrollView, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ScreenShell } from '@/components/blocks/screen-shell';
 import { Text } from '@/components/ui/text';
+import { Toggle } from '@/components/ui/toggle';
+import { getTabBarStyle } from '@/constants/tab-bar';
 import { useDeleteAccount } from '@/features/auth/hooks/use-delete-account';
 import { useLogout } from '@/features/auth/hooks/use-logout';
+import {
+  useNotificationSettings,
+  useUpdateNotificationSettings,
+} from '@/features/notifications/api';
+import { cn } from '@/utils/cn';
 
 const sections = [
   {
@@ -13,7 +22,7 @@ const sections = [
   },
   {
     title: '커뮤니티',
-    items: ['팔로잉 & 팔로워', '관심글 목록'],
+    items: ['팔로잉 & 팔로워 설정', '관심글 목록'],
   },
   {
     title: 'AI 피팅 설정',
@@ -25,10 +34,35 @@ const sections = [
   },
 ];
 
+// 메뉴 항목 → 이동 경로
+function goTo(item: string) {
+  if (item === '닉네임 변경') router.push('/(tabs)/profile/nickname');
+  if (item === '프로필 이미지 변경') router.push('/(tabs)/profile/profile-image');
+  if (item === '체형 정보 수정') router.push('/(tabs)/profile/body');
+  if (item === '나의 AI 모델')
+    router.push({ pathname: '/(tabs)/profile/body', params: { tab: 'avatar' } });
+  if (item === '관심글 목록') router.push('/(tabs)/profile/bookmarks');
+  if (item === '팔로잉 & 팔로워 설정') router.push('/followers');
+  if (item === '개인정보 이용 약관') router.push('/(tabs)/profile/privacy-terms');
+  if (item === '오픈 라이선스') router.push('/(tabs)/profile/open-licenses');
+}
+
 /** 설정 화면. 내 정보·커뮤니티·AI 피팅·약관 메뉴와 로그아웃·회원탈퇴를 제공한다. */
 export function ProfileSettingsScreen() {
   const { logout, isLoading: loggingOut } = useLogout();
   const { deleteAccount, isLoading: deleting } = useDeleteAccount();
+  const notiSettings = useNotificationSettings();
+  const updateNoti = useUpdateNotificationSettings();
+  const notiEnabled = notiSettings.data?.enabled ?? false;
+
+  // 하단 탭 바가 로그아웃·회원탈퇴를 가리므로 이 화면에선 탭 바를 숨긴다 (떠날 때 복원).
+  const navigation = useNavigation();
+  const insets = useSafeAreaInsets();
+  useLayoutEffect(() => {
+    const parent = navigation.getParent();
+    parent?.setOptions({ tabBarStyle: { display: 'none' } });
+    return () => parent?.setOptions({ tabBarStyle: getTabBarStyle(insets) });
+  }, [navigation, insets]);
 
   const handleLogout = () => {
     Alert.alert('로그아웃', '로그아웃 하시겠어요?', [
@@ -60,41 +94,64 @@ export function ProfileSettingsScreen() {
 
   return (
     <ScreenShell title="설정">
-      <View className="flex-1 px-4">
-        {sections.map((section) => (
-          <View key={section.title} className="mb-4">
-            <Text variant="label" className="mb-2 mt-2">
-              {section.title}
-            </Text>
-            {section.items.map((item) => (
-              <Pressable
-                key={item}
-                className="py-3 border-b border-border"
-                onPress={() => {
-                  if (item === '닉네임 변경') router.push('/(tabs)/profile/nickname');
-                  if (item === '프로필 이미지 변경') router.push('/(tabs)/profile/profile-image');
-                  if (item === '알림 설정') router.push('/(tabs)/profile/notification-settings');
-                  if (item === '체형 정보 수정') router.push('/(tabs)/profile/body');
-                  if (item === '나의 AI 모델')
-                    router.push({ pathname: '/(tabs)/profile/body', params: { tab: 'avatar' } });
-                  if (item === '관심글 목록') router.push('/(tabs)/profile/bookmarks');
-                  if (item === '팔로잉 & 팔로워') router.push('/followers');
-                  if (item === '개인정보 이용 약관') router.push('/(tabs)/profile/privacy-terms');
-                  if (item === '오픈 라이선스') router.push('/(tabs)/profile/open-licenses');
-                }}
-              >
-                <Text>{item}</Text>
-              </Pressable>
-            ))}
+      <ScrollView
+        className="flex-1"
+        contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: insets.bottom + 32 }}
+        showsVerticalScrollIndicator={false}
+      >
+        {sections.map((section, idx) => (
+          <View
+            key={section.title}
+            className={cn('py-5', idx < sections.length - 1 && 'border-b border-border')}
+          >
+            <Text className="font-sans-bold text-lg mb-4">{section.title}</Text>
+            <View className="gap-4">
+              {section.items.map((item) =>
+                item === '알림 설정' ? (
+                  // 알림 설정: 인라인 토글 (푸시 알림 설정 API 연동). 켜짐=오른쪽(ON).
+                  <View key={item} className="flex-row items-center justify-between">
+                    <Text
+                      className="text-muted text-[15px]"
+                      style={{ lineHeight: 20, includeFontPadding: false }}
+                    >
+                      알림 설정
+                    </Text>
+                    <Toggle
+                      labelLeft="OFF"
+                      labelRight="ON"
+                      value={notiEnabled}
+                      disabled={notiSettings.isLoading || updateNoti.isPending}
+                      onValueChange={(on) => updateNoti.mutate({ data: { enabled: on } })}
+                    />
+                  </View>
+                ) : (
+                  <Pressable key={item} onPress={() => goTo(item)}>
+                    <Text
+                      className="text-muted text-[15px]"
+                      style={{ lineHeight: 20, includeFontPadding: false }}
+                    >
+                      {item}
+                    </Text>
+                  </Pressable>
+                ),
+              )}
+            </View>
           </View>
         ))}
-        <Pressable className="py-4" onPress={handleLogout} disabled={loggingOut}>
-          <Text className="font-sans-medium">{loggingOut ? '로그아웃 중...' : '로그아웃'}</Text>
-        </Pressable>
-        <Pressable className="py-2" onPress={handleDeleteAccount} disabled={deleting}>
-          <Text className="text-red-500 font-sans">{deleting ? '탈퇴 중...' : '회원탈퇴'}</Text>
-        </Pressable>
-      </View>
+
+        <View className="items-center gap-5 pt-10">
+          <Pressable onPress={handleLogout} disabled={loggingOut}>
+            <Text className="text-muted font-sans-medium">
+              {loggingOut ? '로그아웃 중...' : '로그아웃'}
+            </Text>
+          </Pressable>
+          <Pressable onPress={handleDeleteAccount} disabled={deleting}>
+            <Text className="text-red-500 font-sans-bold">
+              {deleting ? '탈퇴 중...' : '회원탈퇴'}
+            </Text>
+          </Pressable>
+        </View>
+      </ScrollView>
     </ScreenShell>
   );
 }
