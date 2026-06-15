@@ -47,7 +47,7 @@ export function ProfileBodyScreen() {
   }, [navigation, insets]);
 
   // "나의 AI 모델" 진입 시 ?tab=avatar 로 아바타 탭을 바로 연다 (없으면 체형 정보 탭).
-  const params = useLocalSearchParams<{ tab?: string }>();
+  const params = useLocalSearchParams<{ tab?: string; from?: string }>();
   const [tab, setTab] = useState<Tab>(params.tab === 'avatar' ? 'avatar' : 'body');
   const [form, setForm] = useState<Record<FieldKey, string>>(INITIAL_FORM);
   const [gender, setGender] = useState<Gender>('male');
@@ -97,7 +97,11 @@ export function ProfileBodyScreen() {
         await updateGender.mutateAsync({ data: { gender: toApiGender[gender] } });
       }
       Alert.alert('저장 완료', '체형 정보가 수정되었어요.');
-      router.back();
+      if (params.from === 'fitting-confirm') {
+        router.replace('/(tabs)/explore/confirm');
+      } else {
+        router.back();
+      }
     } catch (e: any) {
       const validationMsg = e?.response?.status === 400 ? e?.response?.data?.message : undefined;
       Alert.alert('저장 실패', validationMsg ?? '잠시 후 다시 시도해 주세요.');
