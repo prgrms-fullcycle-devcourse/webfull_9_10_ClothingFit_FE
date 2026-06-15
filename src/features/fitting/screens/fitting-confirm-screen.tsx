@@ -284,7 +284,7 @@ export function FittingConfirmScreen() {
         onSave={handleBodyQuickSave}
         onGoDetail={() => {
           setBodySheetOpen(false);
-          router.push('/(tabs)/profile/body');
+          router.push({ pathname: '/(tabs)/profile/body', params: { from: 'fitting-confirm' } });
         }}
       />
     </ScreenShell>

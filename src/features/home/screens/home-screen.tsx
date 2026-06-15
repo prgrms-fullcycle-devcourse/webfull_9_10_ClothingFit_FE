@@ -75,7 +75,7 @@ export function HomeScreen() {
       {/* 헤더 */}
       <View className="flex-row items-center justify-between border-b border-border px-4 py-3">
         <Text variant="title">CLOTHING - FIT</Text>
-        <Pressable onPress={() => router.push('/(tabs)/profile/notifications')} hitSlop={8}>
+        <Pressable onPress={() => router.push('/(tabs)/home/notifications')} hitSlop={8}>
           <Ionicons name="notifications-outline" size={24} color="#111827" />
           {unreadCount > 0 && (
             <View className="absolute -right-1.5 -top-1.5 h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1">

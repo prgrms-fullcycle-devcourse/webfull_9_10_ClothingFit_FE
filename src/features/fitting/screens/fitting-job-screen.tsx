@@ -131,7 +131,7 @@ export function FittingJobScreen() {
       <ScreenShell title="피팅 진행">
         <View className="flex-1 items-center justify-center gap-4 px-6">
           <Text variant="caption">작업을 찾을 수 없어요.</Text>
-          <Button label="홈으로" onPress={() => router.replace('/(tabs)/fitting')} />
+          <Button label="홈으로" onPress={() => router.replace('/(tabs)/home')} />
         </View>
       </ScreenShell>
     );
