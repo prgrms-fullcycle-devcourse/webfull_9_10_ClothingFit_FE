@@ -284,7 +284,11 @@ export function FittingConfirmScreen() {
         onSave={handleBodyQuickSave}
         onGoDetail={() => {
           setBodySheetOpen(false);
-          router.push('/(tabs)/profile/body');
+          // 저장/뒤로 시 다시 이 화면으로 돌아오도록 returnTo 전달
+          router.push({
+            pathname: '/(tabs)/profile/body',
+            params: { returnTo: '/(tabs)/explore/confirm' },
+          });
         }}
       />
     </ScreenShell>
