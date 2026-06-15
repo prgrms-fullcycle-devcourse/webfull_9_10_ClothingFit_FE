@@ -1,5 +1,5 @@
-import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
 
 import {
   useDeletePostsIdBookmark,
@@ -44,7 +44,9 @@ export function usePostBookmark({ id, isBookmarked }: Options) {
     queryClient.invalidateQueries({ queryKey: ['/posts'] });
     queryClient.invalidateQueries({
       predicate: (q) =>
-        typeof q.queryKey[0] === 'string' && (q.queryKey[0] as string).startsWith('/profile'),
+        typeof q.queryKey[0] === 'string' &&
+        ((q.queryKey[0] as string).startsWith('/profile') ||
+          (q.queryKey[0] as string) === 'profile'),
     });
   };
 

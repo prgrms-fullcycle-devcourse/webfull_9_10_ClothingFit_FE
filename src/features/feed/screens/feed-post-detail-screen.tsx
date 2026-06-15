@@ -72,7 +72,7 @@ function FeedPostDetailContent({
     isBookmarked: post.isBookmarked,
   });
   return (
-    <ScreenShell title="게시물" edges={['top', 'bottom']}>
+    <ScreenShell edges={['top', 'bottom']}>
       <ImageModal
         uri={post.image2dUrl}
         visible={imageVisible}
