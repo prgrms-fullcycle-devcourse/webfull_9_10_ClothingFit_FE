@@ -33,7 +33,8 @@ function buildHtml(modelUrl: string): string {
   camera-controls
   interaction-prompt="none"
   shadow-intensity="1"
-  exposure="1"
+  exposure="0.65"
+  tone-mapping="neutral"
   environment-image="neutral"
 ></model-viewer>
 </body>

@@ -67,12 +67,10 @@ export function startFittingJob(items: FittingItem[]): string {
     .catch((err) => {
       const prev = jobs[id];
       if (!prev) return;
-      setJob({
-        ...prev,
-        status: 'failed',
-        error: err instanceof Error ? err.message : '생성 실패',
-      });
-      showBanner({ title: '2D 아바타 생성 실패', message: '다시 시도해주세요' });
+      // generateFitting이 사유별 친화 메시지를 던짐 → 배너에 그대로 노출
+      const reason = err instanceof Error && err.message ? err.message : '다시 시도해주세요';
+      setJob({ ...prev, status: 'failed', error: reason });
+      showBanner({ title: '2D 아바타 생성 실패', message: reason });
     });
 
   return id;
