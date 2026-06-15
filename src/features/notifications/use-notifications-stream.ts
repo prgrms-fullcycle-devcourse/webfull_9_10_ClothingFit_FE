@@ -28,6 +28,10 @@ export function useNotificationsStream(enabled = true, onMessage?: (data: unknow
     const abort = new AbortController();
     let cancelled = false;
     let retryTimer: ReturnType<typeof setTimeout> | null = null;
+    // 재연결 지수 백오프: 5초 → 최대 60초. 연결 성공 시 5초로 리셋.
+    const BASE_DELAY = 5000;
+    const MAX_DELAY = 60_000;
+    let retryDelay = BASE_DELAY;
 
     const connect = async () => {
       const token = await getAccessToken();
@@ -49,10 +53,24 @@ export function useNotificationsStream(enabled = true, onMessage?: (data: unknow
         });
 
         if (!res.ok || !res.body) {
+          // 401/403: 토큰 문제 → 재시도해도 소용없음(로그인/토큰 갱신 시 authVersion이 바뀌며 재연결).
+          if (res.status === 401 || res.status === 403) return;
+          // 429: 서버 레이트리밋 → Retry-After를 존중하고, 없으면 최소 30초 이상 길게 백오프.
+          if (res.status === 429) {
+            const retryAfter = Number(res.headers.get('retry-after'));
+            scheduleRetry(
+              Number.isFinite(retryAfter) && retryAfter > 0
+                ? retryAfter * 1000
+                : Math.max(retryDelay, 30_000),
+            );
+            return;
+          }
           scheduleRetry();
           return;
         }
 
+        // 연결 성공 → 백오프 리셋
+        retryDelay = BASE_DELAY;
         const reader = res.body.getReader();
         const decoder = new TextDecoder();
         let buffer = '';
@@ -104,11 +122,13 @@ export function useNotificationsStream(enabled = true, onMessage?: (data: unknow
       }
     };
 
-    // 5초 뒤 재연결 (네트워크 끊김/서버 재시작 대비)
-    const scheduleRetry = () => {
+    // 재연결 예약 (네트워크 끊김/서버 재시작 대비). delay 미지정 시 지수 백오프 사용.
+    const scheduleRetry = (delay = retryDelay) => {
       if (cancelled) return;
-      console.log('[SSE] 5초 후 재연결 예약');
-      retryTimer = setTimeout(connect, 5000);
+      console.log(`[SSE] ${Math.round(delay / 1000)}초 후 재연결 예약`);
+      retryTimer = setTimeout(connect, delay);
+      // 다음 재시도는 더 길게(최대 MAX_DELAY) — 서버를 계속 두드려 429를 악화시키지 않도록.
+      retryDelay = Math.min(retryDelay * 2, MAX_DELAY);
     };
 
     connect();
