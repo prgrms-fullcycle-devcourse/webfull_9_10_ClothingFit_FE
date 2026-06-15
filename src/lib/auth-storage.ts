@@ -3,6 +3,19 @@ import * as SecureStore from 'expo-secure-store';
 const ACCESS_TOKEN_KEY = 'access_token';
 const REFRESH_TOKEN_KEY = 'refresh_token';
 const USER_ID_KEY = 'user_id';
+const LAST_PROVIDER_KEY = 'last_login_provider';
+
+export type SocialProvider = 'kakao' | 'google';
+
+/** 마지막으로 로그인한 소셜 제공자. 로그아웃해도 유지(다음 로그인 화면에서 안내용). */
+export async function getLastProvider(): Promise<SocialProvider | null> {
+  const v = await SecureStore.getItemAsync(LAST_PROVIDER_KEY);
+  return v === 'kakao' || v === 'google' ? v : null;
+}
+
+export async function setLastProvider(provider: SocialProvider): Promise<void> {
+  await SecureStore.setItemAsync(LAST_PROVIDER_KEY, provider);
+}
 
 export async function getAccessToken(): Promise<string | null> {
   return SecureStore.getItemAsync(ACCESS_TOKEN_KEY);
