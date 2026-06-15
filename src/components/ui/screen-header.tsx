@@ -12,6 +12,8 @@ type ScreenHeaderProps = {
   onBack?: () => void;
   /** 제목을 누르면 호출 (제목 옆 ✏️ 표시 — 이름 편집 등) */
   onTitlePress?: () => void;
+  /** 제목 텍스트 크기. 기본 'subtitle'(18px), 홈 헤더와 통일하려면 'title'(24px) */
+  titleVariant?: 'title' | 'subtitle';
 };
 
 export function ScreenHeader({
@@ -20,6 +22,7 @@ export function ScreenHeader({
   right,
   onBack,
   onTitlePress,
+  titleVariant = 'subtitle',
 }: ScreenHeaderProps) {
   return (
     <View className="flex-row items-center justify-between px-4 py-3 border-b border-border bg-white">
@@ -43,13 +46,13 @@ export function ScreenHeader({
             hitSlop={6}
             className="flex-row items-center gap-1.5 flex-1"
           >
-            <Text variant="subtitle" numberOfLines={1} className="flex-shrink">
+            <Text variant={titleVariant} numberOfLines={1} className="flex-shrink">
               {title}
             </Text>
             <Feather name="edit-2" size={15} color="#6b7280" />
           </Pressable>
         ) : (
-          <Text variant="subtitle" numberOfLines={1}>
+          <Text variant={titleVariant} numberOfLines={1}>
             {title}
           </Text>
         )}
