@@ -1,7 +1,8 @@
-import { useEffect } from 'react';
+import { useFocusEffect } from 'expo-router';
+import { useCallback } from 'react';
 import { useAnimatedScrollHandler, useSharedValue, withTiming } from 'react-native-reanimated';
 
-import { showTabBar, tabBarHidden } from './tab-bar-store';
+import { setTabBarVisible, showTabBar, tabBarHidden } from './tab-bar-store';
 
 /** 방향 감지 임계값(px) — 미세한 떨림 무시 */
 const THRESHOLD = 8;
@@ -15,11 +16,13 @@ const THRESHOLD = 8;
 export function useTabBarScroll() {
   const lastY = useSharedValue(0);
 
-  // 화면 진입 시 탭 바는 보이게 초기화 (이전 화면에서 숨겨둔 상태 복원)
-  useEffect(() => {
-    showTabBar();
-    return showTabBar;
-  }, []);
+  // 탭 루트로 focus될 때마다 탭 바를 다시 켜고 위치 초기화 (하위 화면에서 숨겨둔 상태 복원)
+  useFocusEffect(
+    useCallback(() => {
+      setTabBarVisible(true);
+      showTabBar();
+    }, []),
+  );
 
   return useAnimatedScrollHandler({
     onScroll: (e) => {

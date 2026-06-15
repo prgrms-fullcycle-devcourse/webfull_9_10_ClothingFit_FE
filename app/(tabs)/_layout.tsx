@@ -1,23 +1,26 @@
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { BottomTabBar, type BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { router, Tabs } from 'expo-router';
-import { View } from 'react-native';
+import { Text, View } from 'react-native';
 import Animated, { useAnimatedStyle } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { getTabBarStyle, TAB_BAR_BASE_HEIGHT } from '@/constants/tab-bar';
 import { colors, fonts } from '@/constants/theme';
-import { tabBarHidden } from '@/features/navigation/tab-bar-store';
+import { tabBarHidden, useTabBarVisible } from '@/features/navigation/tab-bar-store';
 import { useNotificationsStream } from '@/features/notifications/use-notifications-stream';
 import { usePushNotifications } from '@/features/notifications/use-push-notifications';
 
-/** 스크롤에 따라 아래로 슬라이드되는 커스텀 탭 바 (floating). */
+/** 스크롤에 따라 아래로 슬라이드되는 커스텀 탭 바 (floating). 하위 화면에선 아예 숨김. */
 function AnimatedTabBar(props: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
-  const height = TAB_BAR_BASE_HEIGHT + insets.bottom;
+  const visible = useTabBarVisible();
+  // 가운데 버튼이 바 위로 튀어나와 있어, 숨길 땐 그 돌출분(약 80)까지 더 내려야 완전히 사라진다.
+  const hideDistance = TAB_BAR_BASE_HEIGHT + insets.bottom + 80;
   const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: tabBarHidden.value * height }],
+    transform: [{ translateY: tabBarHidden.value * hideDistance }],
   }));
+  if (!visible) return null;
   return (
     <Animated.View style={[{ position: 'absolute', left: 0, right: 0, bottom: 0 }, animatedStyle]}>
       <BottomTabBar {...props} />
@@ -66,15 +69,35 @@ export default function TabLayout() {
         name="fitting"
         options={{
           title: 'AI 피팅',
-          tabBarIcon: ({ focused }) => (
+          // 가운데 버튼: 크게 + 위로 띄워(floating) 바 위로 튀어나오게 + 흰 링
+          tabBarIcon: () => (
             <View
-              className={`items-center justify-center rounded-full ${focused ? 'bg-primary' : 'bg-gray-900'}`}
-              style={{ width: 52, height: 52, marginBottom: 8 }}
+              style={{
+                width: 72,
+                height: 72,
+                borderRadius: 36,
+                backgroundColor: '#1f2937',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginTop: -64,
+                borderWidth: 3,
+                borderColor: '#fff',
+                shadowColor: '#000',
+                shadowOpacity: 0.15,
+                shadowRadius: 6,
+                shadowOffset: { width: 0, height: 3 },
+                elevation: 6,
+              }}
             >
-              <MaterialCommunityIcons name="hanger" size={28} color="#fff" />
+              <MaterialCommunityIcons name="hanger" size={38} color="#fff" />
             </View>
           ),
-          tabBarLabel: () => null,
+          // 라벨은 떠있는 버튼 아래로 내려 다른 라벨과 같은 높이로
+          tabBarLabel: ({ color }) => (
+            <Text style={{ color, fontFamily: fonts.medium, fontSize: 10, marginTop: -8 }}>
+              AI 피팅
+            </Text>
+          ),
         }}
         listeners={{
           // AI 피팅 탭을 누르면 중간 메뉴 대신 바로 쇼핑몰 COPY(웹뷰)로 이동
