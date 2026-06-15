@@ -39,8 +39,8 @@ export default function TabLayout() {
     <Tabs
       tabBar={(props) => <AnimatedTabBar {...props} />}
       screenOptions={{
-        tabBarActiveTintColor: colors.accent,
-        tabBarInactiveTintColor: '#9ca3af',
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.slate,
         tabBarLabelStyle: { fontFamily: fonts.medium, fontSize: 10, marginBottom: 2 },
         // 아이콘+라벨이 안 잘리게 탭바 높이를 충분히 확보 (하단 safe-area 반영)
         tabBarStyle: getTabBarStyle(insets),
@@ -73,14 +73,14 @@ export default function TabLayout() {
           tabBarIcon: () => (
             <View
               style={{
-                width: 72,
-                height: 72,
-                borderRadius: 36,
+                width: 64,
+                height: 64,
+                borderRadius: 32,
                 backgroundColor: '#1f2937',
                 alignItems: 'center',
                 justifyContent: 'center',
                 marginTop: -64,
-                borderWidth: 3,
+                borderWidth: 1.5,
                 borderColor: '#fff',
                 shadowColor: '#000',
                 shadowOpacity: 0.15,
