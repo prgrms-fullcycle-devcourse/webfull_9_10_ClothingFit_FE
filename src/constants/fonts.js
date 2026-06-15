@@ -3,4 +3,5 @@ module.exports = {
   regular: 'NotoSansKR_400Regular',
   medium: 'NotoSansKR_500Medium',
   bold: 'NotoSansKR_700Bold',
+  interBold: 'Inter_700Bold',
 };

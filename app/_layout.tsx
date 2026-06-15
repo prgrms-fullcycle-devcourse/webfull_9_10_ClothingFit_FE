@@ -1,5 +1,6 @@
 import '../global.css';
 // import '@expo/browser-polyfill';
+import { Inter_700Bold } from '@expo-google-fonts/inter';
 import {
   NotoSansKR_100Thin,
   NotoSansKR_400Regular,
@@ -57,6 +58,7 @@ export default function RootLayout() {
     NotoSansKR_400Regular,
     NotoSansKR_500Medium,
     NotoSansKR_700Bold,
+    Inter_700Bold,
   });
   // 폰트 로드 후 커스텀 스플래시('CLOTHING - FIT')를 잠깐 보여준다.
   const [splashDone, setSplashDone] = useState(false);
