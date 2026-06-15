@@ -47,8 +47,13 @@ export function ProfileBodyScreen() {
   }, [navigation, insets]);
 
   // "나의 AI 모델" 진입 시 ?tab=avatar 로 아바타 탭을 바로 연다 (없으면 체형 정보 탭).
+  // from: 의상 최종 확인(fitting-confirm)에서 들어온 경우, 저장·뒤로가기 시 그 화면으로 복귀.
   const params = useLocalSearchParams<{ tab?: string; from?: string }>();
   const [tab, setTab] = useState<Tab>(params.tab === 'avatar' ? 'avatar' : 'body');
+  const goBack = () => {
+    if (params.from === 'fitting-confirm') router.replace('/(tabs)/explore/confirm');
+    else router.back();
+  };
   const [form, setForm] = useState<Record<FieldKey, string>>(INITIAL_FORM);
   const [gender, setGender] = useState<Gender>('male');
   // 사용자가 이 화면에서 직접 고른 캐릭터. null이면 아바타를 건드리지 않는다
@@ -97,11 +102,7 @@ export function ProfileBodyScreen() {
         await updateGender.mutateAsync({ data: { gender: toApiGender[gender] } });
       }
       Alert.alert('저장 완료', '체형 정보가 수정되었어요.');
-      if (params.from === 'fitting-confirm') {
-        router.replace('/(tabs)/explore/confirm');
-      } else {
-        router.back();
-      }
+      goBack();
     } catch (e: any) {
       const validationMsg = e?.response?.status === 400 ? e?.response?.data?.message : undefined;
       Alert.alert('저장 실패', validationMsg ?? '잠시 후 다시 시도해 주세요.');
@@ -109,7 +110,7 @@ export function ProfileBodyScreen() {
   };
 
   return (
-    <ScreenShell title="체형 정보 수정" edges={['top', 'bottom']}>
+    <ScreenShell title="체형 정보 수정" edges={['top', 'bottom']} onBack={goBack}>
       <View className="flex-1 px-6 pt-4 pb-8 gap-4">
         {bodyInfo.isLoading ? (
           <View className="flex-1 items-center justify-center">

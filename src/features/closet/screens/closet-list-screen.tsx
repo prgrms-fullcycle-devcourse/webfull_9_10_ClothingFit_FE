@@ -187,17 +187,27 @@ export function ClosetListScreen() {
                       </Pressable>
                     </View>
 
-                    {/* 착용 제품 썸네일 그리드 */}
-                    <View className="flex-row flex-wrap -m-0.5">
-                      {item.closetItems.map((ci) => (
-                        <View key={ci.id} className="w-1/3 p-0.5">
+                    {/* 착용 제품 썸네일 — 3열 그리드(위 3·아래 3 줄바꿈).
+                        폭28% + 칸 사이 marginRight8%로 한 줄을 정확히 100% 채운다(28×3+8×2=100)
+                        → 맨 왼쪽은 좌측 끝, 맨 오른쪽은 우측 끝에 닿고 사이엔 간격(안 겹침).
+                        매 3번째 칸만 marginRight 0으로 줄바꿈. 칸 모자란 마지막 줄은 좌측 정렬. */}
+                    <View className="flex-row flex-wrap">
+                      {item.closetItems.map((ci, idx) => (
+                        <View
+                          key={ci.id}
+                          style={{
+                            width: '28%',
+                            marginRight: (idx + 1) % 3 === 0 ? 0 : '8%',
+                            marginBottom: 10,
+                          }}
+                        >
                           {ci.imageUrl ? (
                             <Image
                               source={{ uri: ci.imageUrl }}
-                              className="w-full aspect-square rounded-md bg-surface"
+                              className="w-full aspect-square rounded-lg bg-surface"
                             />
                           ) : (
-                            <View className="w-full aspect-square rounded-md bg-surface" />
+                            <View className="w-full aspect-square rounded-lg bg-surface" />
                           )}
                         </View>
                       ))}
