@@ -1,7 +1,12 @@
 import { useMemo } from 'react';
+import { View } from 'react-native';
 import { WebView } from 'react-native-webview';
 
-type Props = { modelUrl: string };
+type Props = {
+  modelUrl: string;
+  /** 터치 시작/끝을 부모에게 알려 부모 ScrollView/FlatList의 스크롤을 잠글 수 있게 함 */
+  onScrollLock?: (locked: boolean) => void;
+};
 
 /** modelUrl의 출처(scheme+host). WebView baseUrl로 써서 모델을 '같은 출처'로 fetch → CORS 회피. */
 function originOf(url: string): string {
@@ -68,16 +73,23 @@ function buildHtml(modelUrl: string): string {
 </html>`;
 }
 
-export function ClosetViewer3D({ modelUrl }: Props) {
+export function ClosetViewer3D({ modelUrl, onScrollLock }: Props) {
   const html = useMemo(() => buildHtml(modelUrl), [modelUrl]);
   return (
-    <WebView
-      originWhitelist={['*']}
-      source={{ html, baseUrl: `${originOf(modelUrl)}/` }}
-      style={{ flex: 1, backgroundColor: '#fff' }}
-      javaScriptEnabled
-      domStorageEnabled
-      androidLayerType="hardware"
-    />
+    <View
+      style={{ flex: 1 }}
+      onTouchStart={() => onScrollLock?.(true)}
+      onTouchEnd={() => onScrollLock?.(false)}
+      onTouchCancel={() => onScrollLock?.(false)}
+    >
+      <WebView
+        originWhitelist={['*']}
+        source={{ html, baseUrl: `${originOf(modelUrl)}/` }}
+        style={{ flex: 1, backgroundColor: '#fff' }}
+        javaScriptEnabled
+        domStorageEnabled
+        androidLayerType="hardware"
+      />
+    </View>
   );
 }
