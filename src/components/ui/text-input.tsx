@@ -1,10 +1,15 @@
+import { forwardRef } from 'react';
 import { TextInput as RNTextInput, type TextInputProps } from 'react-native';
 
 import { cn } from '@/utils/cn';
 
-export function TextInput({ className, style, ...props }: TextInputProps) {
+export const TextInput = forwardRef<RNTextInput, TextInputProps>(function TextInput(
+  { className, style, ...props },
+  ref,
+) {
   return (
     <RNTextInput
+      ref={ref}
       className={cn('font-sans text-primary', className)}
       // NotoSansKR(한글 폰트)는 글리프가 커서, 기본 includeFontPadding(Android)와
       // 세로 정렬 탓에 단일행 입력 안에서 placeholder/텍스트가 잘리거나 세로로 스크롤됨.
@@ -14,4 +19,4 @@ export function TextInput({ className, style, ...props }: TextInputProps) {
       {...props}
     />
   );
-}
+});

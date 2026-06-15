@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams, useNavigation } from 'expo-router';
-import { useEffect, useLayoutEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -30,6 +30,7 @@ type Tab = 'body' | 'avatar';
 
 /** 체형 정보 수정 화면. [체형 정보] 탭과 [아바타](캐릭터 선택·사진) 탭을 제공한다. */
 export function ProfileBodyScreen() {
+  const bodyScrollRef = useRef<ScrollView>(null);
   const bodyInfo = useBodyInfo();
   const updateBodyInfo = useUpdateBodyInfo();
   const selectCharacter = useSelectCharacter();
@@ -138,12 +139,13 @@ export function ProfileBodyScreen() {
 
             {tab === 'body' ? (
               <ScrollView
+                ref={bodyScrollRef}
                 className="flex-1"
                 showsVerticalScrollIndicator={false}
                 contentContainerClassName="gap-4 pb-2"
                 keyboardShouldPersistTaps="handled"
               >
-                <BodyStep form={form} changeInput={changeInput} />
+                <BodyStep form={form} changeInput={changeInput} scrollRef={bodyScrollRef} />
               </ScrollView>
             ) : (
               <AvatarStep
