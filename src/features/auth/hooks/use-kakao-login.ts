@@ -3,7 +3,7 @@ import { useState } from 'react';
 
 import { postAuthKakao, type LoginData } from '@/features/auth/api';
 import { setAuthToken } from '@/lib/api-client';
-import { saveUserIdFromToken, setTokens } from '@/lib/auth-storage';
+import { saveUserIdFromToken, setLastProvider, setTokens } from '@/lib/auth-storage';
 import { queryClient } from '@/lib/query-client';
 import { isNativeSocialAvailable } from '../lib/native-social';
 
@@ -27,6 +27,7 @@ export function useKakaoLogin() {
       queryClient.clear();
       await setTokens(data.accessToken, data.refreshToken);
       await saveUserIdFromToken(data.accessToken);
+      await setLastProvider('kakao'); // 다음 로그인 화면에 "마지막 로그인" 표시용
       setAuthToken(data.accessToken);
       return data;
     } finally {
