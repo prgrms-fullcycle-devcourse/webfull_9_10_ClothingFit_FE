@@ -11,6 +11,8 @@ type ScreenShellProps = {
   children: React.ReactNode;
   className?: string;
   noHeader?: boolean;
+  /** 제목 텍스트 크기. 기본 'title'(24px, 홈 헤더와 통일). 작게 하려면 'subtitle'(18px) */
+  titleVariant?: 'title' | 'subtitle';
   /** 뒤로가기 동작 커스텀 (없으면 router.back()) */
   onBack?: () => void;
   /**
@@ -27,13 +29,20 @@ export function ScreenShell({
   children,
   className,
   noHeader,
+  titleVariant,
   onBack,
   edges = ['top'],
 }: ScreenShellProps) {
   return (
     <SafeAreaView className="flex-1 bg-white" edges={edges}>
       {!noHeader && (
-        <ScreenHeader title={title} showBack={showBack} right={right} onBack={onBack} />
+        <ScreenHeader
+          title={title}
+          showBack={showBack}
+          right={right}
+          onBack={onBack}
+          titleVariant={titleVariant}
+        />
       )}
       <View className={cn('flex-1', className)}>{children}</View>
     </SafeAreaView>

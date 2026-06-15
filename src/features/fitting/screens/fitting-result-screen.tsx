@@ -22,6 +22,8 @@ export function FittingResultScreen() {
 
   // 코디 이름 입력 (비우면 백엔드 자동 이름 유지)
   const [name, setName] = useState('');
+  // 결과 이미지의 실제 비율 — 박스를 이 비율로 맞춰 좌우 여백(액자) 제거
+  const [imgAspect, setImgAspect] = useState(3 / 5);
   const renameMut = usePatchFittingClosetArchiveIdTitle();
 
   const handleSave = () => {
@@ -63,11 +65,27 @@ export function FittingResultScreen() {
     >
       <View className="flex-1 px-4 pt-4" style={{ paddingBottom: insets.bottom + 16 }}>
         <Text className="mb-4 text-center font-sans">생성된 2D 모델을 확인하세요</Text>
-        <View className="flex-1 rounded-2xl bg-surface items-center justify-center mb-4 overflow-hidden">
+        <View className="flex-1 items-center justify-center mb-4">
           {uri ? (
-            <Image source={{ uri }} className="w-full h-full" resizeMode="contain" />
+            // 박스를 이미지 실제 비율에 맞춰 → 좌우/상하 여백(액자) 없이 딱 맞게
+            <View
+              className="rounded-2xl bg-surface overflow-hidden"
+              style={{ aspectRatio: imgAspect, maxHeight: '100%', maxWidth: '100%', width: '100%' }}
+            >
+              <Image
+                source={{ uri }}
+                className="w-full h-full"
+                resizeMode="cover"
+                onLoad={(e) => {
+                  const s = e.nativeEvent.source;
+                  if (s?.width && s?.height) setImgAspect(s.width / s.height);
+                }}
+              />
+            </View>
           ) : (
-            <Text variant="caption">결과 이미지가 아직 없어요 (mock)</Text>
+            <View className="flex-1 w-full rounded-2xl bg-surface items-center justify-center">
+              <Text variant="caption">결과 이미지가 아직 없어요 (mock)</Text>
+            </View>
           )}
         </View>
         <Text variant="label" className="mb-1">
