@@ -5,10 +5,20 @@ import { Animated, PanResponder, Pressable, Vibration, View } from 'react-native
 
 const ACTION_WIDTH = 72;
 
+// 현재 열려있는 행을 닫는 함수(전역). 새 행을 열거나 화면을 떠날 때 이전 행을 닫는다.
+let activeClose: (() => void) | null = null;
+
+/** 화면을 떠날 때 등 열려있는 스와이프를 닫는다. */
+export function closeActiveSwipe() {
+  activeClose?.();
+  activeClose = null;
+}
+
 /**
  * 좌측으로 스와이프하거나 꾹 누르면(long-press) 콘텐츠가 옆으로 밀리며 우측에 휴지통 버튼이
  * 드러나는 행(인스타그램식). react-native-gesture-handler 없이 RN 기본 PanResponder/Animated로
  * 구현해 네이티브 의존성이 없다.
+ * 한 번에 한 행만 열린다(다른 행을 열면 이전 행이 자동으로 닫힘).
  */
 export function SwipeableRow({
   children,
@@ -24,14 +34,28 @@ export function SwipeableRow({
   const translateX = useRef(new Animated.Value(0)).current;
   const openRef = useRef(false);
 
+  // 이 행을 닫는 함수 (안정적 참조 — 전역 activeClose 비교/등록용)
+  const closeSelf = useRef(() => {
+    openRef.current = false;
+    Animated.spring(translateX, { toValue: 0, useNativeDriver: false, bounciness: 0 }).start();
+  }).current;
+
   const snap = (toOpen: boolean) => {
-    if (toOpen && !openRef.current) Vibration.vibrate(15); // 휴지통 노출되는 순간 짧은 진동
-    openRef.current = toOpen;
-    Animated.spring(translateX, {
-      toValue: toOpen ? -ACTION_WIDTH : 0,
-      useNativeDriver: false,
-      bounciness: 0,
-    }).start();
+    if (toOpen) {
+      // 다른 행이 열려있으면 먼저 닫기 (오른쪽으로 자연스럽게 복귀)
+      if (activeClose && activeClose !== closeSelf) activeClose();
+      if (!openRef.current) Vibration.vibrate(15); // 휴지통 노출 순간 짧은 진동
+      openRef.current = true;
+      activeClose = closeSelf;
+      Animated.spring(translateX, {
+        toValue: -ACTION_WIDTH,
+        useNativeDriver: false,
+        bounciness: 0,
+      }).start();
+    } else {
+      closeSelf();
+      if (activeClose === closeSelf) activeClose = null;
+    }
   };
 
   const pan = useRef(
@@ -51,11 +75,11 @@ export function SwipeableRow({
   ).current;
 
   return (
-    <View className="mb-2">
-      {/* 뒤에 깔린 삭제 버튼 */}
+    <View className="mb-1.5">
+      {/* 뒤에 깔린 삭제 버튼 — 둥근 사각 + 주변 여백 (피그마 스타일) */}
       <View
         style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: ACTION_WIDTH }}
-        className="items-center justify-center rounded-xl bg-red-500"
+        className="items-center justify-center"
       >
         <Pressable
           onPress={() => {
@@ -63,9 +87,9 @@ export function SwipeableRow({
             onDelete();
           }}
           hitSlop={8}
-          style={{ flex: 1, width: ACTION_WIDTH, alignItems: 'center', justifyContent: 'center' }}
+          className="h-14 w-14 items-center justify-center rounded-2xl bg-red-500"
         >
-          <Ionicons name="trash" size={22} color="#fff" />
+          <Ionicons name="trash-outline" size={24} color="#fff" />
         </Pressable>
       </View>
 

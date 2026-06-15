@@ -1,4 +1,5 @@
 import { router } from 'expo-router';
+import { useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
@@ -12,11 +13,13 @@ import { ScreenShell } from '@/components/blocks/screen-shell';
 import { Image } from '@/components/ui/image';
 import { Tag } from '@/components/ui/tag';
 import { Text } from '@/components/ui/text';
+import { RenameCoordiSheet } from '@/features/closet/components/rename-coordi-sheet';
 import {
   getGetClosetQueryKey,
   useDeleteClosetId,
   useGetCloset,
 } from '@/api/generated/endpoints/closet/closet';
+import { usePatchFittingClosetArchiveIdTitle } from '@/api/generated/endpoints/fitting/fitting';
 import type { ClosetListItem } from '@/api/generated/schemas';
 
 /** ISO/날짜 문자열 → "2026.04.30" 표기 (파싱 실패 시 원본 그대로) */
@@ -53,6 +56,23 @@ export function ClosetListScreen() {
   const deleteMut = useDeleteClosetId();
   const scrollHandler = useTabBarScroll();
 
+  // 코디 이름 변경 (편집 아이콘 → 시트)
+  const [renameTarget, setRenameTarget] = useState<ClosetListItem | null>(null);
+  const renameMut = usePatchFittingClosetArchiveIdTitle();
+  const handleRename = (title: string) => {
+    if (!renameTarget) return;
+    renameMut.mutate(
+      { closetArchiveId: renameTarget.id, data: { title } },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: getGetClosetQueryKey() });
+          setRenameTarget(null);
+        },
+        onError: () => Alert.alert('이름 변경 실패', '잠시 후 다시 시도해 주세요.'),
+      },
+    );
+  };
+
   // 코디 삭제 — 확인 후 삭제 → 목록 갱신
   const handleDelete = (item: ClosetListItem) => {
     Alert.alert('코디 삭제', `'${item.title}'을(를) 삭제할까요?`, [
@@ -73,7 +93,8 @@ export function ClosetListScreen() {
   };
 
   return (
-    <ScreenShell title="옷장" showBack={false}>
+    <ScreenShell noHeader>
+      <Text className="font-sans-bold text-xl px-4 pt-3 pb-2">나의 옷장</Text>
       {isLoading ? (
         <View className="flex-1 items-center justify-center py-20">
           <ActivityIndicator />
@@ -140,10 +161,15 @@ export function ClosetListScreen() {
                       <View className="mb-2" />
                     )}
 
-                    {/* 제목 */}
-                    <Text className="font-sans-bold text-base mb-3" numberOfLines={1}>
-                      {item.title}
-                    </Text>
+                    {/* 제목 + 이름변경 버튼 */}
+                    <View className="flex-row items-center gap-1.5 mb-3">
+                      <Text className="font-sans-bold text-base flex-shrink" numberOfLines={1}>
+                        {item.title}
+                      </Text>
+                      <Pressable onPress={() => setRenameTarget(item)} hitSlop={10}>
+                        <Feather name="copy" size={15} color="#9ca3af" />
+                      </Pressable>
+                    </View>
 
                     {/* 착용 제품 썸네일 그리드 */}
                     <View className="flex-row flex-wrap -m-0.5">
@@ -172,6 +198,14 @@ export function ClosetListScreen() {
           )}
         />
       )}
+
+      <RenameCoordiSheet
+        visible={renameTarget !== null}
+        initialName={renameTarget?.title}
+        saving={renameMut.isPending}
+        onClose={() => setRenameTarget(null)}
+        onSubmit={handleRename}
+      />
     </ScreenShell>
   );
 }
