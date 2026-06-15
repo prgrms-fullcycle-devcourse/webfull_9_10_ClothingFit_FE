@@ -13,7 +13,11 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 
+import { Ionicons } from '@expo/vector-icons';
+
 import { ScreenShell } from '@/components/blocks/screen-shell';
+import { BottomSheet } from '@/components/ui/bottom-sheet';
+import { Button } from '@/components/ui/button';
 import { ScreenHeader } from '@/components/ui/screen-header';
 import { Text } from '@/components/ui/text';
 import { Toggle } from '@/components/ui/toggle';
@@ -33,7 +37,8 @@ import {
 } from '@/api/generated/endpoints/closet/closet';
 import Feather from '@expo/vector-icons/Feather';
 
-const CARD_WIDTH = Dimensions.get('window').width - 32;
+// 아바타 뷰어 높이 — 첫 화면에 아바타가 크게 보이고, 아래로 스크롤하면 착용 제품이 이어진다
+const VIEWER_HEIGHT = Math.round(Dimensions.get('window').height * 0.58);
 
 export function ClosetDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -49,6 +54,7 @@ export function ClosetDetailScreen() {
   const [view3d, setView3d] = useState(false);
   const [isPublished, setIsPublished] = useState(false);
   const [renameOpen, setRenameOpen] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
 
   // 상세 코디 화면에서는 하단 탭 바를 숨긴다 (떠날 때 복원).
   const navigation = useNavigation();
@@ -188,94 +194,94 @@ export function ClosetDetailScreen() {
         onTitlePress={() => setRenameOpen(true)}
         right={
           <View className="flex flex-row gap-4 items-center">
-            <Toggle
-              labelLeft="off"
-              labelRight="on"
-              value={isPublished}
-              disabled={publishMut.isPending || unpublishMut.isPending}
-              onValueChange={handlePublishChange}
-            />
+            <Pressable onPress={() => setShareOpen(true)} hitSlop={8}>
+              <Ionicons
+                name={isPublished ? 'share-social' : 'share-social-outline'}
+                size={24}
+                color={isPublished ? COLORS.accent : COLORS.primary}
+              />
+            </Pressable>
             <Pressable onPress={handleDelete} hitSlop={8} disabled={deleteMut.isPending}>
               <Feather name="trash-2" size={24} color={COLORS.accent} />
             </Pressable>
           </View>
         }
       />
-      {/* 뷰어 영역 — 남는 공간을 채우도록 유연하게 (작은 화면에서 하단 잘림 방지) */}
-      <View className="flex-1" style={{ minHeight: 240 }}>
-        {view3d && item.modelUrl ? (
-          <ClosetViewer3D modelUrl={item.modelUrl} />
-        ) : (
-          <Image
-            className="flex-1 bg-surface items-center justify-center"
-            source={{ uri: item.imageUrl }}
-          />
-        )}
-      </View>
-      {/* 진행률(생성 중) + 2D/3D 토글 (토글이 3D 생성 트리거) */}
-      <View className="flex-row items-center justify-between px-4 py-2 border-b border-border">
-        {gen.isGenerating ? (
-          <View className="flex-row items-center gap-2">
-            <ActivityIndicator size="small" color={COLORS.accent} />
-            <Text variant="caption" className="text-muted">
-              {gen.status === 'QUEUED'
-                ? '대기 중...'
-                : gen.isSaving
-                  ? '저장 중...'
-                  : `3D 생성 중 ${gen.progress ? `${gen.progress}%` : ''}`}
+      {/* 아바타 뷰어(헤더) + 착용 제품(세로 목록)을 한 스크롤로 — 아래로 내려 제품 확인 */}
+      <FlatList
+        data={wornItems}
+        keyExtractor={(p) => p.id}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}
+        ListHeaderComponent={
+          <View>
+            {/* 뷰어 영역 — 고정 높이. 2D는 전신이 잘리지 않게 contain */}
+            <View style={{ height: VIEWER_HEIGHT }} className="bg-surface">
+              {view3d && item.modelUrl ? (
+                <ClosetViewer3D modelUrl={item.modelUrl} />
+              ) : (
+                <Image className="flex-1" source={{ uri: item.imageUrl }} resizeMode="contain" />
+              )}
+            </View>
+            {/* 진행률(생성 중) + 2D/3D 토글 (토글이 3D 생성 트리거) */}
+            <View className="flex-row items-center justify-between px-4 py-2 border-b border-border">
+              {gen.isGenerating ? (
+                <View className="flex-row items-center gap-2">
+                  <ActivityIndicator size="small" color={COLORS.accent} />
+                  <Text variant="caption" className="text-muted">
+                    {gen.status === 'QUEUED'
+                      ? '대기 중...'
+                      : gen.isSaving
+                        ? '저장 중...'
+                        : `3D 생성 중 ${gen.progress ? `${gen.progress}%` : ''}`}
+                  </Text>
+                </View>
+              ) : (
+                <View />
+              )}
+              <Toggle
+                labelLeft="2D"
+                labelRight="3D"
+                value={view3d}
+                onValueChange={handleToggle3D}
+              />
+            </View>
+            {/* 착용 제품 헤더 */}
+            <Text variant="subtitle" className="mt-4 mb-3 px-4">
+              착용 제품
             </Text>
           </View>
-        ) : (
-          <View />
-        )}
-        <Toggle labelLeft="2D" labelRight="3D" value={view3d} onValueChange={handleToggle3D} />
-      </View>
-
-      <View className="pt-4" style={{ paddingBottom: insets.bottom + 16 }}>
-        <Text variant="subtitle" className="mb-3 px-4">
-          착용 제품
-        </Text>
-        <FlatList
-          data={wornItems}
-          keyExtractor={(p) => p.id}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          snapToInterval={CARD_WIDTH + 12}
-          decelerationRate="normal"
-          disableIntervalMomentum
-          contentContainerStyle={{ paddingHorizontal: 16, gap: 12 }}
-          renderItem={({ item: p }) => (
-            <Pressable
-              style={{ width: CARD_WIDTH }}
-              className="flex-row items-center p-3 rounded-xl border border-border"
-              disabled={!p.externalLink}
-              onPress={() => p.externalLink && Linking.openURL(p.externalLink)}
-            >
-              {p.imageUrl ? (
-                <Image
-                  source={{ uri: p.imageUrl }}
-                  className="w-16 h-16 rounded-lg bg-surface mr-3"
-                />
-              ) : (
-                <View className="w-16 h-16 rounded-lg bg-surface mr-3" />
-              )}
-              <View className="flex-1">
-                <Text className="font-sans-medium">{p.brand ?? '브랜드 정보 없음'}</Text>
-                <Text variant="caption">{p.name}</Text>
-                {p.size ? <Text variant="caption">착용사이즈 {p.size}</Text> : null}
+        }
+        renderItem={({ item: p }) => (
+          <Pressable
+            className="mx-4 mb-3 flex-row items-center p-3 rounded-xl border border-border"
+            disabled={!p.externalLink}
+            onPress={() => p.externalLink && Linking.openURL(p.externalLink)}
+          >
+            {p.imageUrl ? (
+              <Image
+                source={{ uri: p.imageUrl }}
+                className="w-16 h-16 rounded-lg bg-surface mr-3"
+              />
+            ) : (
+              <View className="w-16 h-16 rounded-lg bg-surface mr-3" />
+            )}
+            <View className="flex-1">
+              <Text className="font-sans-medium">{p.brand ?? '브랜드 정보 없음'}</Text>
+              <Text variant="caption">{p.name}</Text>
+              {p.size ? <Text variant="caption">착용사이즈 {p.size}</Text> : null}
+            </View>
+            {p.externalLink ? (
+              <View className="flex-row items-center gap-1 ml-2">
+                <Text variant="caption" className="text-primary">
+                  보기
+                </Text>
+                <Feather name="external-link" size={15} color={COLORS.accent} />
               </View>
-              {p.externalLink ? (
-                <View className="flex-row items-center gap-1 ml-2">
-                  <Text variant="caption" className="text-primary">
-                    보기
-                  </Text>
-                  <Feather name="external-link" size={15} color={COLORS.accent} />
-                </View>
-              ) : null}
-            </Pressable>
-          )}
-        />
-      </View>
+            ) : null}
+          </Pressable>
+        )}
+      />
 
       <RenameCoordiSheet
         visible={renameOpen}
@@ -284,6 +290,47 @@ export function ClosetDetailScreen() {
         onClose={() => setRenameOpen(false)}
         onSubmit={handleRename}
       />
+
+      {/* 커뮤니티 공유 — 공유 아이콘 탭 시 올라오는 바텀시트 (off/on 토글 대체) */}
+      <BottomSheet visible={shareOpen} onClose={() => setShareOpen(false)}>
+        <View className="px-5 pt-2 pb-4">
+          <Text className="font-sans-bold text-lg mb-1">커뮤니티 공유</Text>
+          {isPublished ? (
+            <>
+              <View className="flex-row items-center gap-2 mt-2 mb-5">
+                <Ionicons name="checkmark-circle" size={20} color={COLORS.accent} />
+                <Text variant="caption" className="text-muted">
+                  지금 커뮤니티에 게시 중이에요.
+                </Text>
+              </View>
+              <Button
+                label={unpublishMut.isPending ? '내리는 중...' : '게시 내리기'}
+                variant="danger"
+                disabled={unpublishMut.isPending}
+                onPress={() => {
+                  handlePublishChange(false);
+                  setShareOpen(false);
+                }}
+              />
+            </>
+          ) : (
+            <>
+              <Text variant="caption" className="text-muted mt-2 mb-5">
+                이 코디를 커뮤니티에 게시하면 다른 사람들이 볼 수 있어요.
+              </Text>
+              <Button
+                label={publishMut.isPending ? '게시 중...' : '커뮤니티에 게시'}
+                variant="secondary"
+                disabled={publishMut.isPending}
+                onPress={() => {
+                  handlePublishChange(true);
+                  setShareOpen(false);
+                }}
+              />
+            </>
+          )}
+        </View>
+      </BottomSheet>
     </ScreenShell>
   );
 }

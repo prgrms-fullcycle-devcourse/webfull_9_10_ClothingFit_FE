@@ -1,6 +1,7 @@
 import { apiClient } from '@/lib/api-client';
 
 import type { FittingItem } from '../types';
+import { fittingErrorMessage } from './fitting-error';
 
 export type FittingResult = {
   imageUri: string | null;
@@ -79,11 +80,6 @@ export async function generateFitting(items: FittingItem[]): Promise<FittingResu
     });
     return { imageUri: res.imageUrl, archiveId: res.archiveId, outfitName: res.outfitName };
   } catch (e: unknown) {
-    const err = e as { response?: { status?: number }; message?: string };
-    const status = err?.response?.status;
-    if (status === 401) throw new Error('로그인이 필요해요');
-    if (status === 404) throw new Error('아바타(체형) 정보가 없어요. 체형을 먼저 등록해 주세요');
-    if (status === 504) throw new Error('생성이 오래 걸려요. 잠시 후 다시 시도해 주세요');
-    throw e instanceof Error ? e : new Error('2D 생성 실패');
+    throw new Error(fittingErrorMessage(e));
   }
 }

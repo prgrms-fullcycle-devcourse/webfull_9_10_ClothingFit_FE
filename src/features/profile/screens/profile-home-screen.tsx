@@ -73,16 +73,16 @@ export function ProfileHomeScreen() {
   return (
     <ScreenShell title="마이페이지" showBack={false} noHeader>
       <View className="flex-row items-center justify-between px-4 py-3 border-b border-border">
-        <Text variant="subtitle">마이페이지</Text>
+        <Text variant="title">마이페이지</Text>
         <View className="flex-row gap-3">
           <Pressable onPress={() => router.push('/(tabs)/profile/notifications')}>
-            <Ionicons name="notifications-outline" size={22} />
+            <Ionicons name="notifications-outline" size={24} color="#111827" />
             {unreadCount > 0 && (
               <View className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-red-500" />
             )}
           </Pressable>
           <Pressable onPress={() => router.push('/(tabs)/profile/settings')}>
-            <Ionicons name="settings-outline" size={22} />
+            <Ionicons name="settings-outline" size={24} color="#111827" />
           </Pressable>
         </View>
       </View>

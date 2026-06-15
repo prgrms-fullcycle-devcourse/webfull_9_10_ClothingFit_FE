@@ -9,9 +9,9 @@ import Feather from '@expo/vector-icons/Feather';
 
 import { useTabBarScroll } from '@/features/navigation/use-tab-bar-scroll';
 
+import { AppHeader } from '@/components/blocks/app-header';
 import { ScreenShell } from '@/components/blocks/screen-shell';
 import { Image } from '@/components/ui/image';
-import { Tag } from '@/components/ui/tag';
 import { Text } from '@/components/ui/text';
 import { RenameCoordiSheet } from '@/features/closet/components/rename-coordi-sheet';
 import {
@@ -94,6 +94,7 @@ export function ClosetListScreen() {
 
   return (
     <ScreenShell noHeader>
+      <AppHeader />
       <Text className="font-sans-bold text-xl px-4 pt-3 pb-2">나의 옷장</Text>
       {isLoading ? (
         <View className="flex-1 items-center justify-center py-20">
@@ -144,22 +145,37 @@ export function ClosetListScreen() {
                 className="flex-row gap-4 px-4 bg-white"
                 onPress={() => router.push(`/(tabs)/closet/${item.id}`)}
               >
-                {/* 좌측 메인 이미지 */}
-                <View className="w-40" style={{ aspectRatio: 3 / 5 }}>
-                  <Image source={{ uri: item.imageUrl }} className="w-full h-full rounded-xl" />
+                {/* 좌측 메인 이미지 — 고정 비율(3:5)로 모든 코디 동일 크기.
+                    contain + 사방 여백(p-2)으로 전신(머리 위·발 아래·양옆)이 잘리지 않게,
+                    남는 공간은 연한 회색으로 채워 흰 배경 아바타도 구분되게 */}
+                {/* 고정 비율(3:5) 회색 프레임 + 전신 contain.
+                    이미지를 scale(0.88)로 줄여 머리 위·발 아래·양옆 사방에 여백을 두고,
+                    남는 공간은 연한 회색으로 채워 흰 배경 아바타도 구분되게 */}
+                <View
+                  className="w-40 overflow-hidden rounded-xl border border-border bg-surface"
+                  style={{ aspectRatio: 3 / 5 }}
+                >
+                  <Image
+                    source={{ uri: item.imageUrl }}
+                    className="w-full h-full bg-transparent scale-[1.15] -translate-y-[3px]"
+                    contentFit="contain"
+                  />
                 </View>
 
                 {/* 우측 정보 영역 */}
                 <View className="flex-1 justify-between py-0.5">
                   <View>
-                    {/* 상단: 3D 태그 */}
-                    {item.modelUrl ? (
-                      <View className="flex-row mb-2">
-                        <Tag text="3D" />
+                    {/* 상단: 3D 태그 (피그마 — 좌우로 길고 납작한 파란 뱃지).
+                        3D 유무와 상관없이 항상 같은 높이를 차지하게(없으면 투명) → 제목·옷 위치 고정 */}
+                    <View className="flex-row mb-2">
+                      <View
+                        className={`self-start rounded-full border border-accent px-3.5 py-0.5 ${
+                          item.modelUrl ? '' : 'opacity-0'
+                        }`}
+                      >
+                        <Text className="font-sans-medium text-xs text-accent">3D</Text>
                       </View>
-                    ) : (
-                      <View className="mb-2" />
-                    )}
+                    </View>
 
                     {/* 제목 + 이름변경 버튼 */}
                     <View className="flex-row items-center gap-1.5 mb-3">
