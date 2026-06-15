@@ -1,10 +1,11 @@
-import { Ionicons } from '@expo/vector-icons';
+import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, View } from 'react-native';
 
 import { useGetUsersId, useGetUsersIdPosts } from '@/api/generated/endpoints/users/users';
 import { ScreenShell } from '@/components/blocks/screen-shell';
+import { EmptyState } from '@/components/ui/empty-state';
 import { Text } from '@/components/ui/text';
 import { FeedThumbnail } from '@/features/feed/components/feed-thumbnail';
 import { FollowButton } from '@/features/feed/components/follow-button';
@@ -71,12 +72,16 @@ export function UserProfileScreen() {
       <ActivityIndicator />
     </View>
   ) : postsError ? (
-    <View className="py-12 items-center">
+    <View className="py-12 items-center gap-2">
+      <Ionicons name="alert-circle-outline" size={78} color="#e6e6e6" />
       <Text variant="caption">게시물을 불러오지 못했습니다.</Text>
     </View>
   ) : (
-    <View className="py-12 items-center">
-      <Text variant="caption">작성된 글이 없습니다.</Text>
+    <View className="py-12">
+      <EmptyState
+        icon={<FontAwesome name="inbox" size={60} color="#e6e6e6" />}
+        title="작성된 게시물이 없습니다"
+      />
     </View>
   );
 
@@ -85,23 +90,29 @@ export function UserProfileScreen() {
       nickname={profile.nickname ?? ''}
       imageUrl={profile.imageUrl}
       action={
-        myUserId !== undefined && !isMe ? (
-          <FollowButton isFollowing={isFollowing} onPress={toggle} />
-        ) : undefined
+        <View className={isMe ? 'opacity-0' : undefined}>
+          <FollowButton isFollowing={isFollowing} onPress={isMe ? () => {} : toggle} />
+        </View>
       }
     >
       <View className="flex-row gap-4 mt-1">
         <Text variant="caption">게시물 {profile.postCount ?? 0}</Text>
         <Pressable
           onPress={() =>
-            router.push({ pathname: '/followers', params: { userId, tab: 'followers' } })
+            router.push({
+              pathname: '/followers',
+              params: { userId, tab: 'followers', nickname: profile.nickname },
+            })
           }
         >
           <Text variant="caption">팔로워 {profile.followerCount ?? 0}</Text>
         </Pressable>
         <Pressable
           onPress={() =>
-            router.push({ pathname: '/followers', params: { userId, tab: 'following' } })
+            router.push({
+              pathname: '/followers',
+              params: { userId, tab: 'following', nickname: profile.nickname },
+            })
           }
         >
           <Text variant="caption">팔로잉 {profile.followingCount ?? 0}</Text>
