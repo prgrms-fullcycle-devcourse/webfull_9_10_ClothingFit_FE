@@ -9,6 +9,7 @@ export function usePostsInfinite(params: Omit<GetPostsParams, 'cursor'>) {
     queryFn: ({ pageParam, signal }) =>
       getPosts({ ...params, cursor: pageParam ?? undefined }, signal),
     initialPageParam: undefined as string | undefined,
-    getNextPageParam: (lastPage) => lastPage.nextCursor || undefined,
+    getNextPageParam: (lastPage) =>
+      lastPage.hasMore && lastPage.nextCursor ? lastPage.nextCursor : undefined,
   });
 }

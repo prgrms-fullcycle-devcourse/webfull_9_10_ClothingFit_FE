@@ -24,7 +24,25 @@ function buildHtml(modelUrl: string): string {
 <script type="module" src="https://cdn.jsdelivr.net/npm/@google/model-viewer@3.5.0/dist/model-viewer.min.js"></script>
 <style>
   html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: #e6e6e6; overflow: hidden; }
-  model-viewer { width: 100%; height: 100%; --poster-color: #ffffff; }
+  model-viewer { width: 100%; height: 100%; --poster-color: #e6e6e6; }
+  #spinner {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #e6e6e6;
+    pointer-events: none;
+  }
+  .ring {
+    width: 48px;
+    height: 48px;
+    border: 4px solid #d1d5db;
+    border-top-color: #2563eb;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
@@ -36,7 +54,16 @@ function buildHtml(modelUrl: string): string {
   exposure="0.65"
   tone-mapping="neutral"
   environment-image="neutral"
-></model-viewer>
+  id="mv"
+>
+  <div slot="progress-bar"></div>
+</model-viewer>
+<div id="spinner"><div class="ring"></div></div>
+<script>
+  document.getElementById('mv').addEventListener('load', function() {
+    document.getElementById('spinner').style.display = 'none';
+  });
+</script>
 </body>
 </html>`;
 }
