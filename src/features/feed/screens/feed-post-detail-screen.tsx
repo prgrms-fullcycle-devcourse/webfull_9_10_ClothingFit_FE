@@ -16,6 +16,7 @@ import { useGetPostsId } from '@/api/generated/endpoints/posts/posts';
 import { GetPostByIdResponse } from '@/api/generated/schemas';
 import { ScreenShell } from '@/components/blocks/screen-shell';
 import { BookmarkIcon } from '@/components/ui/bookmark-icon';
+import { Divider } from '@/components/ui/divider';
 import { HeartIcon } from '@/components/ui/heart-icon';
 import { Text } from '@/components/ui/text';
 import { Toggle } from '@/components/ui/toggle';
@@ -72,7 +73,7 @@ function FeedPostDetailContent({
     isBookmarked: post.isBookmarked,
   });
   return (
-    <ScreenShell edges={['top', 'bottom']}>
+    <ScreenShell title={post.title} edges={['top', 'bottom']}>
       <ImageModal
         uri={post.image2dUrl}
         visible={imageVisible}
@@ -117,6 +118,7 @@ function FeedPostDetailContent({
             <Image source={{ uri: post.image2dUrl }} style={{ height: 500 }} resizeMode="contain" />
           </Pressable>
         )}
+
         <View className="flex-row justify-between px-4 py-2 gap-4 items-center">
           <Text>{formatDate(post.createdAt)}</Text>
           <View className="flex-row gap-4 items-center">
@@ -138,16 +140,19 @@ function FeedPostDetailContent({
             />
           </View>
         </View>
-        <Text variant="subtitle" className="px-4 mb-2">
+        <Divider className="bg-surface" />
+        <Text variant="subtitle" className="px-4 mt-4 mb-3">
           착용 제품
         </Text>
         {post.items.map((item, index) => (
           <ClothInfo key={index} item={item} />
         ))}
-        <View className="px-4 pt-3 pb-1 flex-row">
-          <Text className="font-sans-bold">{post.user.nickname ?? ''}</Text>
-          <Text className="font-sans-medium">님의 다른 스타일</Text>
+        <Divider className="mt-4 bg-surface" />
+        <View className="px-4 pt-4 pb-3 flex-row">
+          <Text className="font-sans-bold text-xl">{post.user.nickname ?? ''}</Text>
+          <Text className="font-sans-medium text-muted text-xl">님의 다른 스타일</Text>
         </View>
+
         <View className="pb-3">
           <OtherPosts posts={post.otherPosts} />
         </View>
@@ -161,6 +166,8 @@ export function FeedPostDetailScreen() {
   const { data, isLoading, isError, refetch, isRefetching } = useGetPostsId(postId, {
     query: { enabled: !!postId },
   });
+
+  console.log('피드 디테일', data);
 
   if (isLoading) {
     return (
