@@ -21,6 +21,8 @@ import {
 } from '@/api/generated/endpoints/closet/closet';
 import { usePatchFittingClosetArchiveIdTitle } from '@/api/generated/endpoints/fitting/fitting';
 import type { ClosetListItem } from '@/api/generated/schemas';
+import { Ionicons } from '@expo/vector-icons';
+import { useUnreadNotificationCount } from '@/features/notifications/api';
 
 /** ISO/날짜 문자열 → "2026.04.30" 표기 (파싱 실패 시 원본 그대로) */
 function formatDate(raw: string): string {
@@ -55,6 +57,7 @@ export function ClosetListScreen() {
   const queryClient = useQueryClient();
   const deleteMut = useDeleteClosetId();
   const scrollHandler = useTabBarScroll();
+  const { data: unreadCount = 0 } = useUnreadNotificationCount();
 
   // 코디 이름 변경 (편집 아이콘 → 시트)
   const [renameTarget, setRenameTarget] = useState<ClosetListItem | null>(null);
@@ -94,8 +97,24 @@ export function ClosetListScreen() {
 
   return (
     <ScreenShell noHeader>
-      <AppHeader />
-      <Text className="font-sans-bold text-xl px-4 pt-3 pb-2">나의 옷장</Text>
+      {/* 헤더 */}
+      <View className="z-10 flex-row items-center justify-between bg-white px-4 py-3">
+        <Text variant="title">나의 옷장</Text>
+        <Pressable onPress={() => router.push('/(tabs)/home/notifications')} hitSlop={8}>
+          <Ionicons name="notifications-outline" size={24} color="#111827" />
+          {unreadCount > 0 && (
+            <View className="absolute -right-1.5 -top-1.5 h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1">
+              <Text
+                className="text-[10px] font-sans-bold text-white"
+                // 작은 뱃지 안에서 NotoSansKR 글리프가 아래로 잘리는 것 방지
+                style={{ includeFontPadding: false, lineHeight: 12, textAlignVertical: 'center' }}
+              >
+                {unreadCount > 99 ? '99+' : unreadCount}
+              </Text>
+            </View>
+          )}
+        </Pressable>
+      </View>
       {isLoading ? (
         <View className="flex-1 items-center justify-center py-20">
           <ActivityIndicator />
@@ -152,12 +171,12 @@ export function ClosetListScreen() {
                     이미지를 scale(0.88)로 줄여 머리 위·발 아래·양옆 사방에 여백을 두고,
                     남는 공간은 연한 회색으로 채워 흰 배경 아바타도 구분되게 */}
                 <View
-                  className="w-40 overflow-hidden rounded-xl border border-border bg-surface"
+                  className="w-40 overflow-hidden rounded-md bg-surface"
                   style={{ aspectRatio: 3 / 5 }}
                 >
                   <Image
                     source={{ uri: item.imageUrl }}
-                    className="w-full h-full bg-transparent scale-[1.15] -translate-y-[3px]"
+                    className="w-full h-full bg-transparent scale-[1.13] -translate-y-[3px]"
                     contentFit="contain"
                   />
                 </View>
@@ -167,14 +186,14 @@ export function ClosetListScreen() {
                   <View>
                     {/* 상단: 3D 태그 — 생성됨=파랑(accent) / 미생성=회색(slate) 비활성 느낌.
                         항상 표시해 위치 고정 + 3D 생성 여부를 색으로 구분 */}
-                    <View className="flex-row mb-2">
+                    <View className="flex-row mb-1">
                       <View
-                        className={`self-start rounded-full border px-3.5 py-0.5 ${
+                        className={`self-start rounded-full border px-3.5 ${
                           item.modelUrl ? 'border-accent' : 'border-slate'
                         }`}
                       >
                         <Text
-                          className={`font-sans-medium text-xs ${
+                          className={`font-sans-medium text-md leading-normal ${
                             item.modelUrl ? 'text-accent' : 'text-slate'
                           }`}
                         >
@@ -184,8 +203,8 @@ export function ClosetListScreen() {
                     </View>
 
                     {/* 제목 + 이름변경 버튼 */}
-                    <View className="flex-row items-center gap-1.5 mb-3">
-                      <Text className="font-sans-bold text-base flex-shrink" numberOfLines={1}>
+                    <View className="flex-row items-center gap-1.5">
+                      <Text className="pl-1 font-sans-bold text-xl flex-shrink" numberOfLines={1}>
                         {item.title}
                       </Text>
                       <Pressable onPress={() => setRenameTarget(item)} hitSlop={10}>
@@ -197,31 +216,29 @@ export function ClosetListScreen() {
                         폭28% + 칸 사이 marginRight8%로 한 줄을 정확히 100% 채운다(28×3+8×2=100)
                         → 맨 왼쪽은 좌측 끝, 맨 오른쪽은 우측 끝에 닿고 사이엔 간격(안 겹침).
                         매 3번째 칸만 marginRight 0으로 줄바꿈. 칸 모자란 마지막 줄은 좌측 정렬. */}
-                    <View className="flex-row flex-wrap">
-                      {item.closetItems.map((ci, idx) => (
+                    <View className="flex-row flex-wrap gap-2 mt-3">
+                      {item.closetItems.map((ci) => (
                         <View
                           key={ci.id}
-                          style={{
-                            width: '28%',
-                            marginRight: (idx + 1) % 3 === 0 ? 0 : '8%',
-                            marginBottom: 10,
-                          }}
+                          className="w-[30.4%] aspect-square overflow-hidden rounded-md bg-surface"
                         >
                           {ci.imageUrl ? (
                             <Image
                               source={{ uri: ci.imageUrl }}
-                              className="w-full aspect-square rounded-lg bg-surface"
+                              className="h-full w-full rounded-none bg-transparent"
+                              contentFit="cover"
                             />
-                          ) : (
-                            <View className="w-full aspect-square rounded-lg bg-surface" />
-                          )}
+                          ) : null}
                         </View>
                       ))}
                     </View>
                   </View>
 
                   {/* 날짜 — Inter Bold */}
-                  <Text variant="caption" className="text-right text-muted mt-3 font-inter-bold">
+                  <Text
+                    variant="caption"
+                    className="text-right text-md text-muted mt-3 font-inter-bold"
+                  >
                     {formatDate(item.createdAt)}
                   </Text>
                 </View>
