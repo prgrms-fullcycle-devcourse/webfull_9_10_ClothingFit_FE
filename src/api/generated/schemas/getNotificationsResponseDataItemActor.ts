@@ -13,4 +13,6 @@ export type GetNotificationsResponseDataItemActor = {
   id: string;
   /** @nullable */
   nickname: string | null;
+  /** @nullable */
+  imageUrl: string | null;
 } | null;
