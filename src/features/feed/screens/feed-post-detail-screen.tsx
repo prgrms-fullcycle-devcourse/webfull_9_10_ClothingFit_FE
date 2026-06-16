@@ -169,6 +169,8 @@ export function FeedPostDetailScreen() {
     query: { enabled: !!postId },
   });
 
+  console.log('피드 디테일', data);
+
   if (isLoading) {
     return (
       <ScreenShell title="게시물" edges={['top', 'bottom']}>
