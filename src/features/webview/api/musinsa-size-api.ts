@@ -120,11 +120,23 @@ export function parseActualSize(json: unknown): SizeTable | null {
   return Object.keys(table).length > 0 ? table : null;
 }
 
+/** 타임아웃이 있는 GET fetch — 응답이 안 오면 abort해서 무한 대기를 막는다. */
+async function fetchJsonWithTimeout(url: string, ms = 8000): Promise<Response> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), ms);
+  try {
+    return await fetch(url, {
+      headers: { accept: 'application/json', 'user-agent': MOBILE_UA },
+      signal: controller.signal,
+    });
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 /** 상품번호로 사이즈 옵션을 fetch. */
 export async function fetchMusinsaSizeOptions(goodsNo: string): Promise<SizeOption[]> {
-  const res = await fetch(optionsEndpoint(goodsNo), {
-    headers: { accept: 'application/json', 'user-agent': MOBILE_UA },
-  });
+  const res = await fetchJsonWithTimeout(optionsEndpoint(goodsNo));
   if (!res.ok) throw new Error(`사이즈 옵션 조회 실패 (${res.status})`);
   const json = (await res.json()) as unknown;
   return parseSizeOptions(json);
@@ -132,9 +144,7 @@ export async function fetchMusinsaSizeOptions(goodsNo: string): Promise<SizeOpti
 
 /** 상품번호로 실측 사이즈표를 fetch. 실측 미등록이면 null. */
 export async function fetchMusinsaActualSize(goodsNo: string): Promise<SizeTable | null> {
-  const res = await fetch(actualSizeEndpoint(goodsNo), {
-    headers: { accept: 'application/json', 'user-agent': MOBILE_UA },
-  });
+  const res = await fetchJsonWithTimeout(actualSizeEndpoint(goodsNo));
   if (!res.ok) throw new Error(`실측 사이즈 조회 실패 (${res.status})`);
   const json = (await res.json()) as unknown;
   return parseActualSize(json);
