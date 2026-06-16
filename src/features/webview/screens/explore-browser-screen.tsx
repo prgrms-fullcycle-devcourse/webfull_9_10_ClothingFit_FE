@@ -82,6 +82,10 @@ export function ExploreBrowserScreen() {
       return;
     }
 
+    // 스크랩(최대 15초) 동안 쓸 값을 스냅샷한다. (busy 동안 ScanSpinnerOverlay 모달이
+    // 입력을 막아 변경은 거의 불가하지만, 캡처 시점 값으로 일관되게 저장하도록 방어)
+    const activeCategory = session.activeCategory;
+
     setBusy(true);
 
     // 1) 사이드바 접어 UX 피드백 (캡처에는 어차피 안 들어가지만 시각적 정돈)
@@ -116,7 +120,7 @@ export function ExploreBrowserScreen() {
 
     // 4) pending store에 컨텍스트 저장 + crop으로 이동
     setPendingScrape({
-      category: session.activeCategory,
+      category: activeCategory,
       capturedUri,
       status: 'pending',
       scrapePromise,

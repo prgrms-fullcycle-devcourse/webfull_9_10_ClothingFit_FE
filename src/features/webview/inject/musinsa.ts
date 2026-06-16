@@ -330,9 +330,17 @@ export function buildMusinsaScrapeScript(requestId: string): string {
         var record = {};
         for (var mi = 0; mi < measCols.length; mi++) {
           var col = measCols[mi];
-          var raw = (cells[col].textContent || '').trim().replace(/[^0-9.]/g, '');
-          var num = parseFloat(raw);
-          if (!isNaN(num)) record[headerTexts[col]] = num;
+          // 숫자 토큰만 추출. "66~68" 같은 범위는 숫자만 떼면 "6668"이 되므로,
+          // 토큰을 각각 파싱해 2개 이상이면 평균(범위), 1개면 그 값을 쓴다.
+          var cellText = (cells[col].textContent || '').trim();
+          var nums = cellText.match(/\d+(?:\.\d+)?/g);
+          if (nums && nums.length) {
+            var num =
+              nums.length >= 2
+                ? (parseFloat(nums[0]) + parseFloat(nums[nums.length - 1])) / 2
+                : parseFloat(nums[0]);
+            if (!isNaN(num)) record[headerTexts[col]] = num;
+          }
         }
         if (Object.keys(record).length === 0) continue;
         var inline = labelCol >= 0 ? (cells[labelCol].textContent || '').trim() : '';
