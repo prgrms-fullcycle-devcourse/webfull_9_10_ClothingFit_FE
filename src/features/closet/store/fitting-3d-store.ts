@@ -72,6 +72,8 @@ function poll(sessionId: string, archiveId: string) {
     if (!job || job.sessionId !== sessionId) return;
     try {
       const res = await get3DFittingStatus(sessionId);
+      // [임시] 백엔드가 progress를 실제로 주는지 확인용 — 확인 끝나면 삭제
+      console.log('[3D-poll] status=', res.status, 'progress=', res.progress);
       if (res.status === 'SUCCEEDED') {
         setJob({ archiveId, sessionId, phase: 'saving', progress: 100 });
         await save3DFittingModel(sessionId);
