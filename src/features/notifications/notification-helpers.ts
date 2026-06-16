@@ -18,7 +18,10 @@ export function notificationRoute(n: Notification): Href | undefined {
       return n.actor ? { pathname: '/user/[userId]', params: { userId: n.actor.id } } : undefined;
     case NotificationType.FIT_2D_COMPLETE:
     case NotificationType.FIT_3D_COMPLETE:
-      return '/(tabs)/profile/fitting-history';
+      // 생성된 코디(옷장 상세)로 이동 — 알림이 들고 있는 closetArchive.id 사용
+      return n.closetArchive
+        ? { pathname: '/(tabs)/closet/[id]', params: { id: n.closetArchive.id } }
+        : undefined;
     default:
       return undefined;
   }
