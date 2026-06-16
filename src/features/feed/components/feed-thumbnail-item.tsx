@@ -30,7 +30,7 @@ function LikeButton({
   likeCount: number;
 }) {
   const { isLiked: liked, toggle } = usePostLike({ id, isLiked, likeCount });
-  return <HeartIcon isLiked={liked} size={18} onPress={toggle} />;
+  return <HeartIcon isLiked={liked} iconSize={18} onPress={toggle} />;
 }
 
 function BookmarkButton({ id, isBookmarked }: { id: string; isBookmarked: boolean }) {

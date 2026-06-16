@@ -82,7 +82,9 @@ function FeedPostDetailContent({
       <ScrollView
         className="flex-1"
         scrollEnabled={scrollEnabled}
-        refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} />}
+        refreshControl={
+          <RefreshControl refreshing={isRefetching} onRefresh={refetch} enabled={!is3d} />
+        }
       >
         <ProfileHeader
           nickname={post.user.nickname ?? ''}

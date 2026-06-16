@@ -1,11 +1,11 @@
 import { useSyncExternalStore } from 'react';
 
-import { queryClient } from '@/lib/query-client';
-import { showBanner } from '@/features/notifications/banner-store';
 import {
   getGetClosetIdQueryKey,
   getGetClosetQueryKey,
 } from '@/api/generated/endpoints/closet/closet';
+import { showBanner } from '@/features/notifications/banner-store';
+import { queryClient } from '@/lib/query-client';
 
 import { get3DFittingStatus, save3DFittingModel, start3DFitting } from '../api/fitting-3d-api';
 
@@ -78,7 +78,11 @@ function poll(sessionId: string, archiveId: string) {
         queryClient.invalidateQueries({ queryKey: getGetClosetIdQueryKey(archiveId) });
         queryClient.invalidateQueries({ queryKey: getGetClosetQueryKey() });
         setJob({ archiveId, sessionId, phase: 'succeeded', progress: 100 });
-        showBanner({ title: '3D 아바타 생성 완료', message: '옷장에서 확인하세요' });
+        showBanner({
+          title: '3D 아바타 생성 완료',
+          message: '옷장에서 확인하세요',
+          route: { pathname: '/(tabs)/closet/[id]', params: { id: archiveId } },
+        });
       } else if (res.status === 'FAILED') {
         setJob({ archiveId, sessionId, phase: 'failed', error: 'mesh' });
         showBanner({ title: '3D 생성 실패', message: '잠시 후 다시 시도해 주세요' });

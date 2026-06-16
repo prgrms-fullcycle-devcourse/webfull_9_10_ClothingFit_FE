@@ -33,7 +33,7 @@ export function OtherPosts({ posts }: Props) {
       horizontal
       data={posts}
       keyExtractor={(item) => item.id}
-      contentContainerStyle={{ paddingLeft: 16 }}
+      contentContainerStyle={{ paddingLeft: 16, gap: 1 }}
       decelerationRate="fast"
       showsHorizontalScrollIndicator={false}
       renderItem={({ item }) => (

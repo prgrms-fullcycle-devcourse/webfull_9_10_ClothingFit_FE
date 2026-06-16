@@ -3,7 +3,8 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, View } from 'react-native';
 
-import { useGetUsersId, useGetUsersIdPosts } from '@/api/generated/endpoints/users/users';
+import { useGetUsersId } from '@/api/generated/endpoints/users/users';
+import { useUserPostsInfinite } from '@/features/feed/hooks/use-user-posts-infinite';
 import { ScreenShell } from '@/components/blocks/screen-shell';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Text } from '@/components/ui/text';
@@ -33,14 +34,15 @@ export function UserProfileScreen() {
     query: { enabled: !!userId },
   });
   const {
-    data: posts,
+    data: postsData,
     isLoading: postsLoading,
     isError: postsError,
     refetch: refetchPosts,
     isRefetching: isRefetchingPosts,
-  } = useGetUsersIdPosts(userId, undefined, {
-    query: { enabled: !!userId },
-  });
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useUserPostsInfinite(userId);
   const { isFollowing, toggle } = useUserFollow({
     userId,
     isFollowing: profile?.isFollowing ?? false,
@@ -124,9 +126,14 @@ export function UserProfileScreen() {
   return (
     <ScreenShell title={profile.nickname ?? '프로필'} edges={['top', 'bottom']}>
       <FeedThumbnail
-        posts={posts?.data ?? []}
+        posts={postsData?.pages.flatMap((p) => p.data) ?? []}
+        hideNickname
         ListHeaderComponent={profileHeader}
         ListEmptyComponent={postsEmptyComponent}
+        onEndReached={() => {
+          if (hasNextPage) fetchNextPage();
+        }}
+        isLoadingMore={isFetchingNextPage}
         onRefresh={() => {
           refetchProfile();
           refetchPosts();
