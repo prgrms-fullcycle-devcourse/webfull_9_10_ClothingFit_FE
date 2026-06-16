@@ -82,7 +82,9 @@ function FeedPostDetailContent({
       <ScrollView
         className="flex-1"
         scrollEnabled={scrollEnabled}
-        refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} />}
+        refreshControl={
+          <RefreshControl refreshing={isRefetching} onRefresh={refetch} enabled={!is3d} />
+        }
       >
         <ProfileHeader
           nickname={post.user.nickname ?? ''}
@@ -166,8 +168,6 @@ export function FeedPostDetailScreen() {
   const { data, isLoading, isError, refetch, isRefetching } = useGetPostsId(postId, {
     query: { enabled: !!postId },
   });
-
-  console.log('피드 디테일', data);
 
   if (isLoading) {
     return (

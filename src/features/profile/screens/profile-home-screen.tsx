@@ -105,7 +105,7 @@ export function ProfileHomeScreen() {
               className="flex-row items-center gap-4"
               onPress={() => router.push('/(tabs)/profile/settings')}
             >
-              <Text className="font-sans-bold text-2xl" variant="subtitle">
+              <Text className="font-sans-bold text-xl" variant="subtitle">
                 {profile?.nickname ?? '-'}
               </Text>
               <FontAwesome name="chevron-circle-right" size={14} color="#99a1af" />

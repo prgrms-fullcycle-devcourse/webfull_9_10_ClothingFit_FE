@@ -73,15 +73,20 @@ function buildHtml(modelUrl: string): string {
 </html>`;
 }
 
+const INJECT_TOUCH = `
+  (function() {
+    function send(type) { window.ReactNativeWebView.postMessage(type); }
+    document.addEventListener('touchstart', function() { send('lock'); }, { passive: true });
+    document.addEventListener('touchend',   function() { send('unlock'); }, { passive: true });
+    document.addEventListener('touchcancel',function() { send('unlock'); }, { passive: true });
+  })();
+  true;
+`;
+
 export function ClosetViewer3D({ modelUrl, onScrollLock }: Props) {
   const html = useMemo(() => buildHtml(modelUrl), [modelUrl]);
   return (
-    <View
-      style={{ flex: 1 }}
-      onTouchStart={() => onScrollLock?.(true)}
-      onTouchEnd={() => onScrollLock?.(false)}
-      onTouchCancel={() => onScrollLock?.(false)}
-    >
+    <View style={{ flex: 1 }}>
       <WebView
         originWhitelist={['*']}
         source={{ html, baseUrl: `${originOf(modelUrl)}/` }}
@@ -89,6 +94,14 @@ export function ClosetViewer3D({ modelUrl, onScrollLock }: Props) {
         javaScriptEnabled
         domStorageEnabled
         androidLayerType="hardware"
+        injectedJavaScriptBeforeContentLoaded={INJECT_TOUCH}
+        onMessage={(e) => {
+          if (e.nativeEvent.data === 'lock') {
+            onScrollLock?.(true);
+          } else {
+            setTimeout(() => onScrollLock?.(false), 150);
+          }
+        }}
       />
     </View>
   );
