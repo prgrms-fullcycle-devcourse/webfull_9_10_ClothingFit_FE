@@ -186,7 +186,7 @@ export function ClosetListScreen() {
                   <View>
                     {/* 상단: 3D 태그 — 생성됨=파랑(accent) / 미생성=회색(slate) 비활성 느낌.
                         항상 표시해 위치 고정 + 3D 생성 여부를 색으로 구분 */}
-                    <View className="flex-row mb-1">
+                    <View className="flex-row mb-1 mt-2">
                       <View
                         className={`self-start rounded-full border px-3.5 ${
                           item.modelUrl ? 'border-accent' : 'border-slate'
@@ -220,7 +220,7 @@ export function ClosetListScreen() {
                       {item.closetItems.map((ci) => (
                         <View
                           key={ci.id}
-                          className="w-[30.4%] aspect-square overflow-hidden rounded-md bg-surface"
+                          className="w-[29.1%] aspect-square overflow-hidden rounded-md bg-surface"
                         >
                           {ci.imageUrl ? (
                             <Image

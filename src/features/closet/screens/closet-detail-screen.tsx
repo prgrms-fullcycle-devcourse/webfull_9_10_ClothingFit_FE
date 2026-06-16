@@ -291,12 +291,23 @@ export function ClosetDetailScreen() {
               <View className="w-24 h-24 bg-surface" />
             )}
             <View className="flex-1 flex-row items-center justify-between px-5">
-              <View className="mr-2 flex-1 flex-col gap-2">
-                <View className="flex-row items-center gap-2">
-                  <Text className="font-sans-medium">{p.brand ?? '브랜드 정보 없음'}</Text>
-                  {p.size ? <Text variant="label">사이즈 : {p.size}</Text> : null}
-                </View>
-                <Text variant="caption">{p.name}</Text>
+              <View className="flex-1 flex-col gap-3 mr-2">
+                <Text className="font-sans-bold text-lg leading-none">
+                  {p.brand ?? '브랜드 정보 없음'}
+                </Text>
+                {p.size ? (
+                  <Text variant="label" className="text-md text-slate leading-none">
+                    사이즈 : {p.size}
+                  </Text>
+                ) : null}
+                <Text
+                  variant="caption"
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  className="text-md leading-none"
+                >
+                  {p.name}
+                </Text>
               </View>
               {p.externalLink ? (
                 <Pressable

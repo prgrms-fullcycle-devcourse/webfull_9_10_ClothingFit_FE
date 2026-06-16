@@ -25,7 +25,7 @@ export function ScreenHeader({
   titleVariant = 'title',
 }: ScreenHeaderProps) {
   return (
-    <View className="flex-row items-center justify-between px-4 py-3 border-b border-border bg-white">
+    <View className="z-10 flex-row items-center justify-between bg-white px-4 py-3">
       <View className="flex-row items-center gap-2 flex-1 mr-3">
         {showBack ? (
           <Pressable

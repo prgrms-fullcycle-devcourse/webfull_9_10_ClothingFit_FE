@@ -41,15 +41,20 @@ export function ClothInfo({ item }: { item: PostClothingItem }) {
           )}
         </Pressable>
         <View className="flex-1 flex-row justify-between items-center px-5">
-          <View className="flex-1 flex-col gap-1.5 mr-2">
-            <Text className="font-sans-medium">{item.brand}</Text>
+          <View className="flex-1 flex-col gap-3 mr-2">
+            <Text className="font-sans-bold text-lg leading-none">{item.brand}</Text>
             {item.size && (
-              <Text variant="label" className="text-slate">
+              <Text variant="label" className="text-md text-slate leading-none">
                 사이즈 : {item.size}
               </Text>
             )}
 
-            <Text variant="caption" numberOfLines={1} ellipsizeMode="tail">
+            <Text
+              variant="caption"
+              numberOfLines={1}
+              ellipsizeMode="tail"
+              className="text-md leading-none"
+            >
               {item.name}
             </Text>
           </View>
