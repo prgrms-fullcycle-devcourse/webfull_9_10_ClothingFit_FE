@@ -117,7 +117,44 @@ export function parseActualSize(json: unknown): SizeTable | null {
       table[name] = measurements;
     }
   }
-  return Object.keys(table).length > 0 ? table : null;
+  const names = Object.keys(table);
+  if (names.length === 0) return null;
+
+  // 단일 사이즈 × 색상만 여러 개인 상품 방어:
+  // 무신사 actual-size가 사이즈 대신 색상별(화이트/블루/블랙…)로 행을 주는 경우가 있다.
+  // 모든 행의 실측값이 (공통 항목 기준) 같으면 = 같은 물리적 사이즈 → "FREE" 하나로 합친다.
+  // (실제 S/M/L은 실측이 서로 다르므로 합쳐지지 않아 안전. 한 행에서 0으로 빠진 값은 다른 행이 채움)
+  if (names.length > 1 && allRowsSameSize(names.map((n) => table[n]))) {
+    const merged: Record<string, number> = {};
+    for (const n of names) {
+      for (const [key, value] of Object.entries(table[n])) {
+        if (!(key in merged)) merged[key] = value;
+      }
+    }
+    return { FREE: merged };
+  }
+
+  return table;
+}
+
+/**
+ * 여러 실측 행이 "같은 물리적 사이즈"인지 판정.
+ * 각 측정항목에 대해, 그 값을 가진 행들끼리 값이 모두 같으면 true.
+ * (색상 변형처럼 실측이 동일한 행들 → 합치기 대상)
+ */
+function allRowsSameSize(rows: Record<string, number>[]): boolean {
+  const keys = new Set<string>();
+  for (const row of rows) for (const k of Object.keys(row)) keys.add(k);
+  for (const key of keys) {
+    let seen: number | undefined;
+    for (const row of rows) {
+      if (key in row) {
+        if (seen === undefined) seen = row[key];
+        else if (row[key] !== seen) return false;
+      }
+    }
+  }
+  return true;
 }
 
 /** 타임아웃이 있는 GET fetch — 응답이 안 오면 abort해서 무한 대기를 막는다. */
