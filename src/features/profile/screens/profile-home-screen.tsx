@@ -100,7 +100,7 @@ export function ProfileHomeScreen() {
               <Image source={{ uri: profile.imageUrl }} className="w-full h-full" />
             ) : null}
           </View>
-          <View className="flex-1 flex-col gap-1.5">
+          <View className="flex-1 flex-col gap-[0.25rem]">
             <Pressable
               className="flex-row items-center gap-4"
               onPress={() => router.push('/(tabs)/profile/settings')}
@@ -110,7 +110,7 @@ export function ProfileHomeScreen() {
               </Text>
               <FontAwesome name="chevron-circle-right" size={14} color="#99a1af" />
             </Pressable>
-            <Text variant="caption">
+            <Text variant="caption" className="text-md leading-none">
               {profile?.height != null ? `${profile.height} cm ` : '- cm '} /{' '}
               {profile?.weight != null ? `${profile.weight} kg ` : '- kg '} /{' '}
               {({ MALE: '남성', FEMALE: '여성' } as Record<string, string>)[
@@ -133,7 +133,9 @@ export function ProfileHomeScreen() {
                 }
               >
                 <Text className="font-sans-bold text-lg">{profile?.followerCount ?? '-'}</Text>
-                <Text variant="caption">팔로워</Text>
+                <Text variant="caption" className="text-md leading-none text-muted">
+                  팔로워
+                </Text>
               </Pressable>
 
               <Pressable
@@ -151,7 +153,9 @@ export function ProfileHomeScreen() {
                 }
               >
                 <Text className="font-sans-bold text-lg">{profile?.followingCount ?? '-'}</Text>
-                <Text variant="caption">팔로잉</Text>
+                <Text variant="caption" className="text-md leading-none text-muted">
+                  팔로잉
+                </Text>
               </Pressable>
             </View>
           </View>
@@ -194,7 +198,7 @@ export function ProfileHomeScreen() {
             북마크한 코디
           </Text>
           <Pressable onPress={() => router.push('/(tabs)/profile/bookmarks')}>
-            <Text variant="caption" className="font-sans-bold text-slate">
+            <Text variant="caption" className="font-sans-bold text-slate text-md leading-none">
               더 보기
             </Text>
           </Pressable>
@@ -232,7 +236,7 @@ export function ProfileHomeScreen() {
             내 옷장
           </Text>
           <Pressable onPress={() => router.navigate('/(tabs)/closet')}>
-            <Text variant="caption" className="font-sans-bold text-slate">
+            <Text variant="caption" className="font-sans-bold text-slate text-md leading-none">
               더 보기
             </Text>
           </Pressable>
