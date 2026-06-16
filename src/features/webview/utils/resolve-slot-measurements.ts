@@ -87,10 +87,12 @@ function lookupInChart(
     }
     // mm/US 복합("220/M3W5", "265/M8W10") 또는 "260mm" → 맨 앞 3자리 mm만 사용.
     // (모든 숫자를 붙이면 "265/M8W10"→"265810"이 돼 실패하므로 첫 3자리만 추출)
-    const mmMatch = sizeLabel.match(/(\d{3})/);
+    // 단, 4자리 이상 연속 숫자(연도·품번 등 "2024")는 사이즈가 아니므로 제외하고,
+    // 현실적인 신발 mm 범위(200~340)로 좁혀 "100"(10cm) 같은 오인식을 막는다.
+    const mmMatch = /\d{4}/.test(sizeLabel) ? null : sizeLabel.match(/(\d{3})/);
     if (mmMatch) {
       const mm = parseFloat(mmMatch[1]);
-      if (mm >= 100 && mm <= 360) return { 발길이: Math.round((mm / 10) * 10) / 10 };
+      if (mm >= 200 && mm <= 340) return { 발길이: Math.round((mm / 10) * 10) / 10 };
     }
     return null;
   }

@@ -15,6 +15,12 @@ export type ScrapeProductData = {
   /** 대표 이미지 URL (없으면 null) */
   imageUrl: string | null;
   /**
+   * COPY 시점에 화면에 크게 보이던 상품 원본 이미지 URL (없으면 null).
+   * 미리보기(확대) 라이트박스를 스크린샷하면 세로로 눌리는 문제 때문에,
+   * 이 원본 URL이 있으면 RN이 그 파일을 직접 받아 크롭 소스로 쓴다(폴백: 스크린샷).
+   */
+  previewImageUrl: string | null;
+  /**
    * 사이즈표: { 사이즈명: { 항목명: 숫자(cm) } }
    * - 키는 사이즈 라벨(S/M/L 등). 표 안에 라벨 컬럼이 없으면 화면 위치로
    *   매칭해 찾고, 그래도 못 찾으면 '사이즈1' 같은 인덱스 키로 폴백.
@@ -47,13 +53,22 @@ export type ScrapeMessage =
 export function parseScrapeMessage(raw: string): ScrapeMessage | null {
   try {
     const parsed = JSON.parse(raw);
-    if (
-      parsed &&
-      typeof parsed === 'object' &&
-      typeof parsed.type === 'string' &&
-      parsed.type.startsWith('scrape:')
-    ) {
-      return parsed as ScrapeMessage;
+    if (!parsed || typeof parsed !== 'object' || typeof parsed.type !== 'string') return null;
+
+    // 타입별 필수 필드 검증 (requestId 없는 ok/fail이 store에서 undefined로 dereference되는 것 방지)
+    switch (parsed.type) {
+      case 'scrape:ok':
+        return typeof parsed.requestId === 'string' &&
+          parsed.data &&
+          typeof parsed.data === 'object'
+          ? (parsed as ScrapeMessage)
+          : null;
+      case 'scrape:fail':
+        return typeof parsed.requestId === 'string' ? (parsed as ScrapeMessage) : null;
+      case 'scrape:log':
+        return parsed as ScrapeMessage;
+      default:
+        return null; // 알 수 없는 scrape:* 타입은 무시
     }
   } catch {
     // not ours
