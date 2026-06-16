@@ -12,6 +12,7 @@ import type { PostClothingItem } from './postClothingItem';
 export interface GetPostByIdResponse {
   id: string;
   createdAt: string;
+  title: string;
   user: PostAuthor;
   image2dUrl: string;
   /** @nullable */
