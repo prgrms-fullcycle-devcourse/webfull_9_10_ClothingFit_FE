@@ -23,7 +23,15 @@ export function getImagePixelSize(uri: string): Promise<Size> {
  * resizeMode="contain" 기준: 이미지는 비율 유지하면서 안에 letterbox로 들어감.
  */
 export function containerRectToImagePixels(rect: Rect, container: Size, imagePx: Size): Rect {
-  if (container.width === 0 || container.height === 0) return rect;
+  // 0 크기(측정 실패/깨진 이미지)면 division-by-zero·NaN 방지 위해 원본 rect 그대로
+  if (
+    container.width === 0 ||
+    container.height === 0 ||
+    imagePx.width === 0 ||
+    imagePx.height === 0
+  ) {
+    return rect;
+  }
 
   const containerRatio = container.width / container.height;
   const imageRatio = imagePx.width / imagePx.height;
@@ -47,11 +55,12 @@ export function containerRectToImagePixels(rect: Rect, container: Size, imagePx:
 
   const scale = imagePx.width / renderedW; // == imagePx.height / renderedH
 
-  // letterbox 영역 안으로 클램프
-  const relX = Math.max(0, rect.x - offsetX);
-  const relY = Math.max(0, rect.y - offsetY);
-  const relW = Math.min(renderedW - relX, rect.w);
-  const relH = Math.min(renderedH - relY, rect.h);
+  // letterbox 영역 안으로 클램프. relX/relY는 [0, rendered] 범위로 가두고,
+  // 폭/높이는 남은 영역을 넘지 않게 + 음수가 되지 않게(out-of-bounds crop 방지).
+  const relX = Math.min(Math.max(0, rect.x - offsetX), renderedW);
+  const relY = Math.min(Math.max(0, rect.y - offsetY), renderedH);
+  const relW = Math.max(0, Math.min(renderedW - relX, rect.w));
+  const relH = Math.max(0, Math.min(renderedH - relY, rect.h));
 
   return {
     x: Math.round(relX * scale),

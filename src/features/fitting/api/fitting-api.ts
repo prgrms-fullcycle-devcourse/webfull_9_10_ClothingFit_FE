@@ -77,6 +77,11 @@ export async function generateFitting(items: FittingItem[]): Promise<FittingResu
       url: GENERATE_ENDPOINT,
       method: 'POST',
       data: buildFittingFormData(items),
+      // 2D 생성은 서버에서 오래 걸림(Gemini). 백엔드 nginx/worker 타임아웃(180s)보다
+      // 살짝 크게 잡아, FE가 먼저 끊지 않고 서버 응답(성공/504)을 받게 한다.
+      // (전역 기본 30s로는 30초에 ERR_NETWORK로 먼저 끊김)
+      // TODO: 백엔드 2D 비동기(잡+폴링) 전환 시 이 타임아웃은 제거하고 폴링으로 교체.
+      timeout: 185_000,
     });
     return { imageUri: res.imageUrl, archiveId: res.archiveId, outfitName: res.outfitName };
   } catch (e: unknown) {
