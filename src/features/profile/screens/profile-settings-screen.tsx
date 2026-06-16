@@ -111,7 +111,7 @@ export function ProfileSettingsScreen() {
                   // 알림 설정: 인라인 토글 (푸시 알림 설정 API 연동). 켜짐=오른쪽(ON).
                   <View key={item} className="flex-row items-center justify-between">
                     <Text
-                      className="text-muted text-[15px]"
+                      className="text-muted text-[15px] font-sans-bold"
                       style={{ lineHeight: 20, includeFontPadding: false }}
                     >
                       알림 설정
@@ -127,7 +127,7 @@ export function ProfileSettingsScreen() {
                 ) : (
                   <Pressable key={item} onPress={() => goTo(item)}>
                     <Text
-                      className="text-muted text-[15px]"
+                      className="text-muted text-[15px] font-sans-bold"
                       style={{ lineHeight: 20, includeFontPadding: false }}
                     >
                       {item}
@@ -141,12 +141,15 @@ export function ProfileSettingsScreen() {
 
         <View className="items-center gap-5 pt-10">
           <Pressable onPress={handleLogout} disabled={loggingOut}>
-            <Text className="text-muted font-sans-medium">
+            <Text className="text-muted font-sans-bold">
               {loggingOut ? '로그아웃 중...' : '로그아웃'}
             </Text>
           </Pressable>
           <Pressable onPress={handleDeleteAccount} disabled={deleting}>
-            <Text className="text-red-500 font-sans-bold">
+            <Text
+              className="text-red-500 font-sans-bold text-[17px]"
+              style={{ lineHeight: 20, includeFontPadding: false }}
+            >
               {deleting ? '탈퇴 중...' : '회원탈퇴'}
             </Text>
           </Pressable>
