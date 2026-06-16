@@ -1,13 +1,14 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Alert, BackHandler, Pressable, View } from 'react-native';
+import { Alert, BackHandler, Dimensions, Pressable, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Text } from '@/components/ui/text';
 import { cn } from '@/utils/cn';
 
 import { CategorySidebar } from '../components/category-sidebar';
+import { CopyCoachmark, type CoachRect, type CoachStep } from '../components/copy-coachmark';
 import { MallDropdown } from '../components/mall-dropdown';
 import { ScanSpinnerOverlay } from '../components/scan-spinner-overlay';
 import { ShopWebView, type ShopWebViewHandle } from '../components/shop-webview';
@@ -35,6 +36,12 @@ export function ExploreBrowserScreen() {
   const captureContainerRef = useRef<View>(null);
   const { capture } = useWebViewCapture();
 
+  // 코치마크 측정용 ref (각 UI 위치)
+  const mallRef = useRef<View>(null);
+  const copyRef = useRef<View>(null);
+  const deleteRef = useRef<View>(null);
+  const [coachSteps, setCoachSteps] = useState<CoachStep[]>([]);
+
   const mall = getMall(session.mallId);
   const [currentUrl, setCurrentUrl] = useState(mall.mobileHomeUrl ?? mall.homeUrl);
   const [canGoBack, setCanGoBack] = useState(false);
@@ -52,6 +59,73 @@ export function ExploreBrowserScreen() {
     });
     return () => handler.remove();
   }, [canGoBack]);
+
+  // 코치마크: 레이아웃이 잡힌 뒤 각 UI 위치를 측정해 안내 스텝을 구성한다 (첫 진입 1회).
+  useEffect(() => {
+    const t = setTimeout(() => {
+      const measure = (ref: React.RefObject<View | null>) =>
+        new Promise<CoachRect | null>((resolve) => {
+          const node = ref.current;
+          if (!node) return resolve(null);
+          node.measureInWindow((x, y, width, height) =>
+            resolve(width && height ? { x, y, width, height } : null),
+          );
+        });
+      Promise.all([measure(mallRef), measure(copyRef), measure(deleteRef)]).then(
+        ([mallR, copyR, deleteR]) => {
+          const { width: sw, height: sh } = Dimensions.get('window');
+          // 사이드바(접힌 토글)는 우측 세로 중앙 근처라 위치를 직접 계산
+          const sidebarR: CoachRect = { x: sw - 38, y: sh / 2 - 40, width: 32, height: 80 };
+          setCoachSteps([
+            // ▼▼ 코치마크 위치 조정 ▼▼  (+x=오른쪽 / -x=왼쪽 , +y=아래 / -y=위)
+            //   ax,ay = "화살표(방향표)" 위치 | tx,ty = "글(제목·설명)" 위치 — 서로 독립.
+            {
+              rect: mallR,
+              arrow: 'up',
+              title: '쇼핑몰 선택',
+              desc: '여기서 쇼핑몰을 고르고, 평소처럼 둘러보다 입혀볼 상품 페이지를 열어요.',
+              ax: -2, // 쇼핑몰 화살표 좌우
+              ay: 20, // 쇼핑몰 화살표 상하
+              tx: 0, // 쇼핑몰 글 좌우
+              ty: 10, // 쇼핑몰 글 상하
+            },
+            {
+              rect: sidebarR,
+              arrow: 'updown',
+              title: '부위 선택 · 위치 이동',
+              desc: '오른쪽 사이드바에서 옷의 부위를 골라요. 토글을 꾹 누르면 위아래로 옮길 수 있어요.',
+              ax: 10, // 부위선택 화살표 좌우
+              ay: 20, // 부위선택 화살표 상하
+              tx: 10, // 부위선택 글 좌우
+              ty: 25, // 부위선택 글 상하
+            },
+            {
+              rect: copyR,
+              arrow: 'down',
+              title: 'COPY',
+              desc: '누르면 상품이 캡처되고 사이즈·브랜드가 자동 추출돼요.',
+              ax: 0, // COPY 화살표 좌우
+              ay: -50, // COPY 화살표 상하
+              tx: 0, // COPY 글 좌우
+              ty: -46, // COPY 글 상하
+            },
+            {
+              rect: deleteR,
+              arrow: 'down',
+              title: 'Delete',
+              desc: '눌러서 삭제 모드를 켜고, 사이드바의 담긴 부위를 탭하면 빠져요. 다 지웠으면 버튼을 다시 눌러 꺼주세요.',
+              ax: 0, // Delete 화살표 좌우
+              ay: -50, // Delete 화살표 상하
+              tx: 0, // Delete 글 좌우
+              ty: -46, // Delete 글 상하
+            },
+            // ▲▲ 코치마크 위치 조정 ▲▲
+          ]);
+        },
+      );
+    }, 700);
+    return () => clearTimeout(t);
+  }, []);
 
   const handleMallSelect = (mallId: MallId) => {
     if (mallId === session.mallId) return;
@@ -162,7 +236,9 @@ export function ExploreBrowserScreen() {
         >
           <Ionicons name="close" size={22} color="#111827" />
         </Pressable>
-        <MallDropdown activeMallId={session.mallId} onSelect={handleMallSelect} />
+        <View ref={mallRef} collapsable={false}>
+          <MallDropdown activeMallId={session.mallId} onSelect={handleMallSelect} />
+        </View>
         <Pressable
           onPress={() => canGoBack && webRef.current?.goBack()}
           hitSlop={6}
@@ -215,9 +291,13 @@ export function ExploreBrowserScreen() {
       {/* COPY 직후 스크래핑 동안 보여주는 로딩 오버레이 (동글동글 스피너 + 순환 문구) */}
       <ScanSpinnerOverlay visible={busy} />
 
+      {/* 첫 진입 1회 코치마크 안내 (빼려면 이 줄 + 측정 useEffect/ref + copy-coachmark.tsx 제거) */}
+      <CopyCoachmark steps={coachSteps} ready={coachSteps.length > 0} />
+
       <SafeAreaView edges={['bottom']} className="bg-white border-t border-border">
         <View className="flex-row gap-2 px-3 py-2">
           <Pressable
+            ref={copyRef}
             onPress={handleCopyPress}
             disabled={
               !session.activeCategory || busy || loading || !isScrapeSupported(session.mallId)
@@ -234,6 +314,7 @@ export function ExploreBrowserScreen() {
             </Text>
           </Pressable>
           <Pressable
+            ref={deleteRef}
             onPress={toggleDeleteMode}
             className={cn(
               'flex-1 h-12 rounded-xl items-center justify-center border-2',
