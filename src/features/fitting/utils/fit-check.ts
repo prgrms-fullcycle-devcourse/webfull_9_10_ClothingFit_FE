@@ -61,6 +61,12 @@ type CompareSpec = {
   keyword: string;
   /** 실측(actual/image) 기준 최소 여유분 */
   baseEase: number;
+  /**
+   * 신축 허용치 — 옷이 (내치수+여유)보다 이만큼 작아도 "입을 수 있음"으로 본다.
+   * 옷은 늘어나고 타이트하게도 입으니, 이 값만큼 작은 것까지는 못 입음(small)으로 막지 않는다.
+   * (클수록 관대. 신발은 거의 안 늘어나 작게)
+   */
+  wearBelow: number;
   /** 여유가 이만큼 이상 남으면 '넉넉(loose)' */
   looseOver: number;
 };
@@ -69,17 +75,38 @@ type CompareSpec = {
  * 카테고리별 비교 항목.
  * 상의/아우터=가슴, 하의=허리+엉덩이, 모자=머리둘레, 신발=발길이.
  * (여유분 값은 MVP 시작치 — 실데이터로 튜닝 예정. 재질·성별 보정은 고도화)
+ * wearBelow를 넉넉히 둬서 "조금 작아도 입을 수 있게" → 생성이 과하게 막히지 않도록.
  */
 const SPEC: Record<CategoryId, CompareSpec[]> = {
-  top: [{ part: '가슴', bodyKey: 'chest', keyword: '가슴', baseEase: 4, looseOver: 12 }],
-  outer: [{ part: '가슴', bodyKey: 'chest', keyword: '가슴', baseEase: 8, looseOver: 16 }],
-  bottom: [
-    { part: '허리', bodyKey: 'waist', keyword: '허리', baseEase: 2, looseOver: 8 },
-    { part: '엉덩이', bodyKey: 'hip', keyword: '엉덩이', baseEase: 4, looseOver: 10 },
+  top: [
+    { part: '가슴', bodyKey: 'chest', keyword: '가슴', baseEase: 4, wearBelow: 10, looseOver: 14 },
   ],
-  hat: [{ part: '머리둘레', bodyKey: 'headCirc', keyword: '머리둘레', baseEase: 0, looseOver: 3 }],
+  outer: [
+    { part: '가슴', bodyKey: 'chest', keyword: '가슴', baseEase: 8, wearBelow: 10, looseOver: 18 },
+  ],
+  bottom: [
+    { part: '허리', bodyKey: 'waist', keyword: '허리', baseEase: 2, wearBelow: 8, looseOver: 10 },
+    { part: '엉덩이', bodyKey: 'hip', keyword: '엉덩이', baseEase: 4, wearBelow: 8, looseOver: 12 },
+  ],
+  hat: [
+    {
+      part: '머리둘레',
+      bodyKey: 'headCirc',
+      keyword: '머리둘레',
+      baseEase: 0,
+      wearBelow: 3,
+      looseOver: 4,
+    },
+  ],
   shoes: [
-    { part: '발길이', bodyKey: 'footLength', keyword: '발길이', baseEase: 0.5, looseOver: 1.5 },
+    {
+      part: '발길이',
+      bodyKey: 'footLength',
+      keyword: '발길이',
+      baseEase: 0.5,
+      wearBelow: 1,
+      looseOver: 2,
+    },
   ],
 };
 
@@ -120,7 +147,8 @@ function fitForSize(
     const ease = easeZero ? 0 : spec.baseEase;
     const margin = garment - (bodyVal + ease);
     let status: PartDetail['status'] = 'ok';
-    if (margin < 0) {
+    // 신축 허용치만큼 작은 것까지는 "입을 수 있음"으로 본다 (못 입음으로 막지 않음).
+    if (margin < -spec.wearBelow) {
       status = 'small';
       anySmall = true;
     } else if (margin >= spec.looseOver) {
