@@ -40,6 +40,7 @@ export function ExploreBrowserScreen() {
   const [canGoBack, setCanGoBack] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [loading, setLoading] = useState(true); // 웹뷰 페이지 로딩 중 (로딩 중 COPY 방지)
 
   useEffect(() => {
     const handler = BackHandler.addEventListener('hardwareBackPress', () => {
@@ -79,6 +80,11 @@ export function ExploreBrowserScreen() {
     }
     if (!isScrapeSupported(session.mallId)) {
       setToast('이 쇼핑몰은 COPY·스크래핑 준비 중이에요.');
+      return;
+    }
+    if (loading) {
+      // 로딩 중엔 빈 화면/스피너가 캡처될 수 있어 막는다 (버튼도 비활성이지만 방어적)
+      setToast('페이지 로딩이 끝난 뒤 COPY해 주세요.');
       return;
     }
 
@@ -130,6 +136,7 @@ export function ExploreBrowserScreen() {
     router.push('/(tabs)/explore/crop');
   }, [
     busy,
+    loading,
     session.activeCategory,
     session.mallId,
     session.sidebarVisible,
@@ -189,6 +196,7 @@ export function ExploreBrowserScreen() {
               setCurrentUrl(url);
               setCanGoBack(back);
             }}
+            onLoadingChange={setLoading}
             onScrapeMessage={handleScrapeWebViewMessage}
           />
         </View>
@@ -211,16 +219,18 @@ export function ExploreBrowserScreen() {
         <View className="flex-row gap-2 px-3 py-2">
           <Pressable
             onPress={handleCopyPress}
-            disabled={!session.activeCategory || busy || !isScrapeSupported(session.mallId)}
+            disabled={
+              !session.activeCategory || busy || loading || !isScrapeSupported(session.mallId)
+            }
             className={cn(
               'flex-1 h-12 rounded-xl items-center justify-center',
-              session.activeCategory && !busy && isScrapeSupported(session.mallId)
+              session.activeCategory && !busy && !loading && isScrapeSupported(session.mallId)
                 ? 'bg-primary'
                 : 'bg-gray-300',
             )}
           >
             <Text className="text-white font-sans-bold tracking-widest">
-              {busy ? '캡처 중…' : 'COPY'}
+              {busy ? '캡처 중…' : loading ? '로딩 중…' : 'COPY'}
             </Text>
           </Pressable>
           <Pressable
