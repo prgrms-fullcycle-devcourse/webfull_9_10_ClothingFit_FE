@@ -21,8 +21,14 @@ type AvatarStepProps = {
   /** 업로드한 사진 미리보기 uri (있으면 캐릭터 대신 사진을 표시) */
   uploadedUri: string | null;
   isUploading: boolean;
+  /** 현재 설정된 내 아바타 이미지 URL. 새로 고르거나 업로드하기 전엔 이걸 미리보기로 보여준다. */
+  currentAvatarUrl?: string | null;
+  /** 현재 아바타의 성별. 그 성별 탭의 캐릭터 목록 맨 뒤에 '내 아바타' 썸네일을 추가한다. */
+  avatarGender?: Gender | null;
   onChangeGender: (next: Gender) => void;
   onSelectId: (id: string) => void;
+  /** '내 아바타' 썸네일을 눌렀을 때(현재 아바타 유지로 되돌림) */
+  onSelectCurrent?: () => void;
   onPickAlbum: () => void;
   onPickCamera: () => void;
 };
@@ -35,12 +41,23 @@ export function AvatarStep({
   isError,
   uploadedUri,
   isUploading,
+  currentAvatarUrl,
+  avatarGender,
   onChangeGender,
   onSelectId,
+  onSelectCurrent,
   onPickAlbum,
   onPickCamera,
 }: AvatarStepProps) {
-  const selected = characters.find((c) => c.id === selectedId) ?? characters[0];
+  // 사용자가 이 화면에서 명시적으로 고른 캐릭터(없으면 null). 기본값으로 첫 캐릭터를 쓰지 않는다.
+  const explicitlySelected = selectedId
+    ? (characters.find((c) => c.id === selectedId) ?? null)
+    : null;
+  const fallbackChar = characters[0];
+  // 현재 탭이 내 아바타 성별과 같을 때만 '내 아바타' 썸네일을 맨 뒤에 노출.
+  const showCurrentThumb = !!currentAvatarUrl && avatarGender === gender;
+  // 캐릭터/사진을 새로 고르지 않았으면 '내 아바타'가 선택된 상태로 본다.
+  const currentActive = !explicitlySelected && !uploadedUri;
 
   return (
     <View className="flex-1 gap-4">
@@ -108,6 +125,36 @@ export function AvatarStep({
               </Pressable>
             );
           })}
+
+          {/* 내 아바타 썸네일 — 해당 성별 탭의 캐릭터 목록 맨 뒤에 노출 */}
+          {showCurrentThumb && (
+            <Pressable
+              onPress={onSelectCurrent}
+              className={cn(
+                'h-28 w-20 overflow-hidden rounded-xl border bg-surface',
+                currentActive ? 'border-primary' : 'border-border',
+              )}
+            >
+              <Image
+                source={currentAvatarUrl!}
+                contentFit="contain"
+                className="w-full h-full bg-transparent"
+              />
+              {currentActive && (
+                <View className="absolute right-1 top-1">
+                  <Ionicons name="checkmark-circle" size={18} color="#111827" />
+                </View>
+              )}
+              <View className="absolute bottom-0 left-0 right-0 bg-black/40 py-0.5">
+                <Text
+                  className="text-center text-[10px] text-white"
+                  style={{ includeFontPadding: false, lineHeight: 13 }}
+                >
+                  내 아바타
+                </Text>
+              </View>
+            </Pressable>
+          )}
         </ScrollView>
       </View>
 
@@ -137,14 +184,39 @@ export function AvatarStep({
           <View className="flex-1 items-center justify-center">
             <Text variant="caption">캐릭터를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.</Text>
           </View>
-        ) : selected ? (
+        ) : explicitlySelected ? (
+          // 이 화면에서 캐릭터를 새로 고른 경우
           <>
             <Text variant="label" className="text-base">
-              {BODY_TYPE_LABEL[selected.bodyType]}
+              {BODY_TYPE_LABEL[explicitlySelected.bodyType]}
             </Text>
             <Image
-              source={selected.imageUrl}
-              placeholder={fallbackImage(gender, selected.bodyType)}
+              source={explicitlySelected.imageUrl}
+              placeholder={fallbackImage(gender, explicitlySelected.bodyType)}
+              contentFit="contain"
+              className="flex-1 w-full bg-transparent"
+            />
+          </>
+        ) : currentAvatarUrl ? (
+          // 새로 고르거나 업로드한 게 없으면 현재 내 아바타를 보여준다
+          <>
+            <Text variant="label" className="text-base">
+              내 아바타
+            </Text>
+            <Image
+              source={currentAvatarUrl}
+              contentFit="contain"
+              className="flex-1 w-full bg-transparent"
+            />
+          </>
+        ) : fallbackChar ? (
+          <>
+            <Text variant="label" className="text-base">
+              {BODY_TYPE_LABEL[fallbackChar.bodyType]}
+            </Text>
+            <Image
+              source={fallbackChar.imageUrl}
+              placeholder={fallbackImage(gender, fallbackChar.bodyType)}
               contentFit="contain"
               className="flex-1 w-full bg-transparent"
             />
