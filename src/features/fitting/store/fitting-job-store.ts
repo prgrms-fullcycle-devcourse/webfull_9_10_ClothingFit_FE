@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from 'react';
 
 import { showBanner } from '@/features/notifications/banner-store';
+import { resetCopySessionStore } from '@/features/webview/store/copy-session-store';
 
 import { generateFitting } from '../api/fitting-api';
 import type { FittingItem, FittingJob } from '../types';
@@ -56,6 +57,8 @@ export function startFittingJob(items: FittingItem[]): string {
         archiveId: res.archiveId,
         outfitName: res.outfitName,
       });
+      // 피팅 완료 → 넣었던 옷(copy-session 슬롯) 캐시를 비워 다음 생성을 새로 시작하게 한다.
+      resetCopySessionStore();
       const route = { pathname: '/(tabs)/fitting/result', params: { jobId: id } } as const;
       // 알림은 서버(SSE/알림 목록)가 단일 소스. 로컬 2D 피팅 완료는 즉시성 위해 배너만 띄운다.
       showBanner({
