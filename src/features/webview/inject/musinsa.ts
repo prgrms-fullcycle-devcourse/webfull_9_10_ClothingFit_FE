@@ -333,7 +333,7 @@ export function buildMusinsaScrapeScript(requestId: string): string {
           // 숫자 토큰만 추출. "66~68" 같은 범위는 숫자만 떼면 "6668"이 되므로,
           // 토큰을 각각 파싱해 2개 이상이면 평균(범위), 1개면 그 값을 쓴다.
           var cellText = (cells[col].textContent || '').trim();
-          var nums = cellText.match(/\d+(?:\.\d+)?/g);
+          var nums = cellText.match(/\\d+(?:\\.\\d+)?/g);
           if (nums && nums.length) {
             var num =
               nums.length >= 2
@@ -393,6 +393,43 @@ export function buildMusinsaScrapeScript(requestId: string): string {
     return null;
   }
 
+  // 현재 URL의 무신사 상품번호 (예: .../products/5700558 → "5700558")
+  function getGoodsNo() {
+    var m = location.href.match(/\\/products\\/(\\d+)/);
+    return m ? m[1] : '';
+  }
+
+  // COPY 시점에 "화면에 크게 보이는 상품 원본 이미지" URL을 잡는다.
+  // - 미리보기(확대) 라이트박스가 열려 있으면 그 이미지가 화면을 크게 차지하므로 잡힌다.
+  // - 상품 이미지 CDN 경로(goods_img) + 현재 상품번호가 들어간 URL만 후보로 → 배너/광고/추천상품 제외.
+  // - 화면(viewport)에 실제로 크게 보이는(폭 절반↑ & 면적 1/4↑) 것만, 그중 가장 큰 것.
+  // - 못 찾으면 '' → RN이 기존 스크린샷으로 폴백.
+  function findVisibleProductImage(goodsNo) {
+    var imgs = document.querySelectorAll('img');
+    var vw = window.innerWidth || document.documentElement.clientWidth;
+    var vh = window.innerHeight || document.documentElement.clientHeight;
+    var best = '';
+    var bestArea = 0;
+    for (var i = 0; i < imgs.length; i++) {
+      var img = imgs[i];
+      var src = img.currentSrc || img.src || '';
+      if (src.indexOf('goods_img') < 0) continue; // 상품 이미지 CDN만
+      if (goodsNo && src.indexOf(goodsNo) < 0) continue; // 이 상품 번호 포함만 (배너/광고 제외)
+      var r = img.getBoundingClientRect();
+      var visW = Math.min(r.right, vw) - Math.max(r.left, 0);
+      var visH = Math.min(r.bottom, vh) - Math.max(r.top, 0);
+      if (visW <= 0 || visH <= 0) continue; // 화면 밖
+      if (visW < vw * 0.5) continue; // 폭의 절반 미만 = 썸네일류 → 제외
+      var visArea = visW * visH;
+      if (visArea < vw * vh * 0.25) continue; // 화면 1/4 미만 → 제외
+      if (visArea > bestArea) {
+        bestArea = visArea;
+        best = src;
+      }
+    }
+    return best;
+  }
+
   function trySnapshot() {
     var title = pickFirst('제목', TITLE_SELECTORS, textFrom);
     var imageUrl = pickFirst('이미지', IMAGE_SELECTORS, srcFrom);
@@ -412,6 +449,7 @@ export function buildMusinsaScrapeScript(requestId: string): string {
       brand: brand,
       name: name,
       imageUrl: imageUrl,
+      previewImageUrl: findVisibleProductImage(getGoodsNo()) || null,
       sizeTable: sizeTable,
       sizeChartImageUrl: null,
       sizeChartCandidates: []

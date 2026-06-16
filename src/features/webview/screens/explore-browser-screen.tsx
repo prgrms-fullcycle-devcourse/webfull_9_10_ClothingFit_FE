@@ -18,7 +18,8 @@ import { getMall, isScrapeSupported, type MallId } from '../constants/malls';
 import { useCopySession } from '../hooks/use-copy-session';
 import { handleScrapeWebViewMessage, startScrape } from '../hooks/use-scrape';
 import { useWebViewCapture } from '../hooks/use-webview-capture';
-import { setPendingScrape } from '../store/pending-scrape-store';
+import { isBlockedItem, setPendingScrape } from '../store/pending-scrape-store';
+import { downloadProductImage } from '../utils/download-image';
 
 export function ExploreBrowserScreen() {
   const {
@@ -196,12 +197,28 @@ export function ExploreBrowserScreen() {
     scrapePromise.catch(() => {});
 
     // 3) WebView가 살아있는 동안 스크래핑 완료를 기다린다 (throttle 회피)
-    await scrapePromise.catch(() => undefined);
+    const scraped = await scrapePromise.catch(() => undefined);
+
+    // 3-0) 속옷·수영복 등 금지 품목이면 여기서 차단 (크롭으로 진행 안 함)
+    if (isBlockedItem(scraped?.title)) {
+      setBusy(false);
+      Alert.alert('추가할 수 없는 상품', '속옷·수영복 등은 추가할 수 없는 상품이에요.');
+      return;
+    }
+
+    // 3-1) 미리보기(확대) 라이트박스를 스크린샷하면 세로로 눌리므로,
+    //      inject가 잡은 "화면에 보이던 상품 원본 이미지"가 있으면 그걸 받아 캡처 대신 쓴다.
+    //      (다운로드 실패/미검출이면 기존 스크린샷 capturedUri로 그대로 폴백)
+    let cropSourceUri = capturedUri;
+    if (scraped?.previewImageUrl) {
+      const original = await downloadProductImage(scraped.previewImageUrl).catch(() => null);
+      if (original) cropSourceUri = original;
+    }
 
     // 4) pending store에 컨텍스트 저장 + crop으로 이동
     setPendingScrape({
       category: activeCategory,
-      capturedUri,
+      capturedUri: cropSourceUri,
       status: 'pending',
       scrapePromise,
     });

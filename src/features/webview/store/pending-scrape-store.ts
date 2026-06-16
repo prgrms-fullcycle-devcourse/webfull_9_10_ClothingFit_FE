@@ -67,3 +67,18 @@ export function looseCategoryFit(category: CategoryId, title: string): boolean {
   if (matched.includes(category)) return true; // 선택 카테고리에 걸림 → 통과
   return false; // 다른 카테고리에만 걸림 → 차단
 }
+
+/**
+ * 추가 금지 품목(속옷·수영복 등) 키워드. 배포 시 악용 방지용.
+ * - "브라"는 통으로 막되 색상 '브라운'(brown)·'브라보'·'브라질' 오탐은 제외.
+ * - 래시가드/쇼츠/핫팬츠/크롭탑/비치햇 등 정상 패션은 막지 않는다(여기 안 넣음).
+ * - 영문은 단어 경계(\b)로 'brand'(bra) 같은 오탐 방지.
+ */
+const BLOCKED_KEYWORDS =
+  /브라(?!운|보|질)|브래지어|란제리|팬티|브리프|드로어즈|드로즈|보정속옷|거들|누브라|가터벨트|속옷|언더웨어|수영복|비키니|모노키니|스윔수트|스윔웨어|비치웨어|보드숏|보드쇼츠|스윔쇼츠|웻슈트|\b(?:underwear|lingerie|bra|bralette|panty|panties|thong|girdle|swimwear|swimsuit|bikini|monokini|boardshorts?|wetsuit)\b/i;
+
+/** 추가 금지 품목인지 (제목 기준). 제목 없으면 판단 불가 → false(통과). */
+export function isBlockedItem(title?: string | null): boolean {
+  if (!title) return false;
+  return BLOCKED_KEYWORDS.test(title);
+}
