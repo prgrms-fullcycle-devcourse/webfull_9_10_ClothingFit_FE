@@ -96,11 +96,7 @@ export function ClosetViewer3D({ modelUrl, onScrollLock }: Props) {
         androidLayerType="hardware"
         injectedJavaScriptBeforeContentLoaded={INJECT_TOUCH}
         onMessage={(e) => {
-          if (e.nativeEvent.data === 'lock') {
-            onScrollLock?.(true);
-          } else {
-            setTimeout(() => onScrollLock?.(false), 150);
-          }
+          onScrollLock?.(e.nativeEvent.data === 'lock');
         }}
       />
     </View>
