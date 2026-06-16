@@ -165,15 +165,21 @@ export function ClosetListScreen() {
                 {/* 우측 정보 영역 */}
                 <View className="flex-1 justify-between py-0.5">
                   <View>
-                    {/* 상단: 3D 태그 (피그마 — 좌우로 길고 납작한 파란 뱃지).
-                        3D 유무와 상관없이 항상 같은 높이를 차지하게(없으면 투명) → 제목·옷 위치 고정 */}
+                    {/* 상단: 3D 태그 — 생성됨=파랑(accent) / 미생성=회색(slate) 비활성 느낌.
+                        항상 표시해 위치 고정 + 3D 생성 여부를 색으로 구분 */}
                     <View className="flex-row mb-2">
                       <View
-                        className={`self-start rounded-full border border-accent px-3.5 py-0.5 ${
-                          item.modelUrl ? '' : 'opacity-0'
+                        className={`self-start rounded-full border px-3.5 py-0.5 ${
+                          item.modelUrl ? 'border-accent' : 'border-slate'
                         }`}
                       >
-                        <Text className="font-sans-medium text-xs text-accent">3D</Text>
+                        <Text
+                          className={`font-sans-medium text-xs ${
+                            item.modelUrl ? 'text-accent' : 'text-slate'
+                          }`}
+                        >
+                          3D
+                        </Text>
                       </View>
                     </View>
 
