@@ -1,5 +1,6 @@
 import '../global.css';
 // import '@expo/browser-polyfill';
+import { Inter_700Bold } from '@expo-google-fonts/inter';
 import {
   NotoSansKR_100Thin,
   NotoSansKR_400Regular,
@@ -61,6 +62,7 @@ export default function RootLayout() {
     NotoSansKR_700Bold,
     NotoSansKR_800ExtraBold,
     NotoSansKR_900Black,
+    Inter_700Bold,
   });
   // 폰트 로드 후 커스텀 스플래시('CLOTHING - FIT')를 잠깐 보여준다.
   const [splashDone, setSplashDone] = useState(false);
@@ -145,6 +147,7 @@ function RootLayoutNav({ authed }: { authed: boolean }) {
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
+        <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="(auth)" options={{ headerShown: false }} />
         <Stack.Screen name="post/[postId]" options={{ headerShown: false }} />

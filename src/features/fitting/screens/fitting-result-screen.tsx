@@ -88,13 +88,17 @@ export function FittingResultScreen() {
             </View>
           )}
         </View>
-        <Text variant="label" className="mb-1">
-          코디 이름
-        </Text>
+        <View className="flex-row items-center justify-between mb-1">
+          <Text variant="label">코디 이름</Text>
+          <Text variant="label" className="text-muted">
+            {name.length}/7
+          </Text>
+        </View>
         <TextInput
           value={name}
           onChangeText={setName}
-          placeholder={job?.outfitName ?? '이름을 입력해주세요'}
+          maxLength={7}
+          placeholder={job?.outfitName ?? '최대 7글자까지 입력할 수 있어요'}
           className="border border-border rounded-xl px-4 py-3 mb-4"
         />
         <Text variant="caption" className="mb-4">

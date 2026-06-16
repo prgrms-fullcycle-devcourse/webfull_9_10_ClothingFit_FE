@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
-import { Animated, Easing, View } from 'react-native';
+import { Animated, Easing, Pressable, View } from 'react-native';
 
 import { ScreenShell } from '@/components/blocks/screen-shell';
 import { Button } from '@/components/ui/button';
@@ -12,9 +12,9 @@ import { cn } from '@/utils/cn';
 
 // 단계 체크리스트는 현재 "연출용"(시간 기반)이라 실제 백엔드 진행도와 무관하다.
 // 전체 로딩 시간은 job.status='pending' 동안 유지되어 실제 생성 시간에 자동으로 맞춰진다.
-// TODO(백엔드 연동): 생성 API가 단계별 진행 신호(배경 제거 완료 등)를 주면
+// TODO(백엔드 연동): 생성 API가 단계별 진행 신호를 주면
 //   tick 기반 대신 실제 진행도로 체크리스트를 동기화할 것. (B안)
-const STEPS = ['배경 제거', '의류 합성', '2D 모델 생성'];
+const STEPS = ['의류 합성', '2D 모델 생성'];
 
 /** 회전하는 그라데이션 링 + 중앙 아이콘 */
 function SpinningRing() {
@@ -126,9 +126,16 @@ export function FittingJobScreen() {
     return () => clearInterval(t);
   }, [status]);
 
+  // 헤더 우측 홈 아이콘 (탭바 숨김 화면이라 홈 이동 경로 제공)
+  const homeButton = (
+    <Pressable onPress={() => router.replace('/(tabs)/home')} hitSlop={8}>
+      <Ionicons name="home-outline" size={24} color="#111827" />
+    </Pressable>
+  );
+
   if (!job) {
     return (
-      <ScreenShell title="피팅 진행">
+      <ScreenShell title="피팅 진행" right={homeButton}>
         <View className="flex-1 items-center justify-center gap-4 px-6">
           <Text variant="caption">작업을 찾을 수 없어요.</Text>
           <Button label="홈으로" onPress={() => router.replace('/(tabs)/home')} />
@@ -142,7 +149,7 @@ export function FittingJobScreen() {
 
   if (isFailed) {
     return (
-      <ScreenShell title="피팅 진행">
+      <ScreenShell title="피팅 진행" right={homeButton}>
         <View className="flex-1 items-center justify-center gap-4 px-8">
           <View
             className="items-center justify-center rounded-full bg-red-50"
@@ -154,7 +161,12 @@ export function FittingJobScreen() {
           <Text variant="caption" className="text-center text-muted">
             {job.error ?? '잠시 후 다시 시도해 주세요'}
           </Text>
-          <Button label="돌아가기" onPress={() => router.back()} className="mt-2" />
+          {/* 실패 시 의상 최종 확인 화면으로 복귀 (confirm은 스토어 기반이라 선택한 옷 유지) */}
+          <Button
+            label="돌아가기"
+            onPress={() => router.replace('/(tabs)/explore/confirm')}
+            className="mt-2"
+          />
         </View>
       </ScreenShell>
     );
@@ -163,7 +175,7 @@ export function FittingJobScreen() {
   const stepIdx = isDone ? STEPS.length : Math.min(tick, STEPS.length - 1);
 
   return (
-    <ScreenShell title="피팅 진행">
+    <ScreenShell title="피팅 진행" right={homeButton}>
       <View className="flex-1 items-center justify-center gap-8 px-8">
         {isDone ? <SuccessRing /> : <SpinningRing />}
 

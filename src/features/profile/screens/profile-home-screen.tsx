@@ -94,19 +94,21 @@ export function ProfileHomeScreen() {
         scrollEventThrottle={16}
         contentContainerStyle={{ paddingBottom: TAB_BAR_BASE_HEIGHT + insets.bottom }}
       >
-        <View className="px-4 py-4 flex-row gap-4">
-          <View className="w-16 h-16 rounded-full bg-surface overflow-hidden">
+        <View className="px-10 py-6 flex-row items-center gap-4">
+          <View className="w-20 h-20 rounded-full bg-surface overflow-hidden">
             {profile?.imageUrl ? (
               <Image source={{ uri: profile.imageUrl }} className="w-full h-full" />
             ) : null}
           </View>
-          <View className="flex-1">
+          <View className="flex-1 flex-col gap-1.5">
             <Pressable
               className="flex-row items-center gap-4"
               onPress={() => router.push('/(tabs)/profile/settings')}
             >
-              <Text variant="subtitle">{profile?.nickname ?? '-'}</Text>
-              <FontAwesome name="chevron-circle-right" size={12} color="#99a1af" />
+              <Text className="font-sans-bold text-2xl" variant="subtitle">
+                {profile?.nickname ?? '-'}
+              </Text>
+              <FontAwesome name="chevron-circle-right" size={14} color="#99a1af" />
             </Pressable>
             <Text variant="caption">
               {profile?.height != null ? `${profile.height} cm ` : '- cm '} /{' '}
@@ -115,7 +117,7 @@ export function ProfileHomeScreen() {
                 profile?.gender ?? ''
               ] ?? '성별'}
             </Text>
-            <View className="flex-row items-baseline gap-1 mt-1">
+            <View className="flex-row items-baseline gap-4">
               <Pressable
                 disabled={!myUserId}
                 className="flex-row items-baseline gap-1"
@@ -130,12 +132,10 @@ export function ProfileHomeScreen() {
                   })
                 }
               >
-                <Text className="font-sans-bold text-base">{profile?.followerCount ?? '-'}</Text>
+                <Text className="font-sans-bold text-lg">{profile?.followerCount ?? '-'}</Text>
                 <Text variant="caption">팔로워</Text>
               </Pressable>
-              <Text variant="caption" className="mx-1">
-                ·
-              </Text>
+
               <Pressable
                 disabled={!myUserId}
                 className="flex-row items-baseline gap-1"
@@ -150,14 +150,14 @@ export function ProfileHomeScreen() {
                   })
                 }
               >
-                <Text className="font-sans-bold text-base">{profile?.followingCount ?? '-'}</Text>
+                <Text className="font-sans-bold text-lg">{profile?.followingCount ?? '-'}</Text>
                 <Text variant="caption">팔로잉</Text>
               </Pressable>
             </View>
           </View>
         </View>
 
-        <Divider thickness={0.5} className="bg-surface" />
+        <Divider thickness={1} className="bg-surface" />
         <Text variant="subtitle" className="font-sans-bold text-xl px-4 mt-4 mb-2">
           최근 본 커뮤니티
         </Text>
@@ -188,7 +188,7 @@ export function ProfileHomeScreen() {
           </ScrollView>
         )}
 
-        <Divider thickness={0.5} className="bg-surface" />
+        <Divider thickness={1} className="bg-surface" />
         <View className="flex-row items-end justify-between px-4 mt-4 mb-2">
           <Text className="font-sans-bold text-xl" variant="subtitle">
             북마크한 코디
@@ -226,7 +226,7 @@ export function ProfileHomeScreen() {
             ))}
           </ScrollView>
         )}
-        <Divider thickness={0.5} className="bg-surface" />
+        <Divider thickness={1} className="bg-surface" />
         <View className="flex-row items-end justify-between px-4 mt-4 mb-2">
           <Text className="font-sans-bold text-xl" variant="subtitle">
             내 옷장

@@ -26,7 +26,7 @@ export function ScreenHeader({
 }: ScreenHeaderProps) {
   return (
     <View className="flex-row items-center justify-between px-4 py-3 border-b border-border bg-white">
-      <View className="flex-row items-center gap-2 flex-1">
+      <View className="flex-row items-center gap-2 flex-1 mr-3">
         {showBack ? (
           <Pressable
             onPress={

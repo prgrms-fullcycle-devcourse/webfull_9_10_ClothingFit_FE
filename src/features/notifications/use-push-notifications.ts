@@ -4,7 +4,9 @@ import { useEffect, useRef, useSyncExternalStore } from 'react';
 import { getAuthVersion, subscribeAuthChange } from '@/lib/api-client';
 
 import { usePostNotificationsDeviceTokens } from '@/api/generated/endpoints/notification/notification';
+import type { Notification } from '@/features/notifications/api';
 import { router } from 'expo-router';
+import { notificationRoute } from './notification-helpers';
 import { getExpoPushToken } from './push';
 
 /**
@@ -61,10 +63,9 @@ export function usePushNotifications() {
     // 탭 시 이동 처리 — 포그라운드/백그라운드/종료 상태 공통으로 사용
     const handleTap = (response: Notifications.NotificationResponse | null) => {
       if (!response) return;
-      const data = response.notification.request.content.data;
-      console.log('[Push] 알림 탭 처리, data:', data);
-      // 일단 단순하게: 알림 목록 화면으로
-      router.push('/(tabs)/profile/notifications');
+      const data = response.notification.request.content.data as Partial<Notification>;
+      const route = data?.type ? notificationRoute(data as Notification) : undefined;
+      router.push(route ?? '/(tabs)/profile/notifications');
     };
 
     // ① 앱이 완전히 종료된 상태에서 알림 탭으로 켜진 경우 — 시작 시 한 번 확인

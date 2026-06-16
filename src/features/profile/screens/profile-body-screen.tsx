@@ -19,11 +19,17 @@ import {
 } from '@/features/auth/constants/body-fields';
 import { useAvatarImage } from '@/features/auth/hooks/use-avatar-image';
 import {
+  useAvatar,
   useCharacters,
   useSelectCharacter,
   type GroupedCharacters,
 } from '@/features/characters/api';
-import { useBodyInfo, useUpdateBodyInfo, useUpdateGender } from '@/features/profile/api';
+import {
+  useBodyInfo,
+  useProfile,
+  useUpdateBodyInfo,
+  useUpdateGender,
+} from '@/features/profile/api';
 import { cn } from '@/utils/cn';
 
 type Tab = 'body' | 'avatar';
@@ -36,6 +42,10 @@ export function ProfileBodyScreen() {
   const selectCharacter = useSelectCharacter();
   const updateGender = useUpdateGender();
   const avatarImage = useAvatarImage();
+  const avatar = useAvatar(); // GET /avatar — 아바타 탭에 현재 내 아바타 미리보기
+  const profile = useProfile(); // 내 성별 — 현재 아바타를 해당 성별 탭에 노출하기 위함
+  const avatarGender: Gender | null =
+    profile.data?.gender === 'FEMALE' ? 'female' : profile.data?.gender === 'MALE' ? 'male' : null;
 
   // 하단 탭 바가 '저장' 버튼을 가리므로 이 화면에선 탭 바를 숨긴다 (떠날 때 복원).
   const navigation = useNavigation();
@@ -59,6 +69,15 @@ export function ProfileBodyScreen() {
   // 사용자가 이 화면에서 직접 고른 캐릭터. null이면 아바타를 건드리지 않는다
   // (체형 정보만 저장할 때 기존 아바타/사진을 그대로 유지하기 위함).
   const [characterId, setCharacterId] = useState<string | null>(null);
+
+  // 아바타 탭의 기본 성별을 내 성별로 맞춘다(프로필 로드 시 1회). 이후엔 사용자가 자유롭게 전환.
+  const genderInit = useRef(false);
+  useEffect(() => {
+    if (!genderInit.current && avatarGender) {
+      genderInit.current = true;
+      setGender(avatarGender);
+    }
+  }, [avatarGender]);
 
   // 성별로 그룹핑된 캐릭터 목록 (배포 응답은 { MALE, FEMALE } flat 형태)
   const charactersQuery = useCharacters({
@@ -161,8 +180,14 @@ export function ProfileBodyScreen() {
                 isError={charactersQuery.isError}
                 uploadedUri={avatarImage.localUri}
                 isUploading={avatarImage.isUploading}
+                currentAvatarUrl={avatar.data?.imageUrl ?? null}
+                avatarGender={avatarGender}
                 onChangeGender={setGender}
                 onSelectId={handleSelectCharacter}
+                onSelectCurrent={() => {
+                  avatarImage.reset();
+                  setCharacterId(null);
+                }}
                 onPickAlbum={avatarImage.pickFromLibrary}
                 onPickCamera={avatarImage.takePhoto}
               />
