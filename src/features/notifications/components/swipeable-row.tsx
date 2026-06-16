@@ -87,9 +87,9 @@ export function SwipeableRow({
             onDelete();
           }}
           hitSlop={8}
-          className="h-14 w-14 items-center justify-center rounded-2xl bg-red-500"
+          className="h-12 w-12 items-center justify-center rounded-md bg-warning"
         >
-          <Ionicons name="trash-outline" size={24} color="#fff" />
+          <Ionicons name="trash-outline" size={26} color="#fff" />
         </Pressable>
       </View>
 
