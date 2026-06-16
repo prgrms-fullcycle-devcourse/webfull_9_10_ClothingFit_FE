@@ -18,7 +18,9 @@ export function Tag({ text, onPress, menuArrow, selected }: Props) {
         selected ? 'border-primary' : 'border-border'
       }`}
     >
-      <Text className={`font-sans text-sm ${selected ? 'text-primary' : 'text-muted'}`}>
+      <Text
+        className={`font-sans text-md leading-normal ${selected ? 'text-primary' : 'text-muted'}`}
+      >
         {text}
       </Text>
       {menuArrow && (

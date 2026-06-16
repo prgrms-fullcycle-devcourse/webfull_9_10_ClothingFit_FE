@@ -102,7 +102,7 @@ export function FeedHomeScreen() {
   return (
     <ScreenShell noHeader>
       <KeyboardAvoidingView behavior="height" style={{ flex: 1 }}>
-        <View className="flex-row gap-2 py-3 pl-3">
+        <View className="flex-row gap-2.5 py-3 pl-5">
           <TabButton
             label="추천"
             selected={tab === 'recommend'}
@@ -124,7 +124,7 @@ export function FeedHomeScreen() {
             placeholder="검색어를 입력하세요"
             placeholderTextColor="#e6e6e6"
             returnKeyType="search"
-            style={{ flex: 1, paddingVertical: 10, fontSize: 14 }}
+            style={{ flex: 1, paddingVertical: 10, fontSize: 16 }}
           />
           {keyword.length > 0 && (
             <Pressable onPress={() => setKeyword('')}>
@@ -133,7 +133,7 @@ export function FeedHomeScreen() {
           )}
           {searchFocused && (
             <Pressable onPress={() => setDebouncedKeyword(keyword)}>
-              <Text className="text-sm text-accent font-sans-medium">검색</Text>
+              <Text className="text-md text-accent font-sans-medium">검색</Text>
             </Pressable>
           )}
         </View>

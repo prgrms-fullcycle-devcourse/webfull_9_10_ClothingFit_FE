@@ -49,7 +49,9 @@ function QuerySection<T>({
   if (!query.data || query.data.length === 0) {
     return (
       <StateMessage>
-        <Text variant="caption">표시할 항목이 없습니다.</Text>
+        <Text variant="caption" className="text-md">
+          표시할 항목이 없습니다.
+        </Text>
       </StateMessage>
     );
   }

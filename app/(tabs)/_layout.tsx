@@ -51,6 +51,7 @@ export default function TabLayout() {
         name="home"
         options={{
           title: '홈',
+          tabBarLabelStyle: { fontFamily: fonts.bold, fontSize: 12, lineHeight: 25 },
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="home-outline" size={size} color={color} />
           ),
@@ -60,6 +61,7 @@ export default function TabLayout() {
         name="closet"
         options={{
           title: '옷장',
+          tabBarLabelStyle: { fontFamily: fonts.bold, fontSize: 12, lineHeight: 25 },
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="wardrobe-outline" size={size} color={color} />
           ),
@@ -94,7 +96,9 @@ export default function TabLayout() {
           ),
           // 라벨은 떠있는 버튼 아래로 내려 다른 라벨과 같은 높이로
           tabBarLabel: ({ color }) => (
-            <Text style={{ color, fontFamily: fonts.medium, fontSize: 10, marginTop: -8 }}>
+            <Text
+              style={{ color, fontFamily: fonts.bold, fontSize: 12, marginTop: -7, lineHeight: 25 }}
+            >
               AI 피팅
             </Text>
           ),
@@ -111,6 +115,7 @@ export default function TabLayout() {
         name="feed"
         options={{
           title: '커뮤니티',
+          tabBarLabelStyle: { fontFamily: fonts.bold, fontSize: 12, lineHeight: 25 },
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="chatbubble-outline" size={size} color={color} />
           ),
@@ -126,6 +131,7 @@ export default function TabLayout() {
         name="profile"
         options={{
           title: '마이',
+          tabBarLabelStyle: { fontFamily: fonts.bold, fontSize: 12, lineHeight: 25 },
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="person-outline" size={size} color={color} />
           ),

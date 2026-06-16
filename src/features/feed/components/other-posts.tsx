@@ -23,7 +23,9 @@ export function OtherPosts({ posts }: Props) {
   if (posts.length === 0) {
     return (
       <View className="px-4 py-6 items-center">
-        <Text variant="caption">스타일이 없습니다.</Text>
+        <Text variant="caption" className="text-md">
+          스타일이 없습니다.
+        </Text>
       </View>
     );
   }
