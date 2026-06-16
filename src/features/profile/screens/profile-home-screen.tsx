@@ -73,8 +73,10 @@ export function ProfileHomeScreen() {
 
   return (
     <ScreenShell title="마이페이지" showBack={false} noHeader>
-      <View className="flex-row items-center justify-between px-4 py-3 border-b border-border">
-        <Text variant="title">마이페이지</Text>
+      <View className="z-10 flex-row items-center justify-between bg-white pl-5 pr-4 py-3">
+        <Text variant="title" className="text-2xl">
+          마이페이지
+        </Text>
         <View className="flex-row gap-3">
           <Pressable onPress={() => router.push('/(tabs)/profile/notifications')}>
             <Ionicons name="notifications-outline" size={24} color="#111827" />

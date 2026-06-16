@@ -42,7 +42,7 @@ export function ProfileImageScreen() {
           <Button label="사진 촬영" variant="ghost" onPress={takePhoto} disabled={isUploading} />
         </View>
 
-        <Text variant="caption" className="mt-6 text-center">
+        <Text variant="caption" className="mt-6 text-center text-md leading-none">
           업로드한 사진이 프로필·아바타 이미지로 사용됩니다.
         </Text>
       </View>

@@ -46,13 +46,13 @@ export function ScreenHeader({
             hitSlop={6}
             className="flex-row items-center gap-1.5 flex-1"
           >
-            <Text variant={titleVariant} numberOfLines={1} className="flex-shrink">
+            <Text variant={titleVariant} numberOfLines={1} className="flex-shrink text-2xl">
               {title}
             </Text>
             <Feather name="edit-2" size={15} color="#6b7280" />
           </Pressable>
         ) : (
-          <Text variant={titleVariant} numberOfLines={1}>
+          <Text variant={titleVariant} numberOfLines={1} className="text-2xl">
             {title}
           </Text>
         )}

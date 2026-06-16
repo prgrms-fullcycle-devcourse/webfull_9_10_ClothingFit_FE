@@ -98,8 +98,10 @@ export function ClosetListScreen() {
   return (
     <ScreenShell noHeader>
       {/* 헤더 */}
-      <View className="z-10 flex-row items-center justify-between bg-white px-4 py-3">
-        <Text variant="title">나의 옷장</Text>
+      <View className="z-10 flex-row items-center justify-between bg-white pl-5 pr-4 py-3">
+        <Text variant="title" className="text-2xl">
+          나의 옷장
+        </Text>
         <Pressable onPress={() => router.push('/(tabs)/home/notifications')} hitSlop={8}>
           <Ionicons name="notifications-outline" size={24} color="#111827" />
           {unreadCount > 0 && (
@@ -128,12 +130,16 @@ export function ClosetListScreen() {
         </View>
       ) : archives.length === 0 ? (
         <View className="flex-1 items-center justify-center gap-4 py-20">
-          <Text variant="caption">아직 저장된 코디가 없어요.</Text>
+          <Text variant="caption" className="text-md leading-normal">
+            아직 저장된 코디가 없어요.
+          </Text>
           <Pressable
             onPress={() => router.push('/(tabs)/explore')}
             className="bg-primary px-5 py-3 rounded-xl"
           >
-            <Text className="text-white font-sans-bold">코디 만들러 가기</Text>
+            <Text className="text-white text-md leading-normal font-sans-bold">
+              코디 만들러 가기
+            </Text>
           </Pressable>
         </View>
       ) : (

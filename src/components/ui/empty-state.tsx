@@ -16,11 +16,11 @@ export function EmptyState({ icon, title, description, className, style }: Empty
     <View className={`flex-1 items-center justify-center gap-2 ${className ?? ''}`} style={style}>
       {icon}
       <View className="items-center gap-2">
-        <Text variant="subtitle" className="text-muted text-center">
+        <Text variant="subtitle" className="text-muted text-center text-md leading-normal">
           {title}
         </Text>
         {description && (
-          <Text variant="caption" className="text-center">
+          <Text variant="caption" className="text-center text-md leading-normal text-md">
             {description}
           </Text>
         )}
