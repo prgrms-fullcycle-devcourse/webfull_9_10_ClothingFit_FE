@@ -1,9 +1,13 @@
 import { useEffect, useState } from 'react';
+import { View } from 'react-native';
 
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
 import { TextInput } from '@/components/ui/text-input';
 import { BottomSheet } from '@/features/webview/components/bottom-sheet';
+
+/** 코디 이름 최대 글자 수 */
+const MAX_NAME = 7;
 
 type Props = {
   visible: boolean;
@@ -26,13 +30,17 @@ export function RenameCoordiSheet({ visible, initialName, saving, onClose, onSub
 
   return (
     <BottomSheet visible={visible} title="코디 이름 변경" onClose={onClose}>
-      <Text variant="label" className="mb-1.5">
-        코디 이름
-      </Text>
+      <View className="flex-row items-center justify-between mb-1.5">
+        <Text variant="label">코디 이름</Text>
+        <Text variant="label" className="text-muted">
+          {name.length}/{MAX_NAME}
+        </Text>
+      </View>
       <TextInput
         value={name}
         onChangeText={setName}
-        placeholder="이름을 입력해주세요"
+        maxLength={MAX_NAME}
+        placeholder={`최대 ${MAX_NAME}글자까지 입력할 수 있어요`}
         className="border border-border rounded-xl px-4 py-3 mb-4"
         autoFocus
       />
