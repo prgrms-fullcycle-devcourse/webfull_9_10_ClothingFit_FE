@@ -41,10 +41,12 @@ export function BookmarksScreen() {
           onRefresh={refetch}
           refreshing={isRefetching}
           ListEmptyComponent={
-            <EmptyState
-              icon={<FontAwesome name="bookmark-o" size={48} color="#e6e6e6" />}
-              title="북마크한 코디가 없어요"
-            />
+            <View className="flex-1 items-center justify-center py-72">
+              <EmptyState
+                icon={<FontAwesome name="bookmark-o" size={48} color="#e6e6e6" />}
+                title="북마크한 코디가 없어요"
+              />
+            </View>
           }
         />
       )}
