@@ -141,7 +141,9 @@ export function NotificationsScreen() {
           {/* 상단 우측: 알림 전체 삭제 */}
           {items.length > 0 && (
             <Pressable onPress={handleClearAll} className="items-end mr-10 mt-3 mb-2">
-              <Text className="text-md text-red-500 font-sans-bold text-warning">알림 전체 삭제</Text>
+              <Text className="text-md text-red-500 font-sans-bold text-warning">
+                알림 전체 삭제
+              </Text>
             </Pressable>
           )}
 
@@ -186,12 +188,15 @@ export function NotificationsScreen() {
                     <View className="items-end">
                       {/* 우측: 알림 발생 유저 사진 (좋아요/팔로우 등) */}
                       {actorImage ? (
-                          <Image
-                              source={{ uri: actorImage }}
-                              style={{ width: 68, height: 68, borderRadius: 2}}
-                          />
+                        <Image
+                          source={{ uri: actorImage }}
+                          style={{ width: 68, height: 68, borderRadius: 2 }}
+                        />
                       ) : null}
-                      <Text variant="caption" className="mt-1 pb-3 text-right text-slate font-sans-medium">
+                      <Text
+                        variant="caption"
+                        className="mt-1 pb-3 text-right text-slate font-sans-medium"
+                      >
                         {relativeTime(item.createdAt)}
                       </Text>
                     </View>
