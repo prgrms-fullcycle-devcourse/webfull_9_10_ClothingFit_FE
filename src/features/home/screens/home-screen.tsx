@@ -13,7 +13,7 @@ import { Text } from '@/components/ui/text';
 import { usePopularPosts, useRecommendedInfluencers } from '@/features/home/api';
 import { HotUserCard } from '@/features/home/components/hot-user-card';
 import { useUnreadNotificationCount } from '@/features/notifications/api';
-import { PopularCarousel } from '@/features/home/components/popular-carousel';
+import { PopularCarousel } from '@/features/home/components/popular-carousel-reanimated';
 import { getUserId } from '@/lib/auth-storage';
 
 // HOT 카드 배경 placeholder 색 (이미지 로딩 전/없을 때 자리)
@@ -73,7 +73,7 @@ export function HomeScreen() {
   return (
     <ScreenShell noHeader>
       {/* 헤더 */}
-      <View className="flex-row items-center justify-between border-b border-border px-4 py-3">
+      <View className="z-10 flex-row items-center justify-between bg-white px-4 py-3">
         <Text variant="title">CLOTHING - FIT</Text>
         <Pressable onPress={() => router.push('/(tabs)/home/notifications')} hitSlop={8}>
           <Ionicons name="notifications-outline" size={24} color="#111827" />
@@ -90,7 +90,6 @@ export function HomeScreen() {
           )}
         </Pressable>
       </View>
-
       <Animated.ScrollView
         className="flex-1"
         showsVerticalScrollIndicator={false}
@@ -98,13 +97,6 @@ export function HomeScreen() {
         scrollEventThrottle={16}
         contentContainerStyle={{ paddingBottom: TAB_BAR_BASE_HEIGHT + insets.bottom }}
       >
-        {/* 인기글 */}
-        <Text
-          variant="subtitle"
-          className="pl-7 pt-4 pb-3 text-[1.35rem] leading-tight font-sans-bold tracking-tighter"
-        >
-          인기글
-        </Text>
         <QuerySection query={posts}>{(data) => <PopularCarousel posts={data} />}</QuerySection>
 
         {/* HOT */}
