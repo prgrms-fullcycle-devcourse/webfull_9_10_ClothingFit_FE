@@ -12,6 +12,8 @@ module.exports = {
         sans: [fonts.regular],
         'sans-medium': [fonts.medium],
         'sans-bold': [fonts.bold],
+        'sans-extrabold': [fonts.extrabold],
+        'sans-black': [fonts.black],
         'inter-bold': [fonts.interBold],
       },
       colors,

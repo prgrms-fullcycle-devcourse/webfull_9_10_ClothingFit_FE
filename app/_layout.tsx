@@ -6,6 +6,8 @@ import {
   NotoSansKR_400Regular,
   NotoSansKR_500Medium,
   NotoSansKR_700Bold,
+  NotoSansKR_800ExtraBold,
+  NotoSansKR_900Black,
 } from '@expo-google-fonts/noto-sans-kr';
 import { useFonts } from 'expo-font';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
@@ -58,6 +60,8 @@ export default function RootLayout() {
     NotoSansKR_400Regular,
     NotoSansKR_500Medium,
     NotoSansKR_700Bold,
+    NotoSansKR_800ExtraBold,
+    NotoSansKR_900Black,
     Inter_700Bold,
   });
   // 폰트 로드 후 커스텀 스플래시('CLOTHING - FIT')를 잠깐 보여준다.
