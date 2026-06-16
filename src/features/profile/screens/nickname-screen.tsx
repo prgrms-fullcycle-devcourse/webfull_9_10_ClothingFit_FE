@@ -78,7 +78,7 @@ export function NicknameScreen() {
         />
         <Button
           label={checking ? '확인 중...' : '중복확인'}
-          variant="secondary"
+          variant="primary"
           className="rounded-3xl px-6 font-sans-bold py-2 mt-4"
           onPress={handleCheck}
           disabled={checking}
@@ -100,10 +100,10 @@ export function NicknameScreen() {
         <View className="w-full px-10">
           <Button
             label={update.isPending ? '변경 중...' : '변경하기'}
-            variant="primary"
+            variant="ghost"
             onPress={handleSubmit}
-            disabled={available !== true || update.isPending}
-            className="text-xl"
+            disabled={available !== true || update.isPending || value.length > 20}
+            className={`text-xl border-border border text-primary ${available === true && value.length <= 20 && !update.isPending ? 'bg-white' : 'bg-border'}`}
           />
         </View>
       </View>

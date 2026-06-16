@@ -7,12 +7,13 @@ import {
   useGetUsersIdFollowings,
 } from '@/api/generated/endpoints/follows/follows';
 import { ScreenShell } from '@/components/blocks/screen-shell';
+import { EmptyState } from '@/components/ui/empty-state';
 import { TabButton } from '@/components/ui/tab-button';
 import { Text } from '@/components/ui/text';
 import { FollowButton } from '@/features/feed/components/follow-button';
 import { useUserFollow } from '@/features/feed/hooks/use-user-follow';
 import { getUserId } from '@/lib/auth-storage';
-
+import Ionicons from '@expo/vector-icons/Ionicons';
 type FollowItem = {
   id: string;
   imageUrl: string | null;
@@ -142,7 +143,10 @@ export function FollowersScreen() {
       ) : tab === 'followers' ? (
         followerItems.length === 0 ? (
           <View className="flex-1 items-center justify-center">
-            <Text variant="caption">회원님을 팔로우 하는 모든 사용자가 여기에 표시됩니다.</Text>
+            <EmptyState
+              icon={<Ionicons name="person-circle-outline" size={60} color="#e6e6e6" />}
+              title="회원님을 팔로우 하는 모든 사용자가 여기에 표시됩니다."
+            />
           </View>
         ) : (
           <FollowList
@@ -154,7 +158,11 @@ export function FollowersScreen() {
         )
       ) : followingItems.length === 0 ? (
         <View className="flex-1 items-center justify-center">
-          <Text variant="caption">마음에 드는 회원님을 팔로우 해보세요.</Text>
+          <EmptyState
+            icon={<Ionicons name="person-circle-outline" size={60} color="#e6e6e6" />}
+            title="마음에 드는 회원님을 팔로우 해보세요."
+          />
+          {/* <Text variant="caption">마음에 드는 회원님을 팔로우 해보세요.</Text> */}
         </View>
       ) : (
         <FollowList
