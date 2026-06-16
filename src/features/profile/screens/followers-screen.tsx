@@ -120,15 +120,15 @@ export function FollowersScreen() {
 
   return (
     <ScreenShell title={nickname ? nickname : ''} edges={['top', 'bottom']}>
-      <View className="flex-row border-b border-border px-4">
+      <View className="flex-row pb-2">
         <TabButton
-          label={`팔로워 ${followersData?.totalCount ?? 0}`}
+          label={`팔로워 ${followersData?.totalCount ?? 0}명`}
           selected={tab === 'followers'}
           onPress={() => setTab('followers')}
           className="flex-1 py-3"
         />
         <TabButton
-          label={`팔로잉 ${followingsData?.totalCount ?? 0}`}
+          label={`팔로잉 ${followingsData?.totalCount ?? 0}명`}
           selected={tab === 'following'}
           onPress={() => setTab('following')}
           className="flex-1 py-3"

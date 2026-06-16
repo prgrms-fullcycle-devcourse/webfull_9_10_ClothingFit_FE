@@ -65,39 +65,47 @@ export function NicknameScreen() {
 
   return (
     <ScreenShell title="닉네임 변경">
-      <View className="flex-1 p-4">
-        <Text variant="label" className="mb-2">
-          변경할 닉네임
-        </Text>
+      <Text variant="label" className="font-sans-medium text-md px-6 pt-8 pb-4">
+        변경할 닉네임
+      </Text>
+
+      <View className="flex-1 items-center px-5">
         <TextInput
           value={value}
           onChangeText={onChange}
           placeholder="닉네임 입력"
-          className="border border-border rounded-xl px-4 py-3 mb-3"
+          className="w-full border text-xl border-border rounded-2xl px-6 py-5"
         />
         <Button
           label={checking ? '확인 중...' : '중복확인'}
-          variant="ghost"
-          className="mb-3"
+          variant="secondary"
+          className="rounded-3xl px-6 font-sans-bold py-2 mt-4"
           onPress={handleCheck}
           disabled={checking}
         />
-        {available !== null && (
+        <View>
           <Text
             variant="caption"
-            className={`mb-6 ${available ? 'text-green-600' : 'text-red-500'}`}
+            className={`text-md my-1 ${value.length > 20 ? 'text-warning' : available === null ? 'text-muted' : available ? 'text-green-600' : 'text-warning'}`}
           >
-            {available
-              ? '사용 가능한 닉네임입니다. 변경하기를 눌러주세요.'
-              : '이미 사용 중인 닉네임입니다.'}
+            {value.length > 20
+              ? '닉네임은 20자까지 가능합니다.'
+              : available === null
+                ? '닉네임 중복확인을 해주세요.'
+                : available
+                  ? '사용 가능한 닉네임입니다. 변경하기를 눌러주세요.'
+                  : '이미 사용 중인 닉네임입니다.'}
           </Text>
-        )}
-        <Button
-          label={update.isPending ? '변경 중...' : '변경하기'}
-          variant="secondary"
-          onPress={handleSubmit}
-          disabled={available !== true || update.isPending}
-        />
+        </View>
+        <View className="w-full px-10">
+          <Button
+            label={update.isPending ? '변경 중...' : '변경하기'}
+            variant="primary"
+            onPress={handleSubmit}
+            disabled={available !== true || update.isPending}
+            className="text-xl"
+          />
+        </View>
       </View>
     </ScreenShell>
   );

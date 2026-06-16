@@ -41,12 +41,17 @@ export function ClothInfo({ item }: { item: PostClothingItem }) {
           )}
         </Pressable>
         <View className="flex-1 flex-row justify-between items-center px-5">
-          <View className="flex-1 flex-col gap-2 mr-2">
-            <View className="flex-row items-center gap-2">
-              <Text className="font-sans-medium">{item.brand}</Text>
-              {item.size && <Text variant="label">사이즈 : {item.size}</Text>}
-            </View>
-            <Text variant="caption">{item.name}</Text>
+          <View className="flex-1 flex-col gap-1.5 mr-2">
+            <Text className="font-sans-medium">{item.brand}</Text>
+            {item.size && (
+              <Text variant="label" className="text-slate">
+                사이즈 : {item.size}
+              </Text>
+            )}
+
+            <Text variant="caption" numberOfLines={1} ellipsizeMode="tail">
+              {item.name}
+            </Text>
           </View>
           <Pressable onPress={handleOpenLink} className="p-2 -mr-2">
             <Ionicons name="open-outline" size={24} color="black" />
