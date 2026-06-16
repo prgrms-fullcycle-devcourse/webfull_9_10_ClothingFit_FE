@@ -13,7 +13,7 @@ export function AppHeader() {
   const { data: unreadCount = 0 } = useUnreadNotificationCount();
 
   return (
-    <View className="flex-row items-center justify-between border-b border-border px-4 py-3">
+    <View className="z-10 flex-row items-center justify-between bg-white px-4 py-3">
       <Text variant="title">CLOTHING - FIT</Text>
       <Pressable onPress={() => router.push('/(tabs)/profile/notifications')} hitSlop={8}>
         <Ionicons name="notifications-outline" size={24} color="#111827" />

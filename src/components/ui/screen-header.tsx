@@ -25,7 +25,7 @@ export function ScreenHeader({
   titleVariant = 'title',
 }: ScreenHeaderProps) {
   return (
-    <View className="flex-row items-center justify-between px-4 py-3 border-b border-border bg-white">
+    <View className="z-10 flex-row items-center justify-between bg-white px-4 py-3">
       <View className="flex-row items-center gap-2 flex-1 mr-3">
         {showBack ? (
           <Pressable
@@ -46,13 +46,13 @@ export function ScreenHeader({
             hitSlop={6}
             className="flex-row items-center gap-1.5 flex-1"
           >
-            <Text variant={titleVariant} numberOfLines={1} className="flex-shrink">
+            <Text variant={titleVariant} numberOfLines={1} className="flex-shrink text-2xl">
               {title}
             </Text>
             <Feather name="edit-2" size={15} color="#6b7280" />
           </Pressable>
         ) : (
-          <Text variant={titleVariant} numberOfLines={1}>
+          <Text variant={titleVariant} numberOfLines={1} className="text-2xl">
             {title}
           </Text>
         )}

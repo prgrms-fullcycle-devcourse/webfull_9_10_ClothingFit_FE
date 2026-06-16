@@ -65,7 +65,7 @@ export function NicknameScreen() {
 
   return (
     <ScreenShell title="닉네임 변경">
-      <Text variant="label" className="font-sans-medium text-md px-6 pt-8 pb-4">
+      <Text variant="label" className="font-sans-medium text-md leading-none px-6 pt-8 pb-4">
         변경할 닉네임
       </Text>
 
@@ -99,7 +99,7 @@ export function NicknameScreen() {
         </View>
         <View className="w-full px-10">
           <Button
-            label={update.isPending ? '변경 중...' : '변경하기'}
+            label={update.isPending ? '변경 중' : '변경하기'}
             variant="ghost"
             onPress={handleSubmit}
             disabled={available !== true || update.isPending || value.length > 20}

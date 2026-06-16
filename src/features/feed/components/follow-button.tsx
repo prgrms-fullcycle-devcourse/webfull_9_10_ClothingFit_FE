@@ -13,7 +13,7 @@ export function FollowButton({ isFollowing, onPress }: Props) {
       onPress={onPress}
       className={`px-6 py-2 rounded-full ${isFollowing ? 'bg-accent' : 'bg-primary'}`}
     >
-      <Text className="text-white text-sm font-sans-medium">
+      <Text className="text-white text-md leading-normal font-sans-medium">
         {isFollowing ? '팔로잉' : '팔로우'}
       </Text>
     </Pressable>
