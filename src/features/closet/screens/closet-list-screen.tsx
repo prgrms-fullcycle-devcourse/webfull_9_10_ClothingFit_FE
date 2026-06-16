@@ -214,8 +214,8 @@ export function ClosetListScreen() {
                     </View>
                   </View>
 
-                  {/* 날짜 */}
-                  <Text variant="caption" className="text-right text-muted mt-3">
+                  {/* 날짜 — Inter Bold */}
+                  <Text variant="caption" className="text-right text-muted mt-3 font-inter-bold">
                     {formatDate(item.createdAt)}
                   </Text>
                 </View>

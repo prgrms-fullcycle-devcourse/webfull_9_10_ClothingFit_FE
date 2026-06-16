@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
-import { Animated, Easing, View } from 'react-native';
+import { Animated, Easing, Pressable, View } from 'react-native';
 
 import { ScreenShell } from '@/components/blocks/screen-shell';
 import { Button } from '@/components/ui/button';
@@ -126,9 +126,16 @@ export function FittingJobScreen() {
     return () => clearInterval(t);
   }, [status]);
 
+  // 헤더 우측 홈 아이콘 (탭바 숨김 화면이라 홈 이동 경로 제공)
+  const homeButton = (
+    <Pressable onPress={() => router.replace('/(tabs)/home')} hitSlop={8}>
+      <Ionicons name="home-outline" size={24} color="#111827" />
+    </Pressable>
+  );
+
   if (!job) {
     return (
-      <ScreenShell title="피팅 진행">
+      <ScreenShell title="피팅 진행" right={homeButton}>
         <View className="flex-1 items-center justify-center gap-4 px-6">
           <Text variant="caption">작업을 찾을 수 없어요.</Text>
           <Button label="홈으로" onPress={() => router.replace('/(tabs)/home')} />
@@ -142,7 +149,7 @@ export function FittingJobScreen() {
 
   if (isFailed) {
     return (
-      <ScreenShell title="피팅 진행">
+      <ScreenShell title="피팅 진행" right={homeButton}>
         <View className="flex-1 items-center justify-center gap-4 px-8">
           <View
             className="items-center justify-center rounded-full bg-red-50"
@@ -154,7 +161,12 @@ export function FittingJobScreen() {
           <Text variant="caption" className="text-center text-muted">
             {job.error ?? '잠시 후 다시 시도해 주세요'}
           </Text>
-          <Button label="돌아가기" onPress={() => router.back()} className="mt-2" />
+          {/* 실패 시 의상 최종 확인 화면으로 복귀 (confirm은 스토어 기반이라 선택한 옷 유지) */}
+          <Button
+            label="돌아가기"
+            onPress={() => router.replace('/(tabs)/explore/confirm')}
+            className="mt-2"
+          />
         </View>
       </ScreenShell>
     );
@@ -163,7 +175,7 @@ export function FittingJobScreen() {
   const stepIdx = isDone ? STEPS.length : Math.min(tick, STEPS.length - 1);
 
   return (
-    <ScreenShell title="피팅 진행">
+    <ScreenShell title="피팅 진행" right={homeButton}>
       <View className="flex-1 items-center justify-center gap-8 px-8">
         {isDone ? <SuccessRing /> : <SpinningRing />}
 

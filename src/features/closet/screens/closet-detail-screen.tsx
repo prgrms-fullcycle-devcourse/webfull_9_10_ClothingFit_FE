@@ -24,8 +24,6 @@ import {
 } from '@/api/generated/endpoints/closet/closet';
 import { usePatchFittingClosetArchiveIdTitle } from '@/api/generated/endpoints/fitting/fitting';
 import { ScreenShell } from '@/components/blocks/screen-shell';
-import { BottomSheet } from '@/components/ui/bottom-sheet';
-import { Button } from '@/components/ui/button';
 import { ScreenHeader } from '@/components/ui/screen-header';
 import { Text } from '@/components/ui/text';
 import { Toggle } from '@/components/ui/toggle';
@@ -56,7 +54,6 @@ export function ClosetDetailScreen() {
 
   const [isPublished, setIsPublished] = useState(false);
   const [renameOpen, setRenameOpen] = useState(false);
-  const [shareOpen, setShareOpen] = useState(false);
 
   // 상세 코디 화면에서는 하단 탭 바를 숨긴다 (떠날 때 복원).
   const navigation = useNavigation();
@@ -148,6 +145,22 @@ export function ClosetDetailScreen() {
     }
   };
 
+  // 게시하기 버튼 → 확인 Alert
+  const confirmPublish = () => {
+    Alert.alert('커뮤니티 공유', '커뮤니티에 공유하시겠습니까?', [
+      { text: '아니요', style: 'cancel' },
+      { text: '네', onPress: () => handlePublishChange(true) },
+    ]);
+  };
+
+  // 게시물 내림 버튼 → 확인 Alert
+  const confirmUnpublish = () => {
+    Alert.alert('게시물 내리기', '게시물을 내리겠습니까?', [
+      { text: '아니요', style: 'cancel' },
+      { text: '네', style: 'destructive', onPress: () => handlePublishChange(false) },
+    ]);
+  };
+
   // 2D/3D 토글 — 3D로 전환 시 모델 없으면 생성 확인창
   const handleToggle3D = (next: boolean) => {
     if (!next) {
@@ -195,16 +208,20 @@ export function ClosetDetailScreen() {
         title={item.title}
         onTitlePress={() => setRenameOpen(true)}
         right={
-          <View className="flex flex-row gap-4 items-center">
-            <Pressable onPress={() => setShareOpen(true)} hitSlop={8}>
-              <Ionicons
-                name={isPublished ? 'share-social' : 'share-social-outline'}
-                size={24}
-                color={isPublished ? COLORS.accent : COLORS.primary}
-              />
-            </Pressable>
+          <View className="flex flex-row gap-3 items-center">
             <Pressable onPress={handleDelete} hitSlop={8} disabled={deleteMut.isPending}>
-              <Feather name="trash-2" size={24} color={COLORS.accent} />
+              <Feather name="trash-2" size={22} color={COLORS.primary} />
+            </Pressable>
+            {/* 게시 상태에 따라 색·문구가 바뀌는 버튼 (탭 → 확인 Alert) */}
+            <Pressable
+              onPress={isPublished ? confirmUnpublish : confirmPublish}
+              disabled={publishMut.isPending || unpublishMut.isPending}
+              hitSlop={8}
+            >
+              {/* '착용 제품'과 동일한 폰트(subtitle), 테두리·배경 없이 글씨색만 */}
+              <Text variant="subtitle" className={isPublished ? 'text-red-500' : 'text-accent'}>
+                {isPublished ? '게시 취소' : '게시하기'}
+              </Text>
             </Pressable>
           </View>
         }
@@ -218,9 +235,25 @@ export function ClosetDetailScreen() {
         contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}
         ListHeaderComponent={
           <View>
-            {/* 뷰어 영역 — 고정 높이. 2D는 전신이 잘리지 않게 contain */}
+            {/* 뷰어 영역 — 고정 높이. 3D 생성 중엔 이 영역에 크게 로딩, 완료되면 아바타가 바로 뜸 */}
             <View style={{ height: VIEWER_HEIGHT }} className="bg-surface">
-              {view3d && item.modelUrl ? (
+              {gen.isGenerating ? (
+                <View className="flex-1 items-center justify-center gap-4">
+                  <ActivityIndicator size="large" color={COLORS.accent} />
+                  <Text variant="subtitle" className="text-muted">
+                    {gen.status === 'QUEUED'
+                      ? '대기 중...'
+                      : gen.isSaving
+                        ? '저장 중...'
+                        : '3D 아바타 생성 중...'}
+                  </Text>
+                  {gen.progress ? (
+                    <Text variant="caption" className="text-muted">
+                      {gen.progress}%
+                    </Text>
+                  ) : null}
+                </View>
+              ) : view3d && item.modelUrl ? (
                 <ClosetViewer3D
                   modelUrl={item.modelUrl}
                   onScrollLock={(locked) => setScrollEnabled(!locked)}
@@ -229,22 +262,8 @@ export function ClosetDetailScreen() {
                 <Image className="flex-1" source={{ uri: item.imageUrl }} resizeMode="contain" />
               )}
             </View>
-            {/* 진행률(생성 중) + 2D/3D 토글 (토글이 3D 생성 트리거) */}
-            <View className="flex-row items-center justify-between px-4 py-2 border-b border-border">
-              {gen.isGenerating ? (
-                <View className="flex-row items-center gap-2">
-                  <ActivityIndicator size="small" color={COLORS.accent} />
-                  <Text variant="caption" className="text-muted">
-                    {gen.status === 'QUEUED'
-                      ? '대기 중...'
-                      : gen.isSaving
-                        ? '저장 중...'
-                        : `3D 생성 중 ${gen.progress ? `${gen.progress}%` : ''}`}
-                  </Text>
-                </View>
-              ) : (
-                <View />
-              )}
+            {/* 2D/3D 토글 (토글이 3D 생성 트리거) */}
+            <View className="flex-row items-center justify-end px-4 py-2 border-b border-border">
               <Toggle
                 labelLeft="2D"
                 labelRight="3D"
@@ -259,33 +278,36 @@ export function ClosetDetailScreen() {
           </View>
         }
         renderItem={({ item: p }) => (
-          <Pressable
-            className="mx-4 mb-3 flex-row items-center p-3 rounded-xl border border-border"
-            disabled={!p.externalLink}
-            onPress={() => p.externalLink && Linking.openURL(p.externalLink)}
-          >
+          // 커뮤니티 착용 제품(ClothInfo)과 동일한 레이아웃:
+          // 좌측 96×96 이미지(꽉 차게) + 브랜드·사이즈 한 줄 + 상품명 + 우측 링크 아이콘
+          <View className="mx-4 mb-2 flex-row overflow-hidden rounded-xl border border-border">
             {p.imageUrl ? (
               <Image
                 source={{ uri: p.imageUrl }}
-                className="w-16 h-16 rounded-lg bg-surface mr-3"
+                style={{ width: 96, height: 96 }}
+                resizeMode="cover"
               />
             ) : (
-              <View className="w-16 h-16 rounded-lg bg-surface mr-3" />
+              <View className="w-24 h-24 bg-surface" />
             )}
-            <View className="flex-1">
-              <Text className="font-sans-medium">{p.brand ?? '브랜드 정보 없음'}</Text>
-              <Text variant="caption">{p.name}</Text>
-              {p.size ? <Text variant="caption">착용사이즈 {p.size}</Text> : null}
-            </View>
-            {p.externalLink ? (
-              <View className="flex-row items-center gap-1 ml-2">
-                <Text variant="caption" className="text-primary">
-                  보기
-                </Text>
-                <Feather name="external-link" size={15} color={COLORS.accent} />
+            <View className="flex-1 flex-row items-center justify-between px-5">
+              <View className="mr-2 flex-1 flex-col gap-2">
+                <View className="flex-row items-center gap-2">
+                  <Text className="font-sans-medium">{p.brand ?? '브랜드 정보 없음'}</Text>
+                  {p.size ? <Text variant="label">사이즈 : {p.size}</Text> : null}
+                </View>
+                <Text variant="caption">{p.name}</Text>
               </View>
-            ) : null}
-          </Pressable>
+              {p.externalLink ? (
+                <Pressable
+                  onPress={() => p.externalLink && Linking.openURL(p.externalLink)}
+                  className="-mr-2 p-2"
+                >
+                  <Ionicons name="open-outline" size={24} color="black" />
+                </Pressable>
+              ) : null}
+            </View>
+          </View>
         )}
       />
 
@@ -296,47 +318,6 @@ export function ClosetDetailScreen() {
         onClose={() => setRenameOpen(false)}
         onSubmit={handleRename}
       />
-
-      {/* 커뮤니티 공유 — 공유 아이콘 탭 시 올라오는 바텀시트 (off/on 토글 대체) */}
-      <BottomSheet visible={shareOpen} onClose={() => setShareOpen(false)}>
-        <View className="px-5 pt-2 pb-4">
-          <Text className="font-sans-bold text-lg mb-1">커뮤니티 공유</Text>
-          {isPublished ? (
-            <>
-              <View className="flex-row items-center gap-2 mt-2 mb-5">
-                <Ionicons name="checkmark-circle" size={20} color={COLORS.accent} />
-                <Text variant="caption" className="text-muted">
-                  지금 커뮤니티에 게시 중이에요.
-                </Text>
-              </View>
-              <Button
-                label={unpublishMut.isPending ? '내리는 중...' : '게시 내리기'}
-                variant="danger"
-                disabled={unpublishMut.isPending}
-                onPress={() => {
-                  handlePublishChange(false);
-                  setShareOpen(false);
-                }}
-              />
-            </>
-          ) : (
-            <>
-              <Text variant="caption" className="text-muted mt-2 mb-5">
-                이 코디를 커뮤니티에 게시하면 다른 사람들이 볼 수 있어요.
-              </Text>
-              <Button
-                label={publishMut.isPending ? '게시 중...' : '커뮤니티에 게시'}
-                variant="secondary"
-                disabled={publishMut.isPending}
-                onPress={() => {
-                  handlePublishChange(true);
-                  setShareOpen(false);
-                }}
-              />
-            </>
-          )}
-        </View>
-      </BottomSheet>
     </ScreenShell>
   );
 }

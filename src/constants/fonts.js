@@ -5,4 +5,5 @@ module.exports = {
   bold: 'NotoSansKR_700Bold',
   extrabold: 'NotoSansKR_800ExtraBold',
   black: 'NotoSansKR_900Black',
+  interBold: 'Inter_700Bold',
 };
