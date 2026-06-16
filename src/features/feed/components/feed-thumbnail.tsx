@@ -20,6 +20,7 @@ type Props = {
   onScroll?: React.ComponentProps<typeof Animated.FlatList>['onScroll'];
   /** 콘텐츠 하단 패딩 (floating 탭바 높이) */
   bottomInset?: number;
+  hideNickname?: boolean;
 };
 
 export function FeedThumbnail({
@@ -32,6 +33,7 @@ export function FeedThumbnail({
   refreshing,
   onScroll,
   bottomInset = 0,
+  hideNickname = false,
 }: Props) {
   const { width: screenWidth } = useWindowDimensions();
   const itemWidth = (screenWidth - GAP * (NUM_COLUMNS - 1)) / NUM_COLUMNS;
@@ -65,7 +67,7 @@ export function FeedThumbnail({
           imageUrl={item.imageUrl}
           isLiked={item.isLiked}
           likeCount={item.likeCount}
-          nickname={item.nickname ?? undefined}
+          nickname={hideNickname ? undefined : (item.nickname ?? undefined)}
           width={itemWidth}
           onPress={() => router.push({ pathname: '/post/[postId]', params: { postId: item.id } })}
         />
