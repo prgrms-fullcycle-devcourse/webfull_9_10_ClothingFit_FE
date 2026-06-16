@@ -13,7 +13,7 @@ type Props = {
 export function TabButton({ label, selected, onPress, className }: Props) {
   return (
     <Pressable onPress={onPress} className={cn('pb-2 items-center', className)}>
-      <View className="items-center pb-1">
+      <View className="self-center pb-1">
         <Text className={`font-sans-medium text-2xl ${selected ? 'text-primary' : 'text-muted'}`}>
           {label}
         </Text>
