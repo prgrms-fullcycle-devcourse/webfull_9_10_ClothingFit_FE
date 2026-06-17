@@ -150,7 +150,7 @@ export function ProfileSettingsScreen() {
               className="text-red-500 font-sans-bold text-[17px]"
               style={{ lineHeight: 20, includeFontPadding: false }}
             >
-              {deleting ? '탈퇴 중...' : '회원탈퇴'}
+              {deleting ? '탈퇴 중' : '회원탈퇴'}
             </Text>
           </Pressable>
         </View>

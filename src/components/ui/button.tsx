@@ -35,8 +35,9 @@ export function Button({ label, variant = 'primary', className, disabled, ...pro
         className,
       )}
       disabled={disabled}
-      {...props}>
-      <Text className={cn('font-sans-medium', labelClass[variant])}>{label}</Text>
+      {...props}
+    >
+      <Text className={cn('font-sans-medium text-lg', labelClass[variant])}>{label}</Text>
     </Pressable>
   );
 }

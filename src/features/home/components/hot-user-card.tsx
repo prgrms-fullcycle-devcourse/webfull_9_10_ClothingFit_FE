@@ -97,14 +97,14 @@ export function HotUserCard({
             className="font-sans-bold"
             numberOfLines={1}
             // NotoSansKR 세로 클리핑 방지(글자 잘림) + 작은 카드에 맞춰 축소
-            style={{ fontSize: 14, lineHeight: 18, marginTop: -2, includeFontPadding: false }}
+            style={{ fontSize: 15, lineHeight: 18, marginTop: -2, includeFontPadding: false }}
           >
             {user.nickname}
           </Text>
           <Text
             variant="caption"
             className="text-slate mt-[1px]"
-            style={{ fontSize: 12, lineHeight: 15, includeFontPadding: false }}
+            style={{ fontSize: 12.5, lineHeight: 15, includeFontPadding: false }}
           >
             {formatFollowers(user.followerCount)} followers
           </Text>
@@ -126,7 +126,7 @@ export function HotUserCard({
             <Text
               className="font-sans-bold text-white"
               // 작은 pill 안에서 한글이 안 잘리도록 lineHeight는 fontSize보다 크게
-              style={{ fontSize: 12, lineHeight: 16, includeFontPadding: false }}
+              style={{ fontSize: 13, lineHeight: 16, includeFontPadding: false }}
             >
               {isFollowing ? '팔로잉' : '팔로우'}
             </Text>

@@ -107,7 +107,7 @@ export function AvatarStep({
                 key={c.id}
                 onPress={() => onSelectId(c.id)}
                 className={cn(
-                  'h-28 w-20 overflow-hidden rounded-xl border bg-surface',
+                  'h-[7.7rem] w-20 overflow-hidden rounded-xl border bg-surface',
                   active ? 'border-primary' : 'border-border',
                 )}
               >
@@ -131,7 +131,7 @@ export function AvatarStep({
             <Pressable
               onPress={onSelectCurrent}
               className={cn(
-                'h-28 w-20 overflow-hidden rounded-xl border bg-surface',
+                'h-[7.7rem] w-20 overflow-hidden rounded-xl border bg-surface',
                 currentActive ? 'border-primary' : 'border-border',
               )}
             >
@@ -147,7 +147,7 @@ export function AvatarStep({
               )}
               <View className="absolute bottom-0 left-0 right-0 bg-black/40 py-0.5">
                 <Text
-                  className="text-center text-[10px] text-white"
+                  className="text-center text-[12px] text-white"
                   style={{ includeFontPadding: false, lineHeight: 13 }}
                 >
                   내 아바타
@@ -228,7 +228,7 @@ export function AvatarStep({
         )}
       </View>
 
-      <Text variant="caption" className="text-center">
+      <Text variant="caption" className="text-center text-md leading-none">
         업로드된 사진을 기반으로 ai모델을 생성합니다.
       </Text>
     </View>
@@ -256,7 +256,9 @@ function SourceButton({
       )}
     >
       <Ionicons name={icon} size={20} color="#6a7282" />
-      <Text variant="label">{label}</Text>
+      <Text variant="label" className="text-sm leading-none">
+        {label}
+      </Text>
     </Pressable>
   );
 }
