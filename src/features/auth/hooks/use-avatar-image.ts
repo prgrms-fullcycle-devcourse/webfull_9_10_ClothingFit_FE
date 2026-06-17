@@ -1,45 +1,48 @@
-import * as ImagePicker from 'expo-image-picker';
 import { useState } from 'react';
 import { Alert } from 'react-native';
+import ImageCropPicker from 'react-native-image-crop-picker';
 
 import { useUploadAvatarImage } from '@/features/characters/api';
 
-// 크롭 비율을 고정하지 않는다(aspect 미지정) → 세로로 긴 전신 사진도 직사각형으로 넣을 수 있게.
-// (Android는 자유 비율 크롭. iOS 기본 편집기는 정사각만 지원하는 한계가 있음)
+// react-native-image-crop-picker(uCrop) 옵션 — 자유 비율 크롭.
+// 안드로이드 표준 크롭 UI(uCrop)는 자체 툴바·여백이 있어 어떤 비율 사진이든 모서리 핸들이
+// 시스템바에 가리지 않고, freeStyleCropEnabled로 자유 비율 크롭이 된다.
 // 적당히 압축해 업로드(백엔드 최대 5MB) 한도 안에 들도록 한다.
-const PICKER_OPTIONS: ImagePicker.ImagePickerOptions = {
-  mediaTypes: ['images'],
-  allowsEditing: true,
-  quality: 0.6,
+const CROP_OPTIONS = {
+  cropping: true,
+  freeStyleCropEnabled: true,
+  mediaType: 'photo' as const,
+  compressImageQuality: 0.6,
+  cropperToolbarTitle: '영역 선택',
 };
 
+/** 라이브러리가 취소 시 던지는 에러 코드 */
+function isCancelled(e: unknown): boolean {
+  return (e as { code?: string } | null)?.code === 'E_PICKER_CANCELLED';
+}
+
 /**
- * 앨범/카메라로 사진을 골라 백엔드(PATCH /avatar/image)로 업로드하는 훅.
+ * 앨범/카메라로 사진을 골라 자유 크롭(uCrop) 후 백엔드(PATCH /avatar/image)로 업로드하는 훅.
  * 업로드 중/후 미리보기용 uri(localUri)와 진행상태를 노출한다.
  */
 export function useAvatarImage(onUploaded?: (imageUrl: string) => void) {
   const upload = useUploadAvatarImage();
   const [localUri, setLocalUri] = useState<string | null>(null);
 
-  const handleAsset = async (asset: ImagePicker.ImagePickerAsset) => {
-    setLocalUri(asset.uri); // 업로드 중에도 즉시 미리보기
+  const uploadImage = async (path: string, mime?: string) => {
+    setLocalUri(path); // 업로드 중에도 즉시 미리보기
     // RN 멀티파트 업로드는 { uri, name, type } 형태의 파일 객체 사용 (타입은 Blob로 선언돼 있어 캐스팅)
-    const file = {
-      uri: asset.uri,
-      name: asset.fileName ?? 'avatar.jpg',
-      type: asset.mimeType ?? 'image/jpeg',
-    };
+    const file = { uri: path, name: 'avatar.jpg', type: mime ?? 'image/jpeg' };
     try {
       const res = await upload.mutateAsync({ data: { image: file as unknown as Blob } });
       // 응답: { data: { imageUrl } } (배포 환경에 따라 최상위일 수 있어 방어적으로 처리)
       const imageUrl =
         (res as { data?: { imageUrl?: string }; imageUrl?: string } | undefined)?.data?.imageUrl ??
         (res as { imageUrl?: string } | undefined)?.imageUrl ??
-        asset.uri;
+        path;
       setLocalUri(imageUrl);
       onUploaded?.(imageUrl);
     } catch (e) {
-      // 실제 실패 원인(상태코드/서버메시지/네트워크코드)을 드러내 진단을 쉽게 한다.
       const err = e as {
         code?: string;
         message?: string;
@@ -63,25 +66,21 @@ export function useAvatarImage(onUploaded?: (imageUrl: string) => void) {
   };
 
   const pickFromLibrary = async () => {
-    const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!perm.granted) {
-      Alert.alert('권한 필요', '사진을 선택하려면 사진 보관함 접근 권한이 필요해요.');
-      return;
+    try {
+      const image = await ImageCropPicker.openPicker(CROP_OPTIONS);
+      await uploadImage(image.path, image.mime);
+    } catch (e) {
+      if (!isCancelled(e)) Alert.alert('사진 선택 실패', '잠시 후 다시 시도해 주세요.');
     }
-    const result = await ImagePicker.launchImageLibraryAsync(PICKER_OPTIONS);
-    if (result.canceled || !result.assets?.[0]) return;
-    await handleAsset(result.assets[0]);
   };
 
   const takePhoto = async () => {
-    const perm = await ImagePicker.requestCameraPermissionsAsync();
-    if (!perm.granted) {
-      Alert.alert('권한 필요', '사진을 촬영하려면 카메라 접근 권한이 필요해요.');
-      return;
+    try {
+      const image = await ImageCropPicker.openCamera(CROP_OPTIONS);
+      await uploadImage(image.path, image.mime);
+    } catch (e) {
+      if (!isCancelled(e)) Alert.alert('사진 촬영 실패', '잠시 후 다시 시도해 주세요.');
     }
-    const result = await ImagePicker.launchCameraAsync(PICKER_OPTIONS);
-    if (result.canceled || !result.assets?.[0]) return;
-    await handleAsset(result.assets[0]);
   };
 
   return {
