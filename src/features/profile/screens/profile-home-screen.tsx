@@ -112,7 +112,11 @@ export function ProfileHomeScreen() {
               </Text>
               <FontAwesome name="chevron-circle-right" size={14} color="#99a1af" />
             </Pressable>
-            <Text variant="caption" className="text-md leading-none">
+            <Text
+              variant="caption"
+              className="text-md" /*leading-none"*/
+              style={{ lineHeight: 20, includeFontPadding: false, marginVertical: -2 }}
+            >
               {profile?.height != null ? `${profile.height} cm ` : '- cm '} /{' '}
               {profile?.weight != null ? `${profile.weight} kg ` : '- kg '} /{' '}
               {({ MALE: '남성', FEMALE: '여성' } as Record<string, string>)[
@@ -135,7 +139,11 @@ export function ProfileHomeScreen() {
                 }
               >
                 <Text className="font-sans-bold text-lg">{profile?.followerCount ?? '-'}</Text>
-                <Text variant="caption" className="text-md leading-none text-muted">
+                <Text
+                  variant="caption"
+                  className="text-md text-muted"
+                  style={{ lineHeight: 20, includeFontPadding: false, marginVertical: -2 }}
+                >
                   팔로워
                 </Text>
               </Pressable>
@@ -155,7 +163,11 @@ export function ProfileHomeScreen() {
                 }
               >
                 <Text className="font-sans-bold text-lg">{profile?.followingCount ?? '-'}</Text>
-                <Text variant="caption" className="text-md leading-none text-muted">
+                <Text
+                  variant="caption"
+                  className="text-md text-muted"
+                  style={{ lineHeight: 20, includeFontPadding: false, marginVertical: -2 }}
+                >
                   팔로잉
                 </Text>
               </Pressable>
