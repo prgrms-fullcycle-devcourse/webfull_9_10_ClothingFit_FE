@@ -153,7 +153,12 @@ export function ProfileBodyScreen() {
                     onPress={() => setTab(t)}
                     className={cn('rounded-full px-8 py-2', active && 'bg-primary')}
                   >
-                    <Text className={cn('font-sans-medium', active ? 'text-white' : 'text-muted')}>
+                    <Text
+                      className={cn(
+                        'font-sans-medium text-md leading-normal',
+                        active ? 'text-white' : 'text-muted',
+                      )}
+                    >
                       {t === 'body' ? '체형 정보' : '아바타'}
                     </Text>
                   </Pressable>

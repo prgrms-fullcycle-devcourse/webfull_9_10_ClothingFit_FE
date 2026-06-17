@@ -195,8 +195,12 @@ export function FittingConfirmScreen() {
                         <Ionicons name="close" size={16} color="#fff" />
                       </Pressable>
                       <View className="p-2.5">
-                        <Text className="font-sans-bold text-sm">{d.label}</Text>
-                        <Text variant="caption" numberOfLines={1} className="text-muted mb-2">
+                        <Text className="font-sans-bold text-md leading-normal">{d.label}</Text>
+                        <Text
+                          variant="caption"
+                          numberOfLines={1}
+                          className="text-muted text-md leading-normal mb-2"
+                        >
                           {d.slot.title ?? '상품 정보 없음'}
                         </Text>
                         {/* 사이즈 선택 버튼 */}
@@ -209,7 +213,7 @@ export function FittingConfirmScreen() {
                         >
                           <Text
                             className={cn(
-                              'font-sans-medium text-sm',
+                              'font-sans-medium text-md leading-normal',
                               hasSize ? 'text-primary' : 'text-muted',
                             )}
                           >
@@ -254,7 +258,7 @@ export function FittingConfirmScreen() {
           style={{ paddingBottom: insets.bottom + 12 }}
         >
           <Pressable onPress={handleGenerate} className="bg-primary py-4 rounded-xl items-center">
-            <Text className="text-white font-sans-bold text-base">생성</Text>
+            <Text className="text-white font-sans-bold text-lg ">생성</Text>
           </Pressable>
         </View>
       )}
